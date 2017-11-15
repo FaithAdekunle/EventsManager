@@ -1,0 +1,104 @@
+#form-row {
+	margin-top: 100px;
+	margin-bottom: 40px;
+}
+.card {
+	box-shadow: 2px 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+#submit {
+	margin-top: 15px;
+}
+.top-section {
+	background: url('../images/trans4.jpg');
+	padding: 150px 0 100px 0;
+}
+.body-section {
+	padding-top: 40px;
+}
+.body-section > .row {
+	padding: 60px 0 0 0;
+
+}
+.body-section > .row > .col-md-4 > .card {
+	margin-bottom: 30px;
+}
+.after-body-section {
+	padding: 20px 0 30px 0;
+}
+.after-body-section > h1 {
+	margin-bottom: 50px;
+}
+.after-body-section > .jumbotron > .row > .col-md > h1 {
+	padding: 30px;
+}
+.after-body-section > .jumbotron {
+	background-color: grey;
+}
+.after-body-section > .jumbotron > button {
+	margin-top: 10px;
+	padding: 20px 0 20px 0;
+	font-size: 20px;
+}
+.after-body-section > .jumbotron > button:hover {
+	cursor: pointer;
+}
+#myFooter {
+	background-color: #373a48;
+	color:white;
+}
+
+#myFooter .footer-copyright{
+	background-color: #383737;
+	padding-top:3px;
+	padding-bottom:3px;
+	text-align: center;
+}
+
+#myFooter .footer-copyright p{
+	margin:10px;
+	color: #ccc;
+}
+
+
+#myFooter h5{
+	font-size: 18px;
+    color: white;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+#myFooter a:hover, #myFooter a:focus{
+	text-decoration: none;
+}
+
+#myFooter .myCols{
+	text-align: center;
+}
+
+
+
+
+@media (min-width: 767px) {
+	nav {
+		padding-left: 100px !important;
+		padding-right: 100px !important;
+	}
+	.body-section > .row > .col-md-4 > h1 {
+		margin-top: 100px;
+	}
+	.homepage-message {
+		padding-top: 80px;
+	}
+	#myFooter {
+		text-align: center;
+	}
+	#myFooter {
+		text-align: center;
+	}
+	#myFooter h5{
+    font-weight: bold;
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+}
