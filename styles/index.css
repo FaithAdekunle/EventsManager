@@ -3,7 +3,7 @@
 	margin-bottom: 40px;
 }
 .card {
-	box-shadow: 2px 2px 2px 3px rgba(0, 0, 0, 0.2);
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
 #submit {
 	margin-top: 15px;
@@ -17,7 +17,6 @@
 }
 .body-section > .row {
 	padding: 60px 0 0 0;
-
 }
 .body-section > .row > .col-md-4 > .card {
 	margin-bottom: 30px;
@@ -44,22 +43,19 @@
 }
 #myFooter {
 	background-color: #373a48;
-	color:white;
+	color: white;
+	overflow-x: hidden;
 }
-
 #myFooter .footer-copyright{
 	background-color: #383737;
 	padding-top:3px;
 	padding-bottom:3px;
 	text-align: center;
 }
-
 #myFooter .footer-copyright p{
 	margin:10px;
 	color: #ccc;
 }
-
-
 #myFooter h5{
 	font-size: 18px;
     color: white;
@@ -67,14 +63,54 @@
     margin-top: 30px;
     margin-bottom: 30px;
 }
-
+#myFooter h6{
+	font-size: 15px;
+    color: white;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
 #myFooter a:hover, #myFooter a:focus{
 	text-decoration: none;
 }
-
 #myFooter .myCols{
 	text-align: center;
 }
+.dropdown > a.nav-link {
+	/*border: thin solid white;*/
+	margin-left: 7px;
+	/*font-size: 20px*/
+}
+.events-container {
+	margin-top: 130px;
+}
+.events {
+	padding-top: 30px;
+}
+.events > .col-lg-6 {
+	margin-bottom: 30px;
+}
+.events > .col-lg-6 > .card {
+	padding: 15px;
+}
+.events > .col-lg-6 > .card > .title {
+	border-bottom: 1px solid grey;
+	margin-bottom: 15px;
+}
+.events > .col-lg-6 > .card > .row > .col-6 {
+	margin-bottom: 10px;
+}
+.venue {
+	cursor: pointer;
+}
+.events-container {
+	padding-bottom: 30px;
+}
+.card > .title > .row > .col-2 {
+	text-align: right;
+}
+
+
 
 
 @media (min-width: 767px) {
@@ -98,5 +134,5 @@
     font-weight: bold;
     margin-top: 80px;
     margin-bottom: 80px;
-}
+	}
 }
