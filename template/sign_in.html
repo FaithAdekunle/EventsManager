@@ -4,14 +4,14 @@
 	<meta charset="UTF-8">
 	<title>SignIn</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" type="text/css" href="../styles/index.css">
-    <link rel="stylesheet" type="text/css" href="../styles/bootstrap/css/bootstrap.min.css">
-    <script src="../javascripts/jquery-3.2.1.min.js"></script>
-    <script src="../styles/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./styles/index.css">
+    <link rel="stylesheet" type="text/css" href="./styles/bootstrap/css/bootstrap.min.css">
+    <script src="./javascripts/jquery-3.2.1.min.js"></script>
+    <script src="./styles/bootstrap/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="sign_body">
 	<nav class="navbar fixed-top navbar-expand-sm navbar-light bg-dark">
-	  <a class="navbar-brand text-white mr-auto" href="./events_manager.html">EventsManager</a>
+	  <a class="navbar-brand text-white mr-auto" href="./index.html">EventsManager</a>
 	  <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarNavToggle" aria-controls="navbarNavToggle" aria-expanded="false" aria-label="Toggle navigation">
 	    <span class="navbar-toggler-icon"></span>
 	  </button>
@@ -31,7 +31,7 @@
 						<h2>Sign in to manage your events and add more.</h2>
 					</div>
 					<div class="card-body">
-						<form action="post">
+						<form onsubmit="navTo('./events.html'); return false;">
 							<div class="form-group">
 								<label for="email">Email address</label>
 								<input type="email" class="form-control" id="email" name="email">
@@ -39,7 +39,7 @@
 								<input type="password" class="form-control" id="password" name="password">
 								<input type="submit" id="submit" class="btn btn-block btn-outline-primary" value="Sign In">
 							</div>
-					</form>
+						</form>
 					</div>
 				</div>
 				<hr>
@@ -47,6 +47,6 @@
 			</div>
 		</div>
 	</div>
-	<script src="../javascripts/index.js"></script>
+	<script src="./javascripts/index.js"></script>
 </body>
 </html>

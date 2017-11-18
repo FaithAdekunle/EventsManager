@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<title>Admin</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" type="text/css" href="../styles/index.css">
-    <link rel="stylesheet" type="text/css" href="../styles/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./styles/index.css">
+    <link rel="stylesheet" type="text/css" href="./styles/bootstrap/css/bootstrap.min.css">
 </head>
 <body class="admin_body">
 	<div class="container">
@@ -16,7 +16,7 @@
 						<h2>Admin.</h2>
 					</div>
 					<div class="card-body">
-						<form action="post">
+						<form onsubmit="navTo('./add_center.html'); return false;">
 							<div class="form-group">
 								<label for="email">Email address</label>
 								<input type="text" class="form-control" id="email" name="email">
@@ -28,10 +28,10 @@
 					</div>
 				</div>
 				<hr>
-				<small class="form-text text-muted">If you are not an EventsManager administrator, leave to <a href="./events_manager.html">homepage</a></small>	
+				<small class="form-text text-muted">If you are not an EventsManager administrator, leave to <a href="./index.html">homepage</a></small>	
 			</div>
 		</div>
 	</div>
-	<script src="../javascripts/index.js"></script>
+	<script src="./javascripts/index.js"></script>
 </body>
 </html>
