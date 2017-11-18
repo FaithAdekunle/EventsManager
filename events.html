@@ -4,30 +4,29 @@
 	<meta charset="UTF-8">
 	<title>Events</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" type="text/css" href="../styles/index.css">
-    <link rel="stylesheet" type="text/css" href="../styles/font-awesome.css">
-    <link rel="stylesheet" type="text/css" href="../styles/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./styles/index.css">
+    <link rel="stylesheet" type="text/css" href="./styles/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="./styles/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
 	<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-dark">
-	  <a class="navbar-brand text-white mr-auto" href="./events_manager.html">EventsManager</a>
+	  <a class="navbar-brand text-white mr-auto" href="./index.html">EventsManager</a>
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 	    <span class="navbar-toggler-icon"></span>
 	  </button>
 	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 	    <form class="form-inline ml-auto my-lg-0">
-	      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+	      <input class="form-control mr-sm-2" type="search" placeholder="Find event center" aria-label="Search">
 	      <button class="btn btn-outline-primary text-white my-2 my-sm-0" type="submit">Search</button>
 	    </form>
 	    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
 	    	<li class="nav-item">
-	        <a class="nav-link text-white" href="./centers.html">Event Centers</a>
+	        <a class="nav-link text-white" href="./centers.html">Centers</a>
 	      </li>
 	     <li class="nav-item dropdown">
 	        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Faith_Adekunle</a>
 	        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-	          <a class="dropdown-item" href="#">Add Event</a>
-	          <a class="dropdown-item" href="#">My Account</a>
+	          <a class="dropdown-item" href="./add_event.html">Add Event</a>
 	          <div class="dropdown-divider"></div>
 	          <a class="dropdown-item" href="#">Sign out</a>
 	        </div>
@@ -41,7 +40,7 @@
 			<div class="col-md-10 offset-md-1">
 				<div class="row">
 					<div class="col-8"><h5>My Events | 4</h5></div>
-					<div class="col-4"><button class="btn btn-block btn-outline-primary">Add Event</button></div>
+					<div class="col-4"><button class="btn btn-block btn-outline-primary book" onclick="navTo('./add_event.html')">Add Event</button></div>
 				</div>
 				<div class="row events">
 					<div class="col-lg-6">
@@ -52,7 +51,7 @@
 										<h6>Annual COMSA conference</h6>
 									</div>
 									<div class="col-2">
-										<a href="#"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+										<a href="#" data-toggle="modal" data-target="#exampleModalLong"><i class="fa fa-pencil" aria-hidden="true"></i></a>
 									</div>
 								</div>
 							</div>
@@ -73,7 +72,7 @@
 										<h6>Toke Weds Desmond</h6>
 									</div>
 									<div class="col-2">
-										<a href="#"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+										<a href="#" data-toggle="modal" data-target="#exampleModalLong"><i class="fa fa-pencil" aria-hidden="true"></i></a>
 									</div>
 								</div>
 							</div>
@@ -94,7 +93,7 @@
 										<h6>CompanyX Board Meeting</h6>
 									</div>
 									<div class="col-2">
-										<a href="#"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+										<a href="#" data-toggle="modal" data-target="#exampleModalLong"><i class="fa fa-pencil" aria-hidden="true"></i></a>
 									</div>
 								</div>
 							</div>
@@ -115,7 +114,7 @@
 										<h6>Retirement Party</h6>
 									</div>
 									<div class="col-2">
-										<a href="#"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+										<a href="#" data-toggle="modal" data-target="#exampleModalLong"><i class="fa fa-pencil" aria-hidden="true"></i></a>
 									</div>
 								</div>
 							</div>
@@ -132,21 +131,95 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  		<div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLongTitle">Edit event</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <form>
+					<div class="row">
+						<div class="col-5">
+							<div class="form-group">
+								<label for="days" class="col-form-label">Days</label>
+								<input type="number" class="form-control" id="days" name="days" value="1">
+							</div>
+						</div>
+						<div class="col-7">
+							<div class="form-group">
+								<label for="date" class="col-form-label">Date</label>
+								<input type="date" class="form-control" id="data" name="date" value="2017-11-20">
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="name" class="col-form-label">Name</label>
+						<input type="text" class="form-control" id="name" name="name" value="Annal COMSA conference">
+					</div>
+					<div class="row">
+						<div class="col-7">
+							<div class="form-group">
+								<label for="type" class="col-form-label">Event Type</label>
+								<select name="type" id="type" class="custom-select">
+									<option value="wedding">Wedding</option>
+									<option value="meeting">Meeting</option>
+									<option value="annivasery">Anniversary</option>
+									<option value="conference" selected>Conference</option>
+									<option value="summit">Summit</option>
+									<option value="seminar">Seminar</option>
+									<option value="birthday">Birthday</option>
+									<option value="funeral">Funeral</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-5">
+							<div class="form-group">
+								<label for="guests" class="col-form-label">Guests</label>
+								<input type="number" class="form-control" id="guests" name="guests" value="200">
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="center" class="col-form-label">Event center</label>
+						<select name="center" id="center" class="custom-select">
+							<option value="Conference Hall, Lagos">Conference Hall, Lagos</option>
+							<option value="DEF events center, Ikeja. Lagos">DEF events center, Mushin. Lagos</option>
+							<option value="GHI events center, Ikeja. Lagos">GHI events center, Amuwo. Lagos</option>
+							<option value="JKL events center, Ikeja. Lagos">JKL events center, Surulere. Lagos</option>
+							<option value="MNO events center, Ikeja. Lagos">MNO events center, Victoria Island. Lagos</option>
+							<option value="PQR events center, Ikeja. Lagos">PQR events center, Lekki. Lagos</option>
+							<option value="STU events center, Ikeja. Lagos">STU events center, Ajah. Lagos</option>
+							<option value="VWX">VWX events center, Ikeja. Lagos</option>
+						</select>
+					</div>
+				</form>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-danger">Delete event</button>
+		        <button type="button" class="btn btn-primary">Save changes</button>
+		      </div>
+		    </div>
+		</div>
+	</div>
 	<footer id="myFooter">
     	<div class="row">
             <div class="col-4 text-center">
-                <a href="#"><h6>Home</h6></a>
+                <a href="./index.html"><h6>Home</h6></a>
             </div>
             <div class="col-4 text-center">
-                <a href="./sign_up.html"><h6>Event Centers</h6></a>
+                <a href="./centers.html"><h6>Centers</h6></a>
             </div>
             <div class="col-4 text-center">
                 <a href=""><h6>Contact</h6></a>
             </div>
         </div>
     </footer>
-    <script src="../javascripts/jquery-3.2.1.min.js"></script>
-    <script src="../styles/bootstrap/js/bootstrap.bundle.min.js"></script>
-	<script src="../javascripts/index.js"></script>
+    <script src="./javascripts/jquery-3.2.1.min.js"></script>
+    <script src="./styles/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="./javascripts/index.js"></script>
 </body>
 </html>
