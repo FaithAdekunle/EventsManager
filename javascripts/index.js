@@ -1,8 +1,6 @@
 let images = document.getElementById("images");
 let imagesContainer = document.querySelector(".uploaded-images");
 let centers = document.querySelectorAll("#form-row > .col-md-4 > ul > li");
-console.log(centers);
-console.log(centers);
 let displayImages = function(e){
 	let files = e.target.files;
 	if(!files) return;
