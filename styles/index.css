@@ -191,6 +191,12 @@ ul.nav-tabs {
 .venue > a:hover{
 	text-decoration: none;
 }
+#center-name {
+	color: black;
+}
+#center-name:hover {
+	color: #006dcc;
+}
 
 
 
