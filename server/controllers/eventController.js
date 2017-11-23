@@ -88,6 +88,28 @@ export class EventController {
       })
     })
   };
+
+  /**Delete existing event by doing the following:
+  -read the local database from file
+  -parse it to json format
+  -check if event with key route id parameter exists
+  -delete event if found
+  -else respond with event not found
+  -stringify the database
+  -and write back to local file.*/
+  static deleteEvent(req, res, next) {
+    fs.readFile('./data/events.json', (err, data) => {
+      if(err) return res.json({ err: 'local file database failure' });
+      let events = JSON.parse(data);
+      if(!events[req.params.id]) return  res.json({ err: 'event not found' });
+      delete events[req.params.id];
+      let savedEvents = JSON.stringify(events, null, 2);
+      fs.writeFile('./data/events.json', savedEvents, (err) => {
+        if(err) return res.json({ err: 'local file database failure' });
+        return res.json({ status: 'success'});
+      })
+    })
+  }
   
 }
 
