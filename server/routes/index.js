@@ -16,6 +16,15 @@ export class AppRouter {
       (req, res, next) => EventController.createEvent(req, res, next)
     );
 
+     //route handler for modifying existing event
+    router.put('/events/:id',
+      EventController.eventValidations(),
+      (req, res, next) => EventController.checkFailedValidations(req, res, next),
+      (req, res, next) => EventController.checkDaysAndGuestsFields(req, res, next),
+      (req, res, next) => EventController.checkAndSanitizeDateFields(req, res, next),
+      (req, res, next) => EventController.modifyEvent(req, res, next)
+    )
+
     return router;
   }
 }
