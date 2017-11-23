@@ -3,7 +3,7 @@ import debug from 'debug';
 import http from 'http';
 import dotenv from 'dotenv';
 
-const app = (new App()).setApp();
+const app = App.getApp();
 let bugDebug = debug('myapp:server');
 
 
