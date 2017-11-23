@@ -23,7 +23,12 @@ export class AppRouter {
       (req, res, next) => EventController.checkDaysAndGuestsFields(req, res, next),
       (req, res, next) => EventController.checkAndSanitizeDateFields(req, res, next),
       (req, res, next) => EventController.modifyEvent(req, res, next)
-    )
+    );
+
+    //route handler for deleting existing event
+    router.delete('/events/:id',
+      (req, res, next) => EventController.deleteEvent(req, res, next)
+    );
 
     return router;
   }
