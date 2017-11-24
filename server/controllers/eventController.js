@@ -53,13 +53,13 @@ export class EventController {
   -stringify the database
   -and write back to local file.*/
   static createEvent(req, res, next) {
-    fs.readFile('./data/events.json', (err, data) => {
+    fs.readFile('./server/data/events.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let events = JSON.parse(data);
       let eventId = uuidv4();
       events[eventId] = req.body;
       let savedEvents = JSON.stringify(events, null, 2);
-      fs.writeFile('./data/events.json', savedEvents, (err) => {
+      fs.writeFile('./server/data/events.json', savedEvents, (err) => {
         if(err) return res.json({ err: 'local file database failure' });
         req.body.id = eventId;
         return res.json(req.body);
@@ -76,13 +76,13 @@ export class EventController {
   -stringify the database
   -and write back to local file.*/
   static modifyEvent(req, res, next) {
-    fs.readFile('./data/events.json', (err, data) => {
+    fs.readFile('./server/data/events.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let events = JSON.parse(data);
       if(!events[req.params.id]) return  res.json({ err: 'event not found' });
       events[req.params.id] = req.body;
       let savedEvents = JSON.stringify(events, null, 2);
-      fs.writeFile('./data/events.json', savedEvents, (err) => {
+      fs.writeFile('./server/data/events.json', savedEvents, (err) => {
         if(err) return res.json({ err: 'local file database failure' });
         return res.json(req.body);
       })
@@ -98,13 +98,13 @@ export class EventController {
   -stringify the database
   -and write back to local file.*/
   static deleteEvent(req, res, next) {
-    fs.readFile('./data/events.json', (err, data) => {
+    fs.readFile('./server/data/events.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let events = JSON.parse(data);
       if(!events[req.params.id]) return  res.json({ err: 'event not found' });
       delete events[req.params.id];
       let savedEvents = JSON.stringify(events, null, 2);
-      fs.writeFile('./data/events.json', savedEvents, (err) => {
+      fs.writeFile('./server/data/events.json', savedEvents, (err) => {
         if(err) return res.json({ err: 'local file database failure' });
         return res.json({ status: 'success'});
       })

@@ -1,1 +1,20 @@
-{}
+{
+  "a3bf49e4-ff5f-42ba-87e7-bcafa3965922": {
+    "name": "Ugonna",
+    "center": "The conference center",
+    "guests": 200,
+    "days": 5,
+    "type": "conference",
+    "start": "20/12/2017",
+    "end": "24/12/2017"
+  },
+  "31885c94-67c0-4934-be94-41c08b23dfa2": {
+    "name": "Ugonna",
+    "center": "The conference center",
+    "guests": 200,
+    "days": 5,
+    "type": "conference",
+    "start": "20/12/2017",
+    "end": "24/12/2017"
+  }
+}
