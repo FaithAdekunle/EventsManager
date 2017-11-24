@@ -6,7 +6,7 @@
     "node": "v7.7.3"
   },
   "scripts": {
-    "start": "nodemon ./server/dist/index.js",
+    "start": "nodemon ./server/dist/index.js --ignore ./server",
     "build": "babel server -d server/dist --ignore server/dist",
     "postinstall": "npm run build",
     "mocha": "mocha --timeout 10000 --compilers js:babel-core/register",
