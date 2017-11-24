@@ -183,8 +183,8 @@ describe('Tests for local Centers API', () => {
           if(err) done(err);
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body.should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'immages']);
-          centerId = req.body.id;
+          res.body.should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'images']);
+          centerId = res.body.id;
           done();
         })
     })

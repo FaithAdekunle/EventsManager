@@ -1,5 +1,6 @@
 import express from 'express';
 import { EventController } from '../controllers/eventController.js';
+import { CenterController } from '../controllers/centerController.js';
 
 const router = express.Router();
 
@@ -29,6 +30,16 @@ export class AppRouter {
     router.delete('/events/:id',
       (req, res, next) => EventController.deleteEvent(req, res, next)
     );
+
+    //route handler for creating and adding a new center
+    router.post('/centers',
+      CenterController.handleImages(),
+      CenterController.centerValidations(),
+      (req, res, next) => CenterController.checkFailedValidations(req, res, next),
+      (req, res, next) => CenterController.checkCostAndCapacityFields(req, res, next),
+      (req, res, next) => CenterController.splitFacilities(req, res, next),
+      (req, res, next) => CenterController.addCenter(req, res, next)
+    )
 
     return router;
   }
