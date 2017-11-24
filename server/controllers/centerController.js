@@ -118,5 +118,40 @@ export class CenterController {
       })
     })
   }
+
+  static modifyCenter(req, res, next){
+    fs.readFile('./data/centers.json', (err, data) => {
+      if(err) return res.json({ err: 'local file database failure' });
+      let centers = JSON.parse(data);
+      if(!centers[req.params.id]) {
+        unmountImages(req.body);
+        return  res.json({ err: 'center not found' });
+      }
+      const centerId = req.params.id;
+      const center = centers[centerId];
+      unmountImages(center);
+      centers[centerId] = req.body
+      let savedCenters = JSON.stringify(centers, null, 2);
+      fs.writeFile('./data/centers.json', savedCenters, (err) => {
+        if(err) return res.json({ err: 'local file database failure' });
+        req.body.id = centerId;
+        return res.json(req.body);
+      })
+    })
+  }
+
+  static fetchCenters(req, res, next){
+    fs.readFile('./data/centers.json', (err, data) => {
+      if(err) return res.json({ err: 'local file database failure' });
+      let centersObject = JSON.parse(data);
+      let centersEntries = Object.entries(centersObject);
+      let centersArray = [];
+      centersEntries.map((entry) => {
+        entry[1].id = entry[0];
+        centersArray.push(entry[1]);
+      })
+      res.json(centersArray);
+    })
+  }
   
 }

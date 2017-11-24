@@ -377,7 +377,7 @@ describe('Tests for local Centers API', () => {
           if(err) done(err);
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body[0].should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'immages']);
+          res.body[0].should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'images']);
           done();
         })
     })
@@ -407,7 +407,7 @@ describe('Tests for local Centers API', () => {
           if(err) done(err);
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body.should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'immages']);
+          res.body.should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'images']);
           done();
         })
     })

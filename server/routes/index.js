@@ -51,6 +51,10 @@ export class AppRouter {
       (req, res, next) => CenterController.checkCostAndCapacityFields(req, res, next),
       (req, res, next) => CenterController.splitFacilities(req, res, next),
       (req, res, next) => CenterController.modifyCenter(req, res, next)
+    );
+
+    router.get('/centers',
+      (req, res, next) => CenterController.fetchCenters(req, res, next)
     )
 
     return router;

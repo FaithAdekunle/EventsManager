@@ -1,1 +1,68 @@
-{}
+{
+  "3d267949-3f64-4c95-ab30-1d2a399ac7e0": {
+    "name": "The Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "f4aae970-9790-41da-a097-5955ab2e1eb7.jpeg",
+      "7a96d25c-69a7-41d9-b79a-964e32bed771.jpeg",
+      "7fc50c95-43f3-4628-a490-ab9e1f58ee9f.jpeg",
+      "cab5f34e-404a-4c6c-9831-9209ef6f6ef2.jpeg"
+    ]
+  },
+  "6d9103f9-d8df-4f30-a108-5064b181e2f2": {
+    "name": "The Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "5d675566-2445-41f8-9fdc-945dd1a25fca.jpeg",
+      "0e1cd88d-422c-4691-8d9f-a449048df159.jpeg",
+      "42d59fa0-d5a3-4cd2-bc9e-fb99cbf84f43.jpeg",
+      "340489f1-04f5-49be-b6a5-493a2b523b40.jpeg"
+    ]
+  },
+  "8c7a4c81-4e50-43f3-b234-a9771c4e05a0": {
+    "name": "The Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "51288d47-01d6-4eda-b504-f4a4823d6471.jpeg",
+      "a743c253-f66c-47e2-a09b-c72d6b71b9b4.jpeg",
+      "8bf5cdfa-7b7b-42c6-b5c9-b4b56da2e40b.jpeg",
+      "4d1a9eb5-1a73-4ebe-9108-027b988476c3.jpeg"
+    ]
+  }
+}
