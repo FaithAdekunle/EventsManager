@@ -53,6 +53,10 @@ export class AppRouter {
       (req, res, next) => CenterController.modifyCenter(req, res, next)
     );
 
+    router.get('/centers/:id',
+      (req, res, next) => CenterController.fetchCenter(req, res, next)
+    )
+
     router.get('/centers',
       (req, res, next) => CenterController.fetchCenters(req, res, next)
     )

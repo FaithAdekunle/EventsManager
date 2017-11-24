@@ -64,5 +64,137 @@
       "8bf5cdfa-7b7b-42c6-b5c9-b4b56da2e40b.jpeg",
       "4d1a9eb5-1a73-4ebe-9108-027b988476c3.jpeg"
     ]
+  },
+  "c51e627d-1008-4232-9185-f957f178d0f2": {
+    "name": "The NEW Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "a7ae08d5-f14b-485e-8f5d-2eb2ad459a9a.jpeg",
+      "a4abdb17-4707-4879-91b2-736e63f21d27.jpeg",
+      "6df00c89-89b5-4ff8-8ad6-d569e8bdd391.jpeg",
+      "9440319f-d274-4910-b54c-d6f35530da70.jpeg"
+    ]
+  },
+  "a2b92879-7c2a-4b78-a6bf-a476afd81d0a": {
+    "name": "The NEW Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "9308af0d-4bf2-46ed-812e-8b6643c14101.jpeg",
+      "75c76e9e-8c9f-42f9-a036-9868195c85fc.jpeg",
+      "541c9583-ae54-48e8-a2d2-36a4c082a968.jpeg",
+      "d3d22c8c-4e80-414c-9c55-643c28618335.jpeg"
+    ]
+  },
+  "64c98fa4-edd5-4c34-99ca-8dd85d3ff0fe": {
+    "name": "The NEW Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "1e79a8c6-281b-4247-b194-321d7a16b1d2.jpeg",
+      "188344cd-2a15-4e31-8b5d-456e1f469525.jpeg",
+      "20f9d3dc-33b6-489c-91ca-e46ed0f54f5f.jpeg",
+      "1d940ac0-d4eb-479e-839b-d1433599270f.jpeg"
+    ]
+  },
+  "3b04b182-37ac-4836-b02f-4e16a6eea72c": {
+    "name": "The NEW Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "f1ea7e7c-fb45-4718-9d74-b7d68d39c63f.jpeg",
+      "d8b54f49-6a5c-44b9-addb-529b2dcdf0c9.jpeg",
+      "9a67f8ba-ec8d-4bda-b375-6b2972fd0425.jpeg",
+      "2bd79890-f339-4bd3-9a77-99108d76fc96.jpeg"
+    ]
+  },
+  "1774115e-3d9a-4fec-be13-d578e57c9eee": {
+    "name": "The NEW Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "7b446e2b-6228-4020-b16e-87278fb39a5c.jpeg",
+      "dc555db9-3530-4af2-a27d-efe49286cdb3.jpeg",
+      "8660e295-61d6-4882-a2d7-a983fad84d7b.jpeg",
+      "e2a833dd-d071-4c2c-86bb-a257507b034c.jpeg"
+    ]
+  },
+  "b910dd77-f8f9-418b-8cf5-64d0283c85c8": {
+    "name": "The NEW Conference center",
+    "description": "This is the description for this center",
+    "address": "This is the address for this center",
+    "facilities": [
+      "This",
+      "is",
+      "the",
+      "address",
+      "for",
+      "this",
+      "center"
+    ],
+    "capacity": 450,
+    "cost": 300000,
+    "images": [
+      "83cf9fa2-15c2-4046-b4d8-c519bcfb5326.jpeg",
+      "d040341a-4746-49e9-ac75-3a19c4210fe3.jpeg",
+      "d6e22d19-a3c2-4852-8009-feaba3c7a9b6.jpeg",
+      "9b7330f3-7640-4bcf-a3cc-9767b2791484.jpeg"
+    ]
   }
 }
