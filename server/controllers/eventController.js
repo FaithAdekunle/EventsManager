@@ -45,7 +45,7 @@ export class EventController {
     return next(); 
   };
 
-  /**Modify existing event by doing the following:
+  /**Creates new event by doing the following:
   -read the local database from file
   -parse it to json format
   -generate a unique id using uuidv4
