@@ -6,9 +6,9 @@
     "node": "v7.7.3"
   },
   "scripts": {
-    "babel-node": "babel-node",
-    "start": "npm run babel-node -- ./server/index.js",
-    "build": "babel src -d dist",
+    "start": "nodemon ./server/dist/index.js",
+    "build": "babel server -d server/dist --ignore server/dist",
+    "postinstall": "npm run build",
     "mocha": "mocha --timeout 10000 --compilers js:babel-core/register",
     "test": "mocha --compilers js:babel-core/register --recursive ./server/tests/"
   },
