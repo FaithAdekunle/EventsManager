@@ -6,7 +6,7 @@ import { sanitize } from 'express-validator/filter';
 
 const storage = multer.diskStorage({
   destination(req, file, next) {
-    next(null, './public/images')
+    next(null, './server/public/images')
   },
   filename(req, file, cb) {
     cb(null, `${uuidv4()}.${file.mimetype.split('/')[1]}`)
@@ -26,7 +26,9 @@ const options = {
 //to delete files from storage
 const unmountImages = (obj) => {
   for(let image of obj.images){
-    fs.unlinkSync(`./public/images/${image}`)
+    fs.unlink(`./server/public/images/${image}`, (err) => {
+      if(err)console.log('unlink gone wrong');
+    })
   }
 } 
 
@@ -99,13 +101,13 @@ export class CenterController {
   -stringify the database
   -and write back to local file.*/
   static addCenter(req, res, next){
-    fs.readFile('./data/centers.json', (err, data) => {
+    fs.readFile('./server/data/centers.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let centers = JSON.parse(data);
       const centerId = uuidv4();
       centers[centerId] = req.body;
       let savedCenters = JSON.stringify(centers, null, 2);
-      fs.writeFile('./data/centers.json', savedCenters, (err) => {
+      fs.writeFile('./server/data/centers.json', savedCenters, (err) => {
         if(err) return res.json({ err: 'local file database failure' });
         req.body.id = centerId;
         return res.json(req.body);
@@ -123,7 +125,7 @@ export class CenterController {
   -stringify the database
   -and write back to local file.*/
   static modifyCenter(req, res, next){
-    fs.readFile('./data/centers.json', (err, data) => {
+    fs.readFile('./server/data/centers.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let centers = JSON.parse(data);
       if(!centers[req.params.id]) {
@@ -135,7 +137,7 @@ export class CenterController {
       unmountImages(center);
       centers[centerId] = req.body
       let savedCenters = JSON.stringify(centers, null, 2);
-      fs.writeFile('./data/centers.json', savedCenters, (err) => {
+      fs.writeFile('./server/data/centers.json', savedCenters, (err) => {
         if(err) return res.json({ err: 'local file database failure' });
         req.body.id = centerId;
         return res.json(req.body);
@@ -150,7 +152,7 @@ export class CenterController {
   -push each center into empty array
   -respond with array of centers*/
   static fetchCenters(req, res, next){
-    fs.readFile('./data/centers.json', (err, data) => {
+    fs.readFile('./server/data/centers.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let centersObject = JSON.parse(data);
       let centersEntries = Object.entries(centersObject);
@@ -170,7 +172,7 @@ export class CenterController {
   -respond with center if found
   -else respond with center not found*/
   static fetchCenter(req, res, next){
-    fs.readFile('./data/centers.json', (err, data) => {
+    fs.readFile('./server/data/centers.json', (err, data) => {
       if(err) return res.json({ err: 'local file database failure' });
       let centersObject = JSON.parse(data);
       const centerId = req.params.id;

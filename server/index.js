@@ -7,9 +7,9 @@ const app = App.getApp();
 let bugDebug = debug('myapp:server');
 
 
-dotenv.config({ path: 'variables.env' });
+dotenv.config();
 let port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+app.set('port', port)
 
 
 const server = http.createServer(app);

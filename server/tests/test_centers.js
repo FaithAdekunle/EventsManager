@@ -56,10 +56,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 'cost')
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -79,10 +79,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', -450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -102,10 +102,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -125,10 +125,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -148,10 +148,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -171,10 +171,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', '')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -194,10 +194,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -235,10 +235,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -259,10 +259,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -282,10 +282,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -305,10 +305,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -328,10 +328,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', '')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
@@ -351,10 +351,10 @@ describe('Tests for local Centers API', () => {
         .field('facilities', 'This, is, the, address, for, this, center')
         .field('capacity', 450)
         .field('cost', 300000)
-        .attach('images', readFileSync('./public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./public/images/ws.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
+        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
         .end((err, res) => {
           if(err) done(err);
           res.should.have.status(200);
