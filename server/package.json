@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "babel-node": "babel-node",
-    "start": "nodemon --exec npm run babel-node -- ./index.js",
+    "start": "npm run babel-node -- ./index.js",
     "build": "babel src -d dist",
     "mocha": "mocha --compilers js:babel-core/register",
     "test": "mocha --compilers js:babel-core/register --recursive ./tests/"
