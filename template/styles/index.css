@@ -1,0 +1,257 @@
+#form-row {
+	margin-top: 100px;
+	margin-bottom: 40px;
+}
+.card {
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+#submit {
+	margin-top: 15px;
+}
+.top-section {
+	background: url('../images/trans4.jpg');
+	padding: 150px 0 100px 0;
+}
+.body-section {
+	padding-top: 40px;
+}
+.body-section > .row {
+	padding: 60px 0 0 0;
+}
+.body-section > .row > .col-md-4 > .card {
+	margin-bottom: 30px;
+}
+.after-body-section {
+	padding: 20px 0 30px 0;
+}
+.after-body-section > h1 {
+	margin-bottom: 50px;
+}
+.after-body-section > .jumbotron > .row > .col-md > h1 {
+	padding: 30px;
+}
+.after-body-section > .jumbotron {
+	background-color: grey;
+}
+.after-body-section > .jumbotron > button {
+	margin-top: 10px;
+	padding: 20px 0 20px 0;
+	font-size: 20px;
+}
+.after-body-section > .jumbotron > button:hover {
+	cursor: pointer;
+}
+#myFooter {
+	background-color: #373a48;
+	color: white;
+	overflow-x: hidden;
+}
+#myFooter .footer-copyright{
+	background-color: #383737;
+	padding-top:3px;
+	padding-bottom:3px;
+	text-align: center;
+}
+#myFooter .footer-copyright p{
+	margin:10px;
+	color: #ccc;
+}
+#myFooter h5{
+	font-size: 18px;
+    color: white;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+#myFooter h6{
+	font-size: 15px;
+    color: white;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+#myFooter a:hover, #myFooter a:focus{
+	text-decoration: none;
+}
+#myFooter .myCols{
+	text-align: center;
+}
+.dropdown > a.nav-link {
+	/*border: thin solid white;*/
+	margin-left: 7px;
+	/*font-size: 20px*/
+}
+.events-container {
+	margin-top: 130px;
+}
+.events {
+	padding-top: 30px;
+}
+.events > .col-lg-6 {
+	margin-bottom: 30px;
+}
+.events > .col-lg-6 > .card {
+	padding: 15px;
+}
+.events > .col-lg-6 > .card > .title {
+	border-bottom: 1px solid grey;
+	margin-bottom: 15px;
+}
+.events > .col-lg-6 > .card > .row > .col-6 {
+	margin-bottom: 10px;
+}
+.venue {
+	cursor: pointer;
+}
+.events-container {
+	padding-bottom: 30px;
+}
+.card > .title > .row > .col-2 {
+	text-align: right;
+}
+.centers-container {
+	margin: 40px 0 40px 0;
+}
+#submit {
+	cursor: pointer;
+}
+.carousel-item > img {
+	height: 350px;
+}
+.center-title {
+	margin-top: 5px;
+	padding: 10px;
+}
+.book-now {
+	border: 1px solid black;
+	padding: 10px;
+	border-radius: 1%;
+}
+.more > .col-md-4 {
+	margin-bottom: 30px;
+}
+.event-after-image {
+	padding-bottom: 30px;
+}
+ul.nav-tabs {
+	margin-top: 10px;
+}
+.add-center {
+	margin-bottom: 80px;
+}
+.chosen-image {
+	width: 100%;
+	height: 200px;
+	margin-bottom: 20px;
+}
+ul.nav-tabs {
+	margin-bottom: 30px;
+	padding: 0 10px 0 10px;
+}
+#events-admin {
+	padding: 10px;
+	margin-bottom: 10px;
+	box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+.section {
+	padding: 5px 0 5px 0;
+}
+.all {
+	margin-bottom: 20px;
+}
+.myCols > a > h5 {
+	display: inline;
+}
+#myFooter > .container > .row {
+	padding: 50px 0 50px 0;
+}
+.navbar-nav > .nav-item {
+	display: inline;
+}
+#form-row > .col-md-4 > ul > li {
+	cursor: pointer;
+}
+.book {
+	cursor: pointer;
+}
+#form-row > .col-md-4 > ul > li:hover{
+	background-color: #006dcc;
+	color: white;
+}
+.custom-select {
+	display: block !important;
+	width: 100%;
+}
+.events-list {
+	margin-bottom: 20px;
+}
+.venue > a {
+	color: black;
+}
+.venue > a:hover{
+	text-decoration: none;
+}
+#center-name {
+	color: black;
+}
+#center-name:hover {
+	color: #006dcc;
+}
+
+
+
+
+
+@media (min-width: 767px) {
+	nav {
+		padding-left: 100px !important;
+		padding-right: 100px !important;
+	}
+	.body-section > .row > .col-md-4 > h1 {
+		margin-top: 100px;
+	}
+	.homepage-message {
+		padding-top: 80px;
+	}
+	#myFooter {
+		text-align: center;
+	}
+	#myFooter {
+		text-align: center;
+	}
+	#myFooter h5{
+	    font-weight: bold;
+	    margin-top: 80px;
+	    margin-bottom: 80px;
+	}
+	.center-container > .row > .col-lg-7 > a > #center-name {
+		font-size: 20px;
+		cursor: pointer;
+	}
+	.center-container > .row > .col-lg-5 > a {
+		font-size: 20px;
+	}
+	.center-container > .row > .col-lg-5 {
+		text-align: right;
+	}
+	.centers-container > .col-lg-6 > .card > img {
+		cursor: pointer;
+	}
+	.carousel-item > img {
+		height: 450px;
+	}
+	.center-title {
+		margin-left: 20px;
+	}
+	.chosen-image {
+		width: 100%;
+		height: 80px;
+		margin-bottom: 20px;
+	}
+	.cost {
+		text-align: center;
+	}
+	ul.nav-tabs{
+		padding: 0 20px 0 20px;
+	}
+}
