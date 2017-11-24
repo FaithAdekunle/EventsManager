@@ -34,11 +34,23 @@ export class AppRouter {
     //route handler for creating and adding a new center
     router.post('/centers',
       CenterController.handleImages(),
+      (req, res, next) => CenterController.mountImages(req, res, next),
       CenterController.centerValidations(),
       (req, res, next) => CenterController.checkFailedValidations(req, res, next),
       (req, res, next) => CenterController.checkCostAndCapacityFields(req, res, next),
       (req, res, next) => CenterController.splitFacilities(req, res, next),
       (req, res, next) => CenterController.addCenter(req, res, next)
+    )
+
+    //route handler for modifying existing center
+    router.put('/centers/:id',
+      CenterController.handleImages(),
+      (req, res, next) => CenterController.mountImages(req, res, next),
+      CenterController.centerValidations(),
+      (req, res, next) => CenterController.checkFailedValidations(req, res, next),
+      (req, res, next) => CenterController.checkCostAndCapacityFields(req, res, next),
+      (req, res, next) => CenterController.splitFacilities(req, res, next),
+      (req, res, next) => CenterController.modifyCenter(req, res, next)
     )
 
     return router;

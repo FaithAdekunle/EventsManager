@@ -27,6 +27,25 @@ describe('Tests for local Centers API', () => {
         })
     });
 
+    it('should return a status 200 error response for no images', (done) => {
+      chai
+        .request(host)
+        .post('/centers/')
+        .field('name', 'The Conference center')
+        .field('description', 'This is the description for this center')
+        .field('address', 'This is the address for this center')
+        .field('facilities', 'This, is, the, address, for, this, center')
+        .field('capacity', 450)
+        .field('cost', 300000)
+        .end((err, res) => {
+          if(err) done(err);
+          res.should.have.status(200);
+          res.should.be.a('object');
+          res.body.should.have.property('err').equal('Incomplete details');
+          done();
+        })
+    });
+
     it('should return a status 200 error response for invalid center cost', (done) => {
       chai
         .request(host)
@@ -326,7 +345,7 @@ describe('Tests for local Centers API', () => {
       chai
         .request(host)
         .put(`/centers/${centerId}`)
-        .field('name', 'The Conference center')
+        .field('name', 'The NEW Conference center')
         .field('description', 'This is the description for this center')
         .field('address', 'This is the address for this center')
         .field('facilities', 'This, is, the, address, for, this, center')
@@ -340,7 +359,8 @@ describe('Tests for local Centers API', () => {
           if(err) done(err);
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body.should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'immages']);
+          res.body.should.have.property('name').equal('The NEW Conference center');
+          res.body.should.have.all.keys(['id', 'name', 'description', 'address', 'facilities', 'capacity', 'cost', 'images']);
           done();
         })
     })
