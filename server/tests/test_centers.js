@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 
 chai.use(chaiHttp);
 const should = chai.should();
-const host = 'localhost:7777'
+const host = 'andela-events-manager.herokuapp.com'
 
 
 
