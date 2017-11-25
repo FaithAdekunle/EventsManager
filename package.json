@@ -10,8 +10,8 @@
     "build": "babel server -d server/dist --ignore server/dist",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
-    "test": "nyc --reporter=html --reporter=text mocha --timeout 10000 ./server/tests/ --compilers js:babel-register",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 ./server/tests/ --compilers js:babel-register",
+    "coverage": "nyc report --reporter=lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test"
   },
   "dependencies": {
