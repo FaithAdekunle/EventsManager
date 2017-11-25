@@ -11,7 +11,7 @@
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
     "test": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 ./server/tests/ --compilers js:babel-register",
-    "coverage": "nyc report --reporter=lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test"
   },
   "dependencies": {
