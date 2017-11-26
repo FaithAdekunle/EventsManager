@@ -30,7 +30,7 @@ const unmountImages = (obj) => {
 
 const upload = multer(options);
 
-module.export = class CenterController {
+module.exports = class CenterController {
   // validate incoming body fields for /events requests
   static centerValidations() {
     return [
@@ -180,3 +180,4 @@ module.export = class CenterController {
     });
   }
 };
+
