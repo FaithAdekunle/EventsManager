@@ -1,6 +1,12 @@
 {
   "name": "EventsManager",
   "version": "0.0.0",
+  "eslintConfig": {
+    "env": {
+        "node": true,
+        "es6": true
+    }
+  },
   "private": true,
   "engines": {
     "node": "v7.7.3"
