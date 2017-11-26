@@ -5,7 +5,7 @@ import chaiHttp from 'chai-http';
 
 chai.use(chaiHttp);
 chai.should();
-const host = 'localhost:7777';
+const host = 'andela-events-manager.herokuapp.com';
 
 
 describe('Tests for local Events API', () => {
