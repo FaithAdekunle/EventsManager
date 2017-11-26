@@ -1,0 +1,509 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API for adding, retrieving and removing centers and events",
+    "version": "1",
+    "title": "EventsManager API",
+    "contact": {
+      "email": "adegold71@gmail.com"
+    }
+  },
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Events",
+      "description": "Create, Retrieve and Update user events"
+    },
+    {
+      "name": "Centers",
+      "description": "Create, Retrieve, Update and Delete event centers"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/events": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create new user event",
+        "operationId": "EventController.createEvent",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Event object used to create a new user event",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Modifies existing user event",
+        "operationId": "EventController.modifyEvent",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the event to be modified",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Deletes existing user event",
+        "operationId": "EventController.deleteEvent",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the event to be deleted",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Success"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/centers": {
+      "post": {
+        "tags": [
+          "Centers"
+        ],
+        "summary": "Creates a new event center",
+        "operationId": "CenterController.addCenter",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          { 
+            "name": "image1",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": true,
+            "type": "file"
+          },
+          { 
+            "name": "image2",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": false,
+            "type": "file"
+          },
+          { 
+            "name": "image3",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": false,
+            "type": "file"
+          },
+          { 
+            "name": "image4",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": false,
+            "type": "file"
+          },
+          { 
+            "name": "name",
+            "in": "formData",
+            "description": "name for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "description",
+            "in": "formData",
+            "description": "description for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "address",
+            "in": "formData",
+            "description": "address for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "facilities",
+            "in": "formData",
+            "description": "Comma separated facilities for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "capacity",
+            "in": "formData",
+            "description": "name for the center to be modified",
+            "required": true,
+            "type": "integer"
+          },
+          { 
+            "name": "cost",
+            "in": "formData",
+            "description": "name for the center to be modified",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Center"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Centers"
+        ],
+        "summary": "Fetches all existing event centers",
+        "operationId": "CenterController.fetchCenters",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Center"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/centers/{id}": {
+      "put": {
+        "tags": [
+          "Centers"
+        ],
+        "summary": "Modifies an existing event center",
+        "operationId": "CenterController.modifyCenter",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          { 
+            "name": "image1",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": true,
+            "type": "file"
+          },
+          { 
+            "name": "image2",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": false,
+            "type": "file"
+          },
+          { 
+            "name": "image3",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": false,
+            "type": "file"
+          },
+          { 
+            "name": "image4",
+            "in": "formData",
+            "description": "Image for the center to be modified.",
+            "required": false,
+            "type": "file"
+          },
+          { 
+            "name": "name",
+            "in": "formData",
+            "description": "name for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "description",
+            "in": "formData",
+            "description": "description for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "address",
+            "in": "formData",
+            "description": "address for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "facilities",
+            "in": "formData",
+            "description": "Comma separated facilities for the center to be modified",
+            "required": true,
+            "type": "string"
+          },
+          { 
+            "name": "capacity",
+            "in": "formData",
+            "description": "name for the center to be modified",
+            "required": true,
+            "type": "integer"
+          },
+          { 
+            "name": "cost",
+            "in": "formData",
+            "description": "name for the center to be modified",
+            "required": true,
+            "type": "integer"
+          },
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the center to be modified",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Center"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Centers"
+        ],
+        "summary": "Fetches an existing event center",
+        "operationId": "CenterController.fetchCenter",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the center to be fetched",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Center"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Event": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "center": {
+          "type": "string"
+        },
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "guests": {
+          "type": "integer"
+        },
+        "days": {
+          "type": "integer"
+        }
+      },
+      "required": ["name", "type", "center", "start", "days", "guests"]
+    },
+    "Center": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "facilities": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "cost": {
+          "type": "integer"
+        },
+        "capacity": {
+          "type": "integer"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["name", "description", "address", "cost", "capacity", "facilities", "id", "images"]
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "err": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "err"
+      ]
+    },
+    "Success": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": ["status"]
+    }
+  }
+}

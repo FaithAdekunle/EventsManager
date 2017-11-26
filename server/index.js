@@ -1,7 +1,7 @@
 import debug from 'debug';
 import http from 'http';
 import dotenv from 'dotenv';
-import { App } from './app';
+import App from './app';
 
 const app = App.getApp();
 const bugDebug = debug('myapp:server');
@@ -45,6 +45,7 @@ function onError(error) {
 }
 
 function onListening() {
+  console.log("listening");
   const addr = server.address();
   const bind = typeof addr === 'string'
     ? `pipe ${addr}`

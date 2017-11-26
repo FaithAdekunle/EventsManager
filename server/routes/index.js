@@ -1,6 +1,6 @@
 import express from 'express';
-import { EventController } from '../controllers/eventController';
-import { CenterController } from '../controllers/centerController';
+import EventController from '../controllers/eventController';
+import CenterController from '../controllers/centerController';
 
 const router = express.Router();
 
