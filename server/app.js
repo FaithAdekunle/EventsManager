@@ -4,15 +4,19 @@ import swaggerTools from 'swagger-tools';
 import bodyParser from 'body-parser';
 import AppRouter from './routes/index';
 import swaggerDoc from './openapi.json';
+import database from './db';
 
 const options = {
   controllers: './server/dist/controllers',
-  useStubs: process.env.NODE_ENV === 'development',
+  useStubs: true,
 };
 
 
 module.exports = class App {
-  static getApp() {
+  static setUp() {
+    database.authenticate();
+    database.setUp();
+    database.sync();
     const app = express();
     swaggerTools.initializeMiddleware(swaggerDoc, (middleware) => {
       app.use(middleware.swaggerMetadata());

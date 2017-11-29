@@ -3,7 +3,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 import App from './app';
 
-const app = App.getApp();
+const app = App.setUp();
 const bugDebug = debug('myapp:server');
 
 
@@ -24,7 +24,7 @@ function normalizePort(val) {
   return false;
 }
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort('7777');
 app.set('port', port);
 
 function onError(error) {
