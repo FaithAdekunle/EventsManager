@@ -10,10 +10,6 @@ module.exports = class UserModel {
         type: this.DataTypes.STRING,
         allowNull: false,
       },
-      phoneNumber: {
-        type: this.DataTypes.STRING,
-        allowNull: false,
-      },
       email: {
         type: this.DataTypes.STRING,
         allowNull: false,

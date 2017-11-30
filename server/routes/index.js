@@ -97,6 +97,7 @@ module.exports = class AppRouter {
       '/users',
       UserController.userValidations(),
       (req, res, next) => UserController.checkFailedValidations(req, res, next),
+      (req, res, next) => UserController.toLowerCase(req, res, next),
       (req, res, next) => UserController.hashPassword(req, res, next),
       (req, res) => UserController.signUp(req, res),
     );
@@ -105,6 +106,7 @@ module.exports = class AppRouter {
       '/users/login',
       UserController.signInValidations(),
       (req, res, next) => UserController.checkFailedValidations(req, res, next),
+      (req, res, next) => UserController.toLowerCase(req, res, next),
       (req, res) => UserController.signIn(req, res),
     );
 

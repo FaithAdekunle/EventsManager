@@ -27,7 +27,7 @@ const options = {
 
 // to delete files from storage
 export const unmountImages = (obj) => {
-  if (obj.images) obj.images.map(image => fs.unlink(`./server/public/images/${image}`, (err) => {}));
+  if (obj.images) obj.images.map(image => fs.unlink(`./server/public/images/${image}`, () => {}));
 };
 
 export const jsonHandle = (obj, parse = true) => {
@@ -52,8 +52,8 @@ export class CenterController {
         .exists()
         .withMessage('missing center name field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty center name not allowed'),
+        .isLength({ min: 1, max: 100 })
+        .withMessage('center name must be between 1 and 100 characters long'),
       body('description')
         .exists()
         .withMessage('missing center description field')
@@ -64,14 +64,14 @@ export class CenterController {
         .exists()
         .withMessage('missing center facilities field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty center facilities not allowed'),
+        .isLength({ min: 1, max: 100 })
+        .withMessage('center facilities must be between 1 and 100 characters long'),
       body('address')
         .exists()
         .withMessage('missing center address field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty center address not allowed'),
+        .isLength({ min: 1, max: 100 })
+        .withMessage('center address must be between 1 and 100 characters long'),
       body('images')
         .exists()
         .withMessage('no center image found'),
@@ -106,7 +106,7 @@ export class CenterController {
     if (validationResult(req).isEmpty()) return next();
     unmountImages(req.body);
     const errors = validationResult(req).array();
-    return res.json({ err: errors[0].msg });
+    return res.status(400).json({ err: errors[0].msg });
   }
 
   // splits facilities string to be saved as an array in storage
@@ -124,8 +124,10 @@ export class CenterController {
       || [-1, 0, -0].includes(Math.sign(req.body.cost))
       || [-1, 0, -0].includes(Math.sign(req.body.capacity))) {
       unmountImages(req.body);
-      return res.json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
+      return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
     }
+    if (req.body.cost > 2147483647) return res.status(400).json({ err: 'cost too large' });
+    if (req.body.capacity > 2147483647) return res.status(400).json({ err: 'capacity too large' });
     return next();
   }
 
@@ -135,9 +137,9 @@ export class CenterController {
     database.center.create(req.body)
       .then((createdCenter) => {
         jsonHandle(createdCenter);
-        res.json(createdCenter);
+        res.status(201).json(createdCenter);
       })
-      .catch((err) => {
+      .catch(() => {
         jsonHandle(req.body);
         unmountImages(req.body);
         res.status(400).json({ err: 'center name already exists' });
@@ -172,7 +174,7 @@ export class CenterController {
               })
                 .then((row) => {
                   if (row[0] > 0) {
-                    database.center.findOne({
+                    return database.center.findOne({
                       where: {
                         id: req.params.id,
                       },
@@ -180,25 +182,16 @@ export class CenterController {
                       .then((updatedCenter) => {
                         jsonHandle(updatedCenter);
                         return res.json(updatedCenter);
-                      })
-                      .catch(err => {});
+                      });
                   }
+                  jsonHandle(req.body);
                   unmountImages(req.body);
-                  return res.json({ err: 'center name already exists' });
-                })
-                .catch(err => {});
-            })
-            .catch((err)=> {
-              unmountImages(req.body);
-              res.json({ err: 'problem occured updating center' });
+                  return res.status(409).json({ err: 'center name already exists' });
+                });
             });
         }
         unmountImages(req.body);
-        return res.json({ err: 'center name already exists' });
-      })
-      .catch((err) => {
-        unmountImages(req.body);
-        res.json({ err: 'problem occured modifying center' });
+        return res.status(409).json({ err: 'center name already exists' });
       });
   }
 
@@ -216,8 +209,7 @@ export class CenterController {
           });
         });
         return res.json(centers);
-      })
-      .catch(err => res.json({ err: 'problem occured fetching centers' }));
+      });
   }
 
   static fetchCenter(req, res) {
@@ -230,14 +222,13 @@ export class CenterController {
       }],
     })
       .then((center) => {
-        if (!center) return res.json({ err: 'center not found' });
+        if (!center) return res.status(404).json({ err: 'center not found' });
         jsonHandle(center);
         center.events.map((event) => {
           jsonHandle(event);
         });
         return res.json(center);
-      })
-      .catch(err => res.json({ err: 'problem occured fetching center' }));
+      });
   }
 
   static checkAvailability(req, res, next) {
@@ -250,6 +241,10 @@ export class CenterController {
       }],
     })
       .then((center) => {
+        if (!center) {
+          unmountImages(req.body);
+          return res.status(404).json({ err: 'center not found' });
+        }
         for (const event of center.events) {
           if (event.id == req.params.id) continue;
           const { start, end } = event;
@@ -258,14 +253,10 @@ export class CenterController {
            || moment(start, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')
            || moment(end, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')) {
             unmountImages(req.body);
-            return res.json({ err: 'dates have been booked' });
+            return res.status(409).json({ err: 'dates have been booked' });
           }
         }
         return next();
-      })
-      .catch((err) => {
-        unmountImages(req.body);
-        res.json({ err: 'problem occured checking available dates' });
       });
   }
 }

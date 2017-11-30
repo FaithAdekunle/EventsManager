@@ -12,32 +12,29 @@ module.exports = class EventController {
         .exists()
         .withMessage('missing event name field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty event name not allowed'),
+        .isLength({ min: 1, max: 100 })
+        .withMessage('event name must be between 1 and 100 characters long'),
       body('type')
         .exists()
         .withMessage('missing event type field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty event type not allowed'),
+        .isLength({ min: 1, max: 20 })
+        .withMessage('event type must be between 1 and 20 characters long'),
       body('centerId')
         .exists()
         .withMessage('missing center id field'),
-      body('images')
-        .exists()
-        .withMessage('no event image found'),
       body('guests')
         .exists()
-        .withMessage('missing center id field'),
+        .withMessage('missing guests field'),
       body('days')
         .exists()
-        .withMessage('missing center id field'),
+        .withMessage('missing days field'),
       body('start')
         .exists()
         .withMessage('missing event start date field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty event start date not allowed'),
+        .isLength({ min: 1, max: 10 })
+        .withMessage('event start date must be between 1 and 10 characters long'),
       sanitize('days').toInt(),
       sanitize('guests').toInt(),
       sanitize('centerId').toInt(),
@@ -49,7 +46,7 @@ module.exports = class EventController {
     if (validationResult(req).isEmpty()) return next();
     unmountImages(req.body);
     const errors = validationResult(req).array();
-    return res.json({ err: errors[0].msg });
+    return res.status(400).json({ err: errors[0].msg });
   }
 
   // use moment.js to validate the start date field as correct date format and
@@ -58,7 +55,7 @@ module.exports = class EventController {
     if (!moment(req.body.start, 'DD-MM-YYYY').isValid()
       || !(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) {
       unmountImages(req.body);
-      return res.json({ err: 'Invalid details. Use format DD/MM/YYYY for date' });
+      return res.status(400).json({ err: 'Invalid details. Use format DD/MM/YYYY for date' });
     }
     req.body.start = moment(req.body.start, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
     req.body.end = moment(req.body.start, 'DD-MM-YYYY').add(req.body.days - 1, 'days').format('DD MM YYYY').split(' ')
@@ -75,7 +72,7 @@ module.exports = class EventController {
       || [-1, 0, -0].includes(Math.sign(req.body.centerId))
       || [-1, 0, -0].includes(Math.sign(req.body.guests))) {
       unmountImages(req.body);
-      return res.json({ err: 'Invalid details. Only positive integers allowed' });
+      return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for centerId, guests and days fields' });
     }
     return next();
   }
@@ -90,7 +87,7 @@ module.exports = class EventController {
       .catch((err) => {
         jsonHandle(req.body);
         unmountImages(req.body);
-        res.json({ err: 'problem occured creating event' });
+        res.status(500).json({ err: 'problem occured creating event' });
       });
   }
 
@@ -104,7 +101,7 @@ module.exports = class EventController {
       .then((event) => {
         if (!event) {
           unmountImages(req.body);
-          return res.json({ err: 'event not found' });
+          return res.status(404).json({ err: 'event not found' });
         }
         jsonHandle(event);
         unmountImages(event);

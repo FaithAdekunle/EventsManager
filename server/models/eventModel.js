@@ -22,10 +22,6 @@ module.exports = class EventModel {
         type: this.DataTypes.STRING,
         allowNull: false,
       },
-      images: {
-        type: this.DataTypes.STRING,
-        allowNull: false,
-      },
       guests: {
         type: this.DataTypes.INTEGER,
         allowNull: false,

@@ -28,11 +28,6 @@ module.exports = class userController {
         .isEmail()
         .withMessage('invalid email')
         .normalizeEmail({ all_lowercase: true }),
-      body('phoneNumber')
-        .exists().withMessage('phoneNumber field missing')
-        .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('phoneNumber must be between 1 and 100 characters long'),
     ];
   }
 
@@ -48,7 +43,7 @@ module.exports = class userController {
         .normalizeEmail({ all_lowercase: true }),
       body('password')
         .exists().withMessage('password field missing')
-        .isLength({ min: 8, max: 100 })
+        .isLength({ min: 1, max: 100 })
         .withMessage('password must be between 8 and 100 characters long'),
     ];
   }
@@ -58,6 +53,12 @@ module.exports = class userController {
     if (validationResult(req).isEmpty()) return next();
     const errors = validationResult(req).array();
     return res.status(400).json({ err: errors[0].msg });
+  }
+
+  static toLowerCase(req, res, next) {
+    if (req.body.fullName) req.body.fullName.toLowerCase();
+    req.body.email = req.body.email.toLowerCase();
+    return next();
   }
 
   static hashPassword(req, res, next) {
@@ -97,26 +98,26 @@ module.exports = class userController {
     const { token } = req.query;
     if (!token) {
       unmountImages(req.body);
-      return res.json({ err: 'no token found' });
+      return res.status(401).json({ err: 'no token found' });
     }
     try {
       const payload = jwt.verify(token, process.env.SECRET);
       if (!payload.isAdmin) {
         unmountImages(req.body);
-        return res.json({ err: 'unauthorized operation' });
+        return res.status(401).json({ err: 'unauthorized operation' });
       }
       req.body.updatedBy = payload.id;
       return next();
     }
     catch (err) {
       unmountImages(req.body);
-      return res.json({ err: 'authentication failed' });
+      return res.status(401).json({ err: 'authentication failed' });
     }
   }
 
   static signUp(req, res) {
     database.user.create(req.body)
-      .then(createdUser => res.json({
+      .then(createdUser => res.status(201).json({
         token: userController.generateToken(createdUser),
         isAdmin: createdUser.isAdmin,
       }))
@@ -130,11 +131,13 @@ module.exports = class userController {
       },
     })
       .then((user) => {
-        bcrypt.compare(req.body.password, user.password, (error, response) => {
+        if (!user) {
+          return res.status(400).json({ err: 'user email not found' });
+        }
+        return bcrypt.compare(req.body.password, user.password, (error, response) => {
           if (!response) return res.status(400).json({ err: 'password is incorrect' });
           return res.json({ token: userController.generateToken(user), isAdmin: user.isAdmin });
         });
-      })
-      .catch(err => res.status(400).json({ err: 'user email not found' }));
+      });
   }
 };
