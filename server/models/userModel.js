@@ -1,3 +1,4 @@
+// define model for user
 module.exports = class UserModel {
   constructor(sequelize, DataTypes) {
     this.sequelize = sequelize;

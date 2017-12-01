@@ -7,7 +7,7 @@ import { readFileSync } from 'fs';
 
 chai.use(chaiHttp);
 chai.should();
-const host = 'localhost:7777';
+const host = 'localhost:7777/api/v1';
 
 const userEmail = `${uuidv4()}@gmail.com`;
 const adminEmail = `${uuidv4()}@gmail.com`;
@@ -28,13 +28,13 @@ describe('Tests for User API endpoint', () => {
         .post('/users')
         .send({
           password: 'password',
+          confirmPassword: userPassword,
           email: userEmail,
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.body.should.be.a('object');
-          res.body.should.have.property('err').equal('fullName field missing');
+          res.body.should.have.property('err').to.include('fullName field missing');
           done();
         });
     });
@@ -47,12 +47,12 @@ describe('Tests for User API endpoint', () => {
           fullName: '',
           password: userPassword,
           email: userEmail,
-          phoneNumber: '08101592531',
+          confirmPassword: userPassword,
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.body.should.be.a('object');
-          res.body.should.have.property('err').equal('fullName must be between 1 and 100 characters long');
+          res.body.should.have.property('err').to.include('fullName must be between 1 and 100 characters long');
           done();
         });
     });
@@ -64,13 +64,13 @@ describe('Tests for User API endpoint', () => {
         .send({
           fullName: '      ',
           password: userPassword,
+          confirmPassword: userPassword,
           email: userEmail,
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('fullName must be between 1 and 100 characters long');
+          res.body.should.have.property('err').to.include('fullName must be between 1 and 100 characters long');
           done();
         });
     });
@@ -81,13 +81,13 @@ describe('Tests for User API endpoint', () => {
         .post('/users')
         .send({
           fullName: 'Faith Adekunle',
+          confirmPassword: userPassword,
           email: userEmail,
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('password field missing');
+          res.body.should.have.property('err').to.include('password field missing');
           done();
         });
     });
@@ -98,14 +98,31 @@ describe('Tests for User API endpoint', () => {
         .post('/users')
         .send({
           password: 'pass',
+          confirmPassword: 'pass',
           fullName: 'Faith Adekunle',
           email: `${uuidv4()}@gmail.com`,
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('password must be between 8 and 100 characters long');
+          res.body.should.have.property('err').to.include('password must be between 8 and 100 characters long');
+          done();
+        });
+    });
+
+    it('shoud return a status 400 error response for a missing password confirm field', (done) => {
+      chai
+        .request(host)
+        .post('/users')
+        .send({
+          fullName: 'Faith Adekunle',
+          email: userEmail,
+          password: userPassword,
+        })
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.a('object');
+          res.body.should.have.property('err').to.include('confirmPassword field missing');
           done();
         });
     });
@@ -117,12 +134,12 @@ describe('Tests for User API endpoint', () => {
         .send({
           fullName: 'Faith Adekunle',
           password: userPassword,
-          phoneNumber: '08101592531',
+          confirmPassword: userPassword,
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('email field missing');
+          res.body.should.have.property('err').to.include('email field missing');
           done();
         });
     });
@@ -133,14 +150,32 @@ describe('Tests for User API endpoint', () => {
         .post('/users')
         .send({
           fullName: 'Faith Adekunle',
-          password: 'password',
+          password: userPassword,
+          confirmPassword: userPassword,
           email: 'adegold71gmail.com',
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('invalid email');
+          res.body.should.have.property('err').to.include('invalid email');
+          done();
+        });
+    });
+
+    it('shoud return a status 400 error response for an invalid email value', (done) => {
+      chai
+        .request(host)
+        .post('/users')
+        .send({
+          fullName: 'Faith Adekunle',
+          password: userPassword,
+          confirmPassword: 'password',
+          email: 'adegold71gmail.com',
+        })
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.a('object');
+          res.body.should.have.property('err').to.include('password and confirmPassowrd fields are not equal');
           done();
         });
     });
@@ -152,8 +187,8 @@ describe('Tests for User API endpoint', () => {
         .send({
           fullName: 'asuahoidudfhla',
           password: userPassword,
+          confirmPassword: userPassword,
           email: userEmail,
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(201);
@@ -172,8 +207,8 @@ describe('Tests for User API endpoint', () => {
         .send({
           fullName: 'dslbhabsdhsbkajd',
           password: adminPassword,
+          confirmPassword: adminPassword,
           email: adminEmail,
-          phoneNumber: '08101592531',
           isAdmin: true,
         })
         .end((err, res) => {
@@ -193,13 +228,14 @@ describe('Tests for User API endpoint', () => {
         .send({
           fullName: 'asuahoidudfhla',
           password: userPassword,
+          confirmPassword: userPassword,
           email: userEmail,
           phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('email must be unique');
+          res.body.should.have.property('err').equal('a user already exits with this email');
           done();
         });
     });
@@ -251,7 +287,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('password is incorrect');
+          res.body.should.have.property('err').equal('email and password combination invalid');
           done();
         });
     });
@@ -272,7 +308,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing center name field');
+          res.body.should.have.property('err').to.include('missing center name field');
           done();
         });
     });
@@ -290,7 +326,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('center name must be between 1 and 100 characters long');
+          res.body.should.have.property('err').to.include('center name must be between 1 and 100 characters long');
           done();
         });
     });
@@ -307,7 +343,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing center description field');
+          res.body.should.have.property('err').to.include('missing center description field');
           done();
         });
     });
@@ -325,7 +361,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('empty center description not allowed');
+          res.body.should.have.property('err').to.include('empty center description not allowed');
           done();
         });
     });
@@ -342,7 +378,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing center facilities field');
+          res.body.should.have.property('err').to.include('missing center facilities field');
           done();
         });
     });
@@ -360,7 +396,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('center facilities must be between 1 and 100 characters long');
+          res.body.should.have.property('err').to.include('center facilities must be between 1 and 100 characters long');
           done();
         });
     });
@@ -378,7 +414,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('no center image found');
+          res.body.should.have.property('err').to.include('no center image found');
           done();
         });
     });
@@ -400,7 +436,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('Invalid details. Only positive integers allowed for cost and capacity fields');
+          res.body.should.have.property('err').to.include('Invalid details. Only positive integers allowed for cost and capacity fields');
           done();
         });
     });
@@ -422,7 +458,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('Invalid details. Only positive integers allowed for cost and capacity fields');
+          res.body.should.have.property('err').to.include('Invalid details. Only positive integers allowed for cost and capacity fields');
           done();
         });
     });
@@ -444,7 +480,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('center address must be between 1 and 100 characters long');
+          res.body.should.have.property('err').to.include('center address must be between 1 and 100 characters long');
           done();
         });
     });
@@ -465,7 +501,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing center address field');
+          res.body.should.have.property('err').to.include('missing center address field');
           done();
         });
     });
@@ -509,7 +545,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(401);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('unauthorized operation');
+          res.body.should.have.property('err').equal('unauthorized token');
           done();
         });
     });
@@ -681,7 +717,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing event name field');
+          res.body.should.have.property('err').to.include('missing event name field');
           done();
         });
     });
@@ -699,7 +735,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('event name must be between 1 and 100 characters long');
+          res.body.should.have.property('err').to.include('event name must be between 1 and 100 characters long');
           done();
         });
     });
@@ -716,7 +752,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing event type field');
+          res.body.should.have.property('err').to.include('missing event type field');
           done();
         });
     });
@@ -734,7 +770,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('event type must be between 1 and 20 characters long');
+          res.body.should.have.property('err').to.include('event type must be between 1 and 20 characters long');
           done();
         });
     });
@@ -751,7 +787,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing center id field');
+          res.body.should.have.property('err').to.include('missing center id field');
           done();
         });
     });
@@ -786,7 +822,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing guests field');
+          res.body.should.have.property('err').to.include('missing guests field');
           done();
         });
     });
@@ -820,7 +856,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('missing guests field');
+          res.body.should.have.property('err').to.include('missing guests field');
           done();
         });
     });
@@ -848,7 +884,7 @@ describe('Tests for events api', () => {
         .request(host)
         .post(`/events?token=${userToken}`)
         .field('name', 'Annual conference')
-        .field('centerId', 1)
+        .field('centerId', centerId)
         .field('type', 'conference')
         .field('guests', 20)
         .field('days', 2)
@@ -867,7 +903,7 @@ describe('Tests for events api', () => {
         .request(host)
         .put(`/events/${eventId}?token=${userToken}`)
         .field('name', 'Annual')
-        .field('centerId', 1)
+        .field('centerId', centerId)
         .field('type', 'conference')
         .field('guests', 20)
         .field('days', 2)
@@ -876,6 +912,24 @@ describe('Tests for events api', () => {
           res.should.have.status(200);
           res.should.be.a('object');
           res.body.should.have.property('name').equal('Annual');
+          done();
+        });
+    });
+
+    it('should return a status 409 error response for booked dates', (done) => {
+      chai
+        .request(host)
+        .post(`/events?token=${userToken}`)
+        .field('name', 'Annual conference')
+        .field('centerId', centerId)
+        .field('type', 'conference')
+        .field('guests', 20)
+        .field('days', 8)
+        .field('start', '19/12/2017')
+        .end((err, res) => {
+          res.should.have.status(409);
+          res.should.be.a('object');
+          res.body.should.have.property('err').equal('dates have been booked');
           done();
         });
     });

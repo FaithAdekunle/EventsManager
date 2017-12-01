@@ -1,3 +1,4 @@
+// define model for event
 module.exports = class EventModel {
   constructor(sequelize, DataTypes) {
     this.sequelize = sequelize;
@@ -30,10 +31,9 @@ module.exports = class EventModel {
         type: this.DataTypes.INTEGER,
         allowNull: false,
       },
-      isValid: {
-        type: this.DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
+      images: {
+        type: this.DataTypes.STRING,
+        allowNull: true,
       },
     });
     return event;

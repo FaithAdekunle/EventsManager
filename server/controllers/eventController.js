@@ -46,7 +46,9 @@ module.exports = class EventController {
     if (validationResult(req).isEmpty()) return next();
     unmountImages(req.body);
     const errors = validationResult(req).array();
-    return res.status(400).json({ err: errors[0].msg });
+    const response = [];
+    errors.map(error => response.push(error.msg));
+    return res.status(400).json({ err: response });
   }
 
   // use moment.js to validate the start date field as correct date format and
@@ -55,7 +57,7 @@ module.exports = class EventController {
     if (!moment(req.body.start, 'DD-MM-YYYY').isValid()
       || !(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) {
       unmountImages(req.body);
-      return res.status(400).json({ err: 'Invalid details. Use format DD/MM/YYYY for date' });
+      return res.status(400).json({ err: 'Invalid date. Use format DD/MM/YYYY for date' });
     }
     req.body.start = moment(req.body.start, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
     req.body.end = moment(req.body.start, 'DD-MM-YYYY').add(req.body.days - 1, 'days').format('DD MM YYYY').split(' ')
@@ -77,20 +79,22 @@ module.exports = class EventController {
     return next();
   }
 
+  // createEvent(req, res) creates a new user event
   static createEvent(req, res) {
     jsonHandle(req.body, false);
     database.event.create(req.body)
-      .then(createdEvent => {
+      .then((createdEvent) => {
         jsonHandle(createdEvent);
         res.json(createdEvent);
       })
       .catch((err) => {
         jsonHandle(req.body);
         unmountImages(req.body);
-        res.status(500).json({ err: 'problem occured creating event' });
+        res.status(500).json({ err: err.message || 'problem occured creating event' });
       });
   }
 
+  // modifyEvent(req, res) modifies an existing user event
   static modifyEvent(req, res) {
     database.event.findOne({
       where: {
@@ -123,24 +127,30 @@ module.exports = class EventController {
                 .then((updatedEvent) => {
                   jsonHandle(updatedEvent);
                   res.json(updatedEvent);
+                })
+                .catch((err) => {
+                  jsonHandle(req.body);
+                  unmountImages(req.body);
+                  return res.status(404).json({ err: err.message || 'problem occured editing event' });
                 });
             }
             jsonHandle(req.body);
             unmountImages(req.body);
-            return res.json({ err: 'problem occured editing event' });
+            return res.status(404).json({ err: 'problem occured editing event' });
           })
           .catch((err) => {
             jsonHandle(req.body);
             unmountImages(req.body);
-            return res.json({ err: 'problem occured editing event' });
+            return res.status(404).json({ err: err.message || 'problem occured editing event' });
           });
       })
       .catch((err) => {
         unmountImages(req.body);
-        return res.json({ err: 'problem occured editing event' });
+        return res.status(404).json({ err: err.message || 'problem occured editing event' });
       });
   }
 
+  // deleteEvent(req, res) deletes an existing user event
   static deleteEvent(req, res) {
     database.event.findOne({
       where: {
@@ -149,7 +159,7 @@ module.exports = class EventController {
       },
     })
       .then((event) => {
-        if (!event) return res.json({ err: 'event not found' });
+        if (!event) return res.status(404).json({ err: 'event not found' });
         jsonHandle(event);
         unmountImages(event);
         return database.event.destroy({
@@ -160,13 +170,14 @@ module.exports = class EventController {
         })
           .then((num) => {
             if (num > 0) return res.json({ status: 'success' });
-            return res.json({ err: 'event not found' });
+            return res.status(404).json({ err: 'event not found' });
           })
-          .catch(err => res.json({ err: 'problem occured deleting event' }));
+          .catch(err => res.status(404).json({ err: err.message || 'problem occured deleting event' }));
       })
-      .catch(err => res.json({ err: 'problem occured deleting event' }));
+      .catch(err => res.status(404).json({ err: err.message || 'problem occured deleting event' }));
   }
 
+  // fetchEvent(req, res) fetches all events belonging to user
   static fetchUserEvents(req, res) {
     database.event.findAll({
       where: {
@@ -174,26 +185,10 @@ module.exports = class EventController {
       },
     })
       .then((events) => {
-        events.map((event) => {
-          jsonHandle(event);
-        });
+        events.map(event => jsonHandle(event));
         return res.json(events);
       })
-      .catch(err => res.json({ err: 'problem occured fetching user events' }));
-  }
-
-  static declineEvent(req, res) {
-    if (!req.body.isAdmin) return res.json({ err: 'unauthorized request' });
-    database.event.update({ isValid: false }, {
-      where: {
-        id: req.params.id,
-      },
-    })
-      .then((row) => {
-        if (row > 0) return res.json({ status: 'success' });
-        return res.json({ err: 'event not found' });
-      })
-      .catch(err => res.json({ err: 'problem occured declining event' }));
+      .catch(err => res.status(404).json({ err: err.message || 'problem occured fetching user events' }));
   }
 };
 

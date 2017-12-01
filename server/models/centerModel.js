@@ -1,3 +1,4 @@
+// define model for center
 module.exports = class CenterModel {
   constructor(sequelize, DataTypes) {
     this.sequelize = sequelize;
@@ -38,6 +39,10 @@ module.exports = class CenterModel {
       updatedBy: {
         type: this.DataTypes.INTEGER,
         allowNull: false,
+      },
+      state: {
+        type: this.DataTypes.STRING,
+        allowNull: true,
       },
     });
     return center;

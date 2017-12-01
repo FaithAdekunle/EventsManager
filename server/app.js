@@ -1,5 +1,6 @@
 import express from 'express';
 import logger from 'morgan';
+import cors from 'cors';
 import swaggerTools from 'swagger-tools';
 import bodyParser from 'body-parser';
 import AppRouter from './routes/index';
@@ -18,6 +19,7 @@ module.exports = class App {
     database.setUp();
     database.sync();
     const app = express();
+    app.use(cors());
     swaggerTools.initializeMiddleware(swaggerDoc, (middleware) => {
       app.use(middleware.swaggerMetadata());
       app.use(middleware.swaggerValidator());

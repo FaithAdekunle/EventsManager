@@ -18,13 +18,15 @@ class Database {
     this.db_center = centerModel.centerModel();
   }
 
+  // confirm connection with database
   authenticate() {
     this.sequelize
       .authenticate()
-      .then(() => console.log('connection to database established'))
-      .catch(err => console.log('connection to database failed', err));
+      .then(() => {})
+      .catch();
   }
 
+  // set up model associations
   setUp() {
     this.db_user.hasMany(this.db_event, { allowNull: false });
     this.db_center.hasMany(this.db_event, { allowNull: false });
@@ -36,11 +38,12 @@ class Database {
     });
   }
 
+  // synchronize models with database
   sync() {
     this.sequelize
       .sync({ force: true })
-      .then(() => console.log('database sync success'))
-      .catch(err => console.log('database sync failed', err));
+      .then(() => {})
+      .catch();
   }
 
   get user() {

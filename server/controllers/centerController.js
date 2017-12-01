@@ -4,8 +4,10 @@ import multer from 'multer';
 import uuidv4 from 'uuid/v4';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
+import { Op } from 'sequelize';
 import database from '../db';
 
+// define storage option for multer
 const storage = multer.diskStorage({
   destination(req, file, next) {
     next(null, './server/public/images');
@@ -25,7 +27,8 @@ const options = {
   },
 };
 
-// to delete files from storage
+/** unmountImages(obj) removes all images
+    whose names are present in obj.images */
 export const unmountImages = (obj) => {
   if (obj.images) obj.images.map(image => fs.unlink(`./server/public/images/${image}`, () => {}));
 };
@@ -34,8 +37,7 @@ export const jsonHandle = (obj, parse = true) => {
   if (parse) {
     if (obj.images) obj.images = JSON.parse(obj.images);
     if (obj.facilities) obj.facilities = JSON.parse(obj.facilities);
-  }
-  else {
+  } else {
     if (obj.images) obj.images = JSON.stringify(obj.images);
     if (obj.facilities) obj.facilities = JSON.stringify(obj.facilities);
   }
@@ -44,6 +46,9 @@ export const jsonHandle = (obj, parse = true) => {
 
 const upload = multer(options);
 
+/** CenterController class defines static
+    methods to be used in handling /centers
+    routes */
 export class CenterController {
   // validate incoming body fields for /events requests
   static centerValidations() {
@@ -86,12 +91,14 @@ export class CenterController {
     ];
   }
 
-  // middleware to read imcoming uploaded files into local storage, hook up req.files and req.body
+  /** handleImages() reads imcoming uploaded files
+    into local storage, hooks up req.files and req.body */
   static handleImages() {
     return upload.array('images', 4);
   }
 
-  // middleware to mount names of saved files on req.body for validation check
+  /** mountImages(req, res, next) mounts names of
+      saved files in req.files on req.body for validation check  */
   static mountImages(req, res, next) {
     const images = [];
     if (req.files) {
@@ -101,12 +108,17 @@ export class CenterController {
     return next();
   }
 
-  // checks if all validations have passed and that user uploaded images
+  /* checkFailedValidations(req, res, next) checks if
+   all validations have passed and that user uploaded mount  */
   static checkFailedValidations(req, res, next) {
-    if (validationResult(req).isEmpty()) return next();
+    const response = [];
+    if (validationResult(req).isEmpty()) {
+      return next();
+    }
     unmountImages(req.body);
     const errors = validationResult(req).array();
-    return res.status(400).json({ err: errors[0].msg });
+    errors.map(error => response.push(error.msg));
+    return res.status(400).json({ err: response });
   }
 
   // splits facilities string to be saved as an array in storage
@@ -131,8 +143,10 @@ export class CenterController {
     return next();
   }
 
+  // addCenter(req, res) adds a new center to database
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
+    if (req.body.state) req.body.state = req.body.state.toLowerCase();
     jsonHandle(req.body, false);
     database.center.create(req.body)
       .then((createdCenter) => {
@@ -146,14 +160,18 @@ export class CenterController {
       });
   }
 
+  // modifyCenter(req, res) modifies details of an existing center
   static modifyCenter(req, res) {
     database.center.findOne({
       where: {
         name: req.body.name,
+        id: {
+          [Op.ne]: req.params.id,
+        },
       },
     })
       .then((centerCheck) => {
-        if (!centerCheck || (centerCheck.id == req.params.id)) {
+        if (!centerCheck) {
           return database.center.findOne({
             where: {
               id: req.params.id,
@@ -167,6 +185,7 @@ export class CenterController {
               jsonHandle(center);
               unmountImages(center);
               jsonHandle(req.body, false);
+              if (req.body.state) req.body.state = req.body.state.toLowerCase();
               return database.center.update(req.body, {
                 where: {
                   id: req.params.id,
@@ -188,15 +207,26 @@ export class CenterController {
                   unmountImages(req.body);
                   return res.status(409).json({ err: 'center name already exists' });
                 });
-            });
+            })
+            .catch(err => res.status(500).json({ err: err.message || 'database error' }));
         }
         unmountImages(req.body);
         return res.status(409).json({ err: 'center name already exists' });
       });
   }
 
+  // fetchCenters(req, res) fetches the details of all centers including their events
   static fetchCenters(req, res) {
-    database.center.findAll({
+    if (req.query.state) {
+      return database.center.findAll({
+        where: {
+          state: req.query.state,
+        },
+      })
+        .then(centers => res.json(centers))
+        .catch(err => res.status(500).json({ err: err.message || 'problem occured searching database' }));
+    }
+    return database.center.findAll({
       include: [
         { model: database.event },
       ],
@@ -204,14 +234,13 @@ export class CenterController {
       .then((centers) => {
         centers.map((center) => {
           jsonHandle(center);
-          center.events.map((event) => {
-            jsonHandle(event);
-          });
+          return center.events.map(event => jsonHandle(event));
         });
         return res.json(centers);
       });
   }
 
+  // fetchCenters(req, res) fetches the details of one center including it's events
   static fetchCenter(req, res) {
     database.center.findOne({
       where: {
@@ -224,13 +253,14 @@ export class CenterController {
       .then((center) => {
         if (!center) return res.status(404).json({ err: 'center not found' });
         jsonHandle(center);
-        center.events.map((event) => {
-          jsonHandle(event);
-        });
-        return res.json(center);
+        center.events.map(event => jsonHandle(event));
+        return res.send(center);
       });
   }
 
+  /** checkAvailability(req, res, next) checks if dates
+      for an event to be set in a particular center are
+      available */
   static checkAvailability(req, res, next) {
     database.center.findOne({
       where: {
@@ -246,7 +276,7 @@ export class CenterController {
           return res.status(404).json({ err: 'center not found' });
         }
         for (const event of center.events) {
-          if (event.id == req.params.id) continue;
+          if (event.id === req.params.id) continue;
           const { start, end } = event;
           if (moment(req.body.start, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
            || moment(req.body.end, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
