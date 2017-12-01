@@ -1,9 +1,13 @@
 import fs from 'fs';
+import moment from 'moment';
 import multer from 'multer';
 import uuidv4 from 'uuid/v4';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
+import { Op } from 'sequelize';
+import database from '../db';
 
+// define storage option for multer
 const storage = multer.diskStorage({
   destination(req, file, next) {
     next(null, './server/public/images');
@@ -23,51 +27,98 @@ const options = {
   },
 };
 
-// to delete files from storage
-const unmountImages = (obj) => {
-  obj.images.map(image => fs.unlink(`./server/public/images/${image}`));
+/** unmountImages(obj) removes all images
+    whose names are present in obj.images */
+export const unmountImages = (obj) => {
+  if (obj.images) obj.images.map(image => fs.unlink(`./server/public/images/${image}`, () => {}));
 };
+
+export const jsonHandle = (obj, parse = true) => {
+  if (parse) {
+    if (obj.images) obj.images = JSON.parse(obj.images);
+    if (obj.facilities) obj.facilities = JSON.parse(obj.facilities);
+  } else {
+    if (obj.images) obj.images = JSON.stringify(obj.images);
+    if (obj.facilities) obj.facilities = JSON.stringify(obj.facilities);
+  }
+};
+
 
 const upload = multer(options);
 
-module.exports = class CenterController {
+/** CenterController class defines static
+    methods to be used in handling /centers
+    routes */
+export class CenterController {
   // validate incoming body fields for /events requests
   static centerValidations() {
     return [
-      body('name').exists().isLength({ min: 1 }).trim(),
-      body('description').exists().isLength({ min: 1 }).trim(),
-      body('facilities').exists().isLength({ min: 1 }).trim(),
-      body('address').exists().isLength({ min: 1 }).trim(),
-      body('images').exists(),
-      body('capacity').exists(),
-      body('cost').exists(),
+      body('name')
+        .exists()
+        .withMessage('missing center name field')
+        .trim()
+        .isLength({ min: 1, max: 100 })
+        .withMessage('center name must be between 1 and 100 characters long'),
+      body('description')
+        .exists()
+        .withMessage('missing center description field')
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage('empty center description not allowed'),
+      body('facilities')
+        .exists()
+        .withMessage('missing center facilities field')
+        .trim()
+        .isLength({ min: 1, max: 100 })
+        .withMessage('center facilities must be between 1 and 100 characters long'),
+      body('address')
+        .exists()
+        .withMessage('missing center address field')
+        .trim()
+        .isLength({ min: 1, max: 100 })
+        .withMessage('center address must be between 1 and 100 characters long'),
+      body('images')
+        .exists()
+        .withMessage('no center image found'),
+      body('capacity')
+        .exists()
+        .withMessage('missing center capacity field'),
+      body('cost')
+        .exists()
+        .withMessage('missing center cost field'),
       sanitize('capacity').toInt(),
       sanitize('cost').toInt(),
     ];
   }
 
-  // middleware to read imcoming uploaded files into local storage, hook up req.files and req.body
+  /** handleImages() reads imcoming uploaded files
+    into local storage, hooks up req.files and req.body */
   static handleImages() {
     return upload.array('images', 4);
   }
 
-  // middleware to mount names of saved files on req.body for validation check
+  /** mountImages(req, res, next) mounts names of
+      saved files in req.files on req.body for validation check  */
   static mountImages(req, res, next) {
-    req.body.images = [];
+    const images = [];
     if (req.files) {
-      req.files.map(file => req.body.images.push(file.filename));
+      req.files.map(file => images.push(file.filename));
     }
+    if (images.length > 0) req.body.images = images;
     return next();
   }
 
-  // checks if all validations have passed and that user uploaded images
+  /* checkFailedValidations(req, res, next) checks if
+   all validations have passed and that user uploaded mount  */
   static checkFailedValidations(req, res, next) {
-    if (
-      validationResult(req).isEmpty()
-      && Array.isArray(req.body.images)
-      && req.body.images.length > 0) return next();
+    const response = [];
+    if (validationResult(req).isEmpty()) {
+      return next();
+    }
     unmountImages(req.body);
-    return res.json({ err: 'Incomplete details' });
+    const errors = validationResult(req).array();
+    errors.map(error => response.push(error.msg));
+    return res.status(400).json({ err: response });
   }
 
   // splits facilities string to be saved as an array in storage
@@ -85,99 +136,158 @@ module.exports = class CenterController {
       || [-1, 0, -0].includes(Math.sign(req.body.cost))
       || [-1, 0, -0].includes(Math.sign(req.body.capacity))) {
       unmountImages(req.body);
-      return res.json({ err: 'Invalid details. Only positive integers allowed' });
+      return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
     }
+    if (req.body.cost > 2147483647) return res.status(400).json({ err: 'cost too large' });
+    if (req.body.capacity > 2147483647) return res.status(400).json({ err: 'capacity too large' });
     return next();
   }
 
-  /** Adds new center by doing the following:
-  -read the local database from file
-  -parse it to json format
-  -generate a unique id using uuidv4
-  -save the center to the json object using the generated id
-  -stringify the database
-  -and write back to local file. */
+  // addCenter(req, res) adds a new center to database
   static addCenter(req, res) {
-    fs.readFile('./server/data/centers.json', (err, data) => {
-      if (err) return res.json({ err: 'local file database failure' });
-      const centers = JSON.parse(data);
-      const centerId = uuidv4();
-      centers[centerId] = req.body;
-      const savedCenters = JSON.stringify(centers, null, 2);
-      return fs.writeFile('./server/data/centers.json', savedCenters, (error) => {
-        if (error) return res.json({ err: 'local file database failure' });
-        req.body.id = centerId;
-        return res.json(req.body);
-      });
-    });
-  }
-
-  /** Modify existing center by doing the following:
-  -read the local database from file
-  -parse it to json format
-  -check if center with key route id parameter exists
-  -deletes previous center images from storage if found then
-  -overwrites center with new details
-  -else respond with center not found
-  -stringify the database
-  -and write back to local file. */
-  static modifyCenter(req, res) {
-    fs.readFile('./server/data/centers.json', (err, data) => {
-      if (err) return res.json({ err: 'local file database failure' });
-      const centers = JSON.parse(data);
-      if (!centers[req.params.id]) {
+    req.body.createdBy = req.body.updatedBy;
+    if (req.body.state) req.body.state = req.body.state.toLowerCase();
+    jsonHandle(req.body, false);
+    database.center.create(req.body)
+      .then((createdCenter) => {
+        jsonHandle(createdCenter);
+        res.status(201).json(createdCenter);
+      })
+      .catch(() => {
+        jsonHandle(req.body);
         unmountImages(req.body);
-        return res.json({ err: 'center not found' });
-      }
-      const centerId = req.params.id;
-      const center = centers[centerId];
-      unmountImages(center);
-      centers[centerId] = req.body;
-      const savedCenters = JSON.stringify(centers, null, 2);
-      return fs.writeFile('./server/data/centers.json', savedCenters, (error) => {
-        if (error) return res.json({ err: 'local file database failure' });
-        req.body.id = centerId;
-        return res.json(req.body);
+        res.status(400).json({ err: 'center name already exists' });
       });
-    });
   }
 
-  /** Fetch existing centers by doing the following:
-  -read the local database from file
-  -parse it to json format
-  -initialize an empty array
-  -push each center into empty array
-  -respond with array of centers */
+  // modifyCenter(req, res) modifies details of an existing center
+  static modifyCenter(req, res) {
+    database.center.findOne({
+      where: {
+        name: req.body.name,
+        id: {
+          [Op.ne]: req.params.id,
+        },
+      },
+    })
+      .then((centerCheck) => {
+        if (!centerCheck) {
+          return database.center.findOne({
+            where: {
+              id: req.params.id,
+            },
+          })
+            .then((center) => {
+              if (!center) {
+                unmountImages(req.body);
+                return res.json({ err: 'center not found' });
+              }
+              jsonHandle(center);
+              unmountImages(center);
+              jsonHandle(req.body, false);
+              if (req.body.state) req.body.state = req.body.state.toLowerCase();
+              return database.center.update(req.body, {
+                where: {
+                  id: req.params.id,
+                },
+              })
+                .then((row) => {
+                  if (row[0] > 0) {
+                    return database.center.findOne({
+                      where: {
+                        id: req.params.id,
+                      },
+                    })
+                      .then((updatedCenter) => {
+                        jsonHandle(updatedCenter);
+                        return res.json(updatedCenter);
+                      });
+                  }
+                  jsonHandle(req.body);
+                  unmountImages(req.body);
+                  return res.status(409).json({ err: 'center name already exists' });
+                });
+            })
+            .catch(err => res.status(500).json({ err: err.message || 'database error' }));
+        }
+        unmountImages(req.body);
+        return res.status(409).json({ err: 'center name already exists' });
+      });
+  }
+
+  // fetchCenters(req, res) fetches the details of all centers including their events
   static fetchCenters(req, res) {
-    fs.readFile('./server/data/centers.json', (err, data) => {
-      if (err) return res.json({ err: 'local file database failure' });
-      const centersObject = JSON.parse(data);
-      const centersEntries = Object.entries(centersObject);
-      const centersArray = [];
-      centersEntries.map((entry) => {
-        const id = entry[0];
-        const center = entry[1];
-        center.id = id;
-        return centersArray.push(entry[1]);
+    if (req.query.state) {
+      return database.center.findAll({
+        where: {
+          state: req.query.state,
+        },
+      })
+        .then(centers => res.json(centers))
+        .catch(err => res.status(500).json({ err: err.message || 'problem occured searching database' }));
+    }
+    return database.center.findAll({
+      include: [
+        { model: database.event },
+      ],
+    })
+      .then((centers) => {
+        centers.map((center) => {
+          jsonHandle(center);
+          return center.events.map(event => jsonHandle(event));
+        });
+        return res.json(centers);
       });
-      return res.json(centersArray);
-    });
   }
 
-  /** Fetch existing centers by doing the following:
-  -read the local database from file
-  -parse it to json format
-  -check if center with key route id parameter exists
-  -respond with center if found
-  -else respond with center not found */
+  // fetchCenters(req, res) fetches the details of one center including it's events
   static fetchCenter(req, res) {
-    fs.readFile('./server/data/centers.json', (err, data) => {
-      if (err) return res.json({ err: 'local file database failure' });
-      const centersObject = JSON.parse(data);
-      const centerId = req.params.id;
-      if (!centersObject[centerId]) return res.json({ err: 'center not found' });
-      return res.json(centersObject[centerId]);
-    });
+    database.center.findOne({
+      where: {
+        id: req.params.id,
+      },
+      include: [{
+        model: database.event,
+      }],
+    })
+      .then((center) => {
+        if (!center) return res.status(404).json({ err: 'center not found' });
+        jsonHandle(center);
+        center.events.map(event => jsonHandle(event));
+        return res.send(center);
+      });
   }
-};
+
+  /** checkAvailability(req, res, next) checks if dates
+      for an event to be set in a particular center are
+      available */
+  static checkAvailability(req, res, next) {
+    database.center.findOne({
+      where: {
+        id: req.body.centerId,
+      },
+      include: [{
+        model: database.event,
+      }],
+    })
+      .then((center) => {
+        if (!center) {
+          unmountImages(req.body);
+          return res.status(404).json({ err: 'center not found' });
+        }
+        for (const event of center.events) {
+          if (event.id === req.params.id) continue;
+          const { start, end } = event;
+          if (moment(req.body.start, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
+           || moment(req.body.end, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
+           || moment(start, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')
+           || moment(end, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')) {
+            unmountImages(req.body);
+            return res.status(409).json({ err: 'dates have been booked' });
+          }
+        }
+        return next();
+      });
+  }
+}
 

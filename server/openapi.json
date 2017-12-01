@@ -8,15 +8,19 @@
       "email": "adegold71@gmail.com"
     }
   },
-  "basePath": "/",
+  "basePath": "/api/v1/",
   "tags": [
     {
-      "name": "Events",
-      "description": "Create, Retrieve and Update user events"
+      "name": "Users",
+      "description": "Signup and sign in to user and admin accounts"
     },
     {
       "name": "Centers",
-      "description": "Create, Retrieve, Update and Delete event centers"
+      "description": "Create, Retrieve and Update event centers"
+    },
+    {
+      "name": "Events",
+      "description": "Create, Retrieve, Update and Delete user events"
     }
   ],
   "schemes": [
@@ -24,218 +28,179 @@
     "https"
   ],
   "paths": {
-    "/events": {
-      "post": {
-        "tags": [
-          "Events"
-        ],
-        "summary": "Create new user event",
-        "operationId": "EventController.createEvent",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Event object used to create a new user event",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Event"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Event"
+     "/users": {
+        "post": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Creates a new User account",
+          "operationId": "UserController.signUp",
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "description": "user details used to create new user",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserSignin"
               }
-            }
-          },
-          "default": {
-            "description": "Invalid request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
-            }
           }
-        }
-      }
-    },
-    "/events/{id}": {
-      "put": {
-        "tags": [
-          "Events"
-        ],
-        "summary": "Modifies existing user event",
-        "operationId": "EventController.modifyEvent",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          { 
-            "name": "id",
-            "in": "path",
-            "description": "id of the event to be modified",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Event"
+          ],
+          "responses": {
+            "201": {
+              "description": "Successful request",
+              "schema": {
+                "items": {
+                  "$ref": "#/definitions/User"
+                }
               }
-            }
-          },
-          "default": {
-            "description": "Invalid request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
+            },
+            "default": {
+              "description": "Invalid request",
+              "schema": {
+                "items": {
+                  "$ref": "#/definitions/Error"
+                }
               }
             }
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "Events"
-        ],
-        "summary": "Deletes existing user event",
-        "operationId": "EventController.deleteEvent",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          { 
-            "name": "id",
-            "in": "path",
-            "description": "id of the event to be deleted",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Success"
+     },
+     "/users/login": {
+        "post": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Creates a new User account",
+          "operationId": "UserController.signIn",
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "description": "user details used to create new user",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserLogin"
               }
-            }
-          },
-          "default": {
-            "description": "Invalid request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
+          }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful request",
+              "schema": {
+                "items": {
+                  "$ref": "#/definitions/User"
+                }
+              }
+            },
+            "default": {
+              "description": "Invalid request",
+              "schema": {
+                "items": {
+                  "$ref": "#/definitions/Error"
+                }
               }
             }
           }
         }
-      }
-    },
-    "/centers": {
+     },
+     "/centers": {
       "post": {
         "tags": [
           "Centers"
         ],
         "summary": "Creates a new event center",
         "operationId": "CenterController.addCenter",
+        "consumes" : [
+          "multipart/form-data"
+        ],
         "produces": [
           "application/json"
         ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
         "parameters": [
           { 
-            "name": "image1",
+            "name": "images",
             "in": "formData",
-            "description": "Image for the center to be modified.",
+            "description": "Image for the center to be created.",
             "required": true,
-            "type": "file"
-          },
-          { 
-            "name": "image2",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": false,
-            "type": "file"
-          },
-          { 
-            "name": "image3",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": false,
-            "type": "file"
-          },
-          { 
-            "name": "image4",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": false,
             "type": "file"
           },
           { 
             "name": "name",
             "in": "formData",
-            "description": "name for the center to be modified",
+            "description": "name for the center to be created",
             "required": true,
             "type": "string"
           },
           { 
             "name": "description",
             "in": "formData",
-            "description": "description for the center to be modified",
+            "description": "description for the center to be created",
             "required": true,
             "type": "string"
           },
           { 
             "name": "address",
             "in": "formData",
-            "description": "address for the center to be modified",
+            "description": "address for the center to be created",
             "required": true,
             "type": "string"
           },
           { 
             "name": "facilities",
             "in": "formData",
-            "description": "Comma separated facilities for the center to be modified",
+            "description": "Comma separated facilities for the center to be created",
             "required": true,
             "type": "string"
           },
           { 
             "name": "capacity",
             "in": "formData",
-            "description": "name for the center to be modified",
+            "description": "name for the center to be created",
             "required": true,
             "type": "integer"
           },
           { 
             "name": "cost",
             "in": "formData",
-            "description": "name for the center to be modified",
+            "description": "name for the center to be created",
             "required": true,
             "type": "integer"
+          },
+          { 
+            "name": "state",
+            "in": "formData",
+            "description": "state to be used to locate center in user search",
+            "required": false,
+            "type": "string"
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful request",
             "schema": {
               "items": {
                 "$ref": "#/definitions/Center"
               }
             }
-          },
-          "default": {
+          },          "default": {
             "description": "Invalid request",
             "schema": {
               "items": {
@@ -254,8 +219,17 @@
         "produces": [
           "application/json"
         ],
+        "parameters": [
+          { 
+            "name": "state",
+            "in": "query",
+            "description": "filter centers by state",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful request",
             "schema": {
               "items": {
@@ -281,36 +255,23 @@
         ],
         "summary": "Modifies an existing event center",
         "operationId": "CenterController.modifyCenter",
+        "consumes" : [
+          "multipart/form-data"
+        ],
         "produces": [
           "application/json"
         ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
         "parameters": [
           { 
-            "name": "image1",
+            "name": "images",
             "in": "formData",
             "description": "Image for the center to be modified.",
             "required": true,
-            "type": "file"
-          },
-          { 
-            "name": "image2",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": false,
-            "type": "file"
-          },
-          { 
-            "name": "image3",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": false,
-            "type": "file"
-          },
-          { 
-            "name": "image4",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": false,
             "type": "file"
           },
           { 
@@ -354,6 +315,13 @@
             "description": "name for the center to be modified",
             "required": true,
             "type": "integer"
+          },
+          { 
+            "name": "state",
+            "in": "formData",
+            "description": "state to be used to locate center in user search",
+            "required": false,
+            "type": "string"
           },
           { 
             "name": "id",
@@ -419,6 +387,273 @@
           }
         }
       }
+    },
+    "/events": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create new user event",
+        "operationId": "EventController.createEvent",
+        "consumes" :[
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "name",
+            "description": "Title of the event to be created",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "type",
+            "description": "Type of the event to be created",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "start",
+            "description": "Start date of the event to be created",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "days",
+            "description": "Number of days this event will span",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "guests",
+            "description": "Number of expected guests for this event",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "centerId",
+            "description": "id of the center to be booked",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "images",
+            "description": "An image for this event if available",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Deletes existing user event",
+        "operationId": "EventController.fetchEvent",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Modifies existing user event",
+        "operationId": "EventController.modifyEvent",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the event to be modified",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "name",
+            "description": "Title of the event to be created",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "type",
+            "description": "Type of the event to be created",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "start",
+            "description": "Start date of the event to be created",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "days",
+            "description": "Number of days this event will span",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "guests",
+            "description": "Number of expected guests for this event",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "centerId",
+            "description": "id of the center to be booked",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "images",
+            "description": "An image for this event if available",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Deletes existing user event",
+        "operationId": "EventController.deleteEvent",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the event to be deleted",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Success"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "userSecurity": {
+      "type": "apiKey",
+      "name": "token",
+      "in": "query"
     }
   },
   "definitions": {
@@ -448,9 +683,15 @@
         },
         "days": {
           "type": "integer"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
-      "required": ["name", "type", "center", "start", "days", "guests"]
+      "required": ["name", "type", "center", "start", "days", "guests", "id"]
     },
     "Center": {
       "type": "object",
@@ -476,6 +717,9 @@
         "capacity": {
           "type": "integer"
         },
+        "state": {
+          "type": "string"
+        },
         "images": {
           "type": "array",
           "items": {
@@ -484,6 +728,60 @@
         }
       },
       "required": ["name", "description", "address", "cost", "capacity", "facilities", "id", "images"]
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        }
+      },
+      "required": ["fullName", "email", "id", "token", "isAdmin"]
+    },
+    "UserLogin": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": ["email", "password"]
+    },
+    "UserSignin": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "confirmPassword": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        }
+      },
+      "required": ["email", "password", "confirmPassword", "fullName"]
     },
     "Error": {
       "type": "object",
