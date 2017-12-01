@@ -1,12 +1,8 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import EventController from '../controllers/eventController';
 import { CenterController } from '../controllers/centerController';
 import UserController from '../controllers/userController';
 
-// get current api version
-dotenv.config({ path: '.env' });
-const { version } = process.env;
 
 const router = express.Router();
 
@@ -14,7 +10,7 @@ module.exports = class AppRouter {
   static Router() {
     // route handler for creating a new event
     router.post(
-      `/${version}/events`,
+      '/api/v1/events',
       CenterController.handleImages(),
       (req, res, next) => CenterController.mountImages(req, res, next),
       EventController.eventValidations(),
@@ -28,7 +24,7 @@ module.exports = class AppRouter {
 
     // route handler for modifying existing event
     router.put(
-      `/${version}/events/:id`,
+      '/api/vi/events/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
       CenterController.handleImages(),
       (req, res, next) => CenterController.mountImages(req, res, next),
@@ -43,14 +39,14 @@ module.exports = class AppRouter {
 
     // route handler for deleting existing event
     router.get(
-      `/${version}/events`,
+      '/api/v1/events',
       (req, res, next) => UserController.verifyUserToken(req, res, next),
       (req, res) => EventController.fetchUserEvents(req, res),
     );
 
     // route handler for deleting existing event
     router.delete(
-      `/${version}/events/:id`,
+      '/api/v1/events/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
       (req, res, next) => UserController.verifyUserToken(req, res, next),
       (req, res) => EventController.deleteEvent(req, res),
@@ -58,7 +54,7 @@ module.exports = class AppRouter {
 
     // route handler for creating and adding a new center
     router.post(
-      `/${version}/centers`,
+      '/api/v1/centers',
       CenterController.handleImages(),
       (req, res, next) => CenterController.mountImages(req, res, next),
       CenterController.centerValidations(),
@@ -71,7 +67,7 @@ module.exports = class AppRouter {
 
     // route handler for modifying existing center
     router.put(
-      `/${version}/centers/:id`,
+      '/api/v1/centers/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
       CenterController.handleImages(),
       (req, res, next) => CenterController.mountImages(req, res, next),
@@ -85,20 +81,20 @@ module.exports = class AppRouter {
 
     // route handler for fetchinging all existing centers
     router.get(
-      `/${version}/centers/:id`,
+      '/api/v1/centers/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
       (req, res) => CenterController.fetchCenter(req, res),
     );
 
     // route handler for fetching existing center
     router.get(
-      `/${version}/centers`,
+      '/api/v1/centers',
       (req, res) => CenterController.fetchCenters(req, res),
     );
 
     // route handler for creating new user
     router.post(
-      `/${version}/users`,
+      '/api/v1/users',
       UserController.userValidations(),
       (req, res, next) => UserController.checkFailedValidations(req, res, next),
       (req, res, next) => UserController.toLowerCase(req, res, next),
@@ -108,7 +104,7 @@ module.exports = class AppRouter {
 
     // route handler to login existing center
     router.post(
-      `/${version}/users/login`,
+      '/api/v1/users/login',
       UserController.signInValidations(),
       (req, res, next) => UserController.checkFailedValidations(req, res, next),
       (req, res, next) => UserController.toLowerCase(req, res, next),
