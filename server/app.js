@@ -19,7 +19,7 @@ module.exports = class App {
     database.setUp();
     database.sync();
     const app = express();
-    app.use(cors({ credentials: true, origin: true }));
+    app.use(cors());
     swaggerTools.initializeMiddleware(swaggerDoc, (middleware) => {
       app.use(middleware.swaggerMetadata());
       app.use(middleware.swaggerValidator());
