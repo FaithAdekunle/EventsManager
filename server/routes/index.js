@@ -24,7 +24,7 @@ module.exports = class AppRouter {
 
     // route handler for modifying existing event
     router.put(
-      '/api/vi/events/:id',
+      '/api/v1/events/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
       CenterController.handleImages(),
       (req, res, next) => CenterController.mountImages(req, res, next),

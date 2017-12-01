@@ -7,7 +7,7 @@ import { readFileSync } from 'fs';
 
 chai.use(chaiHttp);
 chai.should();
-const host = 'https://andela-events-manager.herokuapp.com/api/v1';
+const host = 'localhost:7777/api/v1';
 
 const userEmail = `${uuidv4()}@gmail.com`;
 const adminEmail = `${uuidv4()}@gmail.com`;
