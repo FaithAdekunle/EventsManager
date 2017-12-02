@@ -44,6 +44,15 @@ module.exports = class AppRouter {
       (req, res) => EventController.fetchUserEvents(req, res),
     );
 
+    // route handler for declining existing event
+    router.put(
+      '/api/v1/events/:id/decline',
+      (req, res, next) => UserController.sanitizeId(req, res, next),
+      (req, res, next) => UserController.verifyAdmin(req, res, next),
+      (req, res, next) => EventController.declineUserEvent(req, res, next),
+      (req, res) => EventController.sendMail(req, res),
+    );
+
     // route handler for deleting existing event
     router.delete(
       '/api/v1/events/:id',

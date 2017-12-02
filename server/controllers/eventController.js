@@ -1,8 +1,21 @@
 import moment from 'moment';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import database from '../db';
 import { unmountImages, jsonHandle } from './centerController';
+
+dotenv.config({ path: '.env' });
+
+// set up transporter for nodemailer
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD,
+  },
+});
 
 module.exports = class EventController {
   // validate incoming body fields for /events requests
@@ -189,6 +202,57 @@ module.exports = class EventController {
         return res.json(events);
       })
       .catch(err => res.status(404).json({ err: err.message || 'problem occured fetching user events' }));
+  }
+
+  /** declineEvent(req, res) declines a user's event
+      and sets its isAccepted field value to false */
+  static declineUserEvent(req, res, next) {
+    database.event.update({ isAccepted: false }, {
+      where: {
+        id: req.params.id,
+      },
+    })
+      .then((rows) => {
+        if (rows <= 0) return res.status(404).json({ err: 'event not found' });
+        return next();
+      })
+      .catch(err => res.status(404).json({ err: err.message || 'problem occured declining event' }));
+  }
+
+  // sendMail(req, res) sends a mail to user informing user of the decline
+  static sendMail(req, res) {
+    database.event.findOne({
+      where: {
+        id: req.params.id,
+      },
+    })
+      .then((event) => {
+        if (!event) return res.status(404).json({ err: 'event declined, mail could not be sent' });
+        return database.user.findOne({
+          where: {
+            id: event.userId,
+          },
+        })
+          .then((user) => {
+            const mailOptions = {
+              from: process.env.EMAIL,
+              subject: 'Event Decline',
+              to: user.email,
+              html: `<p>Dear user, we are very sorry to inform you that your event titled <strong>${event.name}</strong> slated between ${event.start} and ${event.end} has been declined due to internal reasons</p>. 
+                    <p>Appropriate refunds will be made. Do bare with us please.</p>
+                    <p>Thanks. Admin.</p>`,
+            };
+            return transporter.sendMail(mailOptions, (error, info) => {
+              if (error) return res.status(404).json({ err: 'event declined, error occured sending mail to user' });
+              return res.json({
+                status: 'success',
+                msg: `event declined successful and user notified in mail ${info.messageId}`,
+              });
+            });
+          })
+          .catch(err => res.status(404).json({ err: err.message || 'event declined, problem occured notifying user' }));
+      })
+      .catch(err => res.status(404).json({ err: err.message || 'event declined, problem occured notifying user' }));
   }
 };
 

@@ -646,6 +646,50 @@
           }
         }
       }
+    },
+    "/events/{id}/decline": {
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Declines existing user event",
+        "operationId": "EventController.declineUserEvent",
+        "produces": [
+          "application/json"
+        ],
+        "security": [
+          {
+            "userSecurity": []
+          }
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the event to be modified",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Success"
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "securityDefinitions": {

@@ -35,6 +35,11 @@ module.exports = class EventModel {
         type: this.DataTypes.STRING,
         allowNull: true,
       },
+      isAccepted: {
+        type: this.DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
     });
     return event;
   }
