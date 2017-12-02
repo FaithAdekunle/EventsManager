@@ -8,7 +8,6 @@ import { readFileSync } from 'fs';
 chai.use(chaiHttp);
 chai.should();
 const host = 'andela-events-manager.herokuapp.com/api/v1';
-
 const userEmail = `${uuidv4()}@gmail.com`;
 const adminEmail = `${uuidv4()}@gmail.com`;
 const userPassword = uuidv4();
@@ -930,6 +929,18 @@ describe('Tests for events api', () => {
           res.should.have.status(409);
           res.should.be.a('object');
           res.body.should.have.property('err').equal('dates have been booked');
+          done();
+        });
+    });
+
+    it('should return a status 200 success response for declining user event', (done) => {
+      chai
+        .request(host)
+        .put(`/events/${eventId}/decline?token=${adminToken}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.a('object');
+          res.body.should.have.property('status').equal('success');
           done();
         });
     });
