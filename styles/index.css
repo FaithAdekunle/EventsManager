@@ -262,11 +262,10 @@ ul.nav-tabs {
 	ul.nav-tabs{
 		padding: 0 20px 0 20px;
 	}
-	.homepage-highlights > .border-me {
-		border-right: 4px solid white;
-	}
-	.homepage-highlights > .border-me {
-		border-right: 4px solid white;
-	}
+}
 
+@media (min-width: 992px) {
+	.homepage-highlights > .border-me {
+		border-right: 4px solid white;
+	}
 }
