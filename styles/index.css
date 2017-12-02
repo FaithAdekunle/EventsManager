@@ -21,26 +21,6 @@
 .body-section > .row > .col-md-4 > .card {
 	margin-bottom: 30px;
 }
-.after-body-section {
-	padding: 20px 0 30px 0;
-}
-.after-body-section > h1 {
-	margin-bottom: 50px;
-}
-.after-body-section > .jumbotron > .row > .col-md > h1 {
-	padding: 30px;
-}
-.after-body-section > .jumbotron {
-	background-color: grey;
-}
-.after-body-section > .jumbotron > button {
-	margin-top: 10px;
-	padding: 20px 0 20px 0;
-	font-size: 20px;
-}
-.after-body-section > .jumbotron > button:hover {
-	cursor: pointer;
-}
 #myFooter {
 	background-color: #373a48;
 	color: white;
@@ -188,7 +168,7 @@ ul.nav-tabs {
 .venue > a {
 	color: black;
 }
-.venue > a:hover{
+.venue > a:hover {
 	text-decoration: none;
 }
 #center-name {
@@ -197,8 +177,36 @@ ul.nav-tabs {
 #center-name:hover {
 	color: #006dcc;
 }
-
-
+.input-group-addon:hover {
+	cursor: pointer;
+}
+.body-section > .row > .col-md-4 > .card {
+	min-height: 380px;
+}
+.body-section > .row > .col-md-4 > .card > img {
+	height: 200px;
+}
+.see-for-yourself {
+	margin-top: 35px;
+	margin-bottom: 20px;
+}
+.see-for-yourself:hover {
+	cursor: pointer;
+}
+.homepage-highlights {
+	margin-top: 30px;
+	margin-bottom: 20px;
+}
+.homepage-highlights > .col-md {
+	padding-top: 10px;
+}
+.sign_body {
+	background: url('../images/forms.png');
+}
+.btn-default.btn-block {
+	cursor: pointer;
+	margin-bottom: 20px;
+}
 
 
 
@@ -211,7 +219,7 @@ ul.nav-tabs {
 		margin-top: 100px;
 	}
 	.homepage-message {
-		padding-top: 80px;
+		padding-top: 20px;
 	}
 	#myFooter {
 		text-align: center;
@@ -238,7 +246,7 @@ ul.nav-tabs {
 		cursor: pointer;
 	}
 	.carousel-item > img {
-		height: 450px;
+		height: 600px;
 	}
 	.center-title {
 		margin-left: 20px;
@@ -254,4 +262,11 @@ ul.nav-tabs {
 	ul.nav-tabs{
 		padding: 0 20px 0 20px;
 	}
+	.homepage-highlights > .border-me {
+		border-right: 4px solid white;
+	}
+	.homepage-highlights > .border-me {
+		border-right: 4px solid white;
+	}
+
 }

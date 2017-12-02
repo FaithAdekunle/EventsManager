@@ -9,7 +9,7 @@
     <script src="./javascripts/jquery-3.2.1.min.js"></script>
     <script src="./styles/bootstrap/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
+<body class="sign_body">
 	<nav class="navbar fixed-top navbar-expand-sm navbar-light bg-dark">
 	  <a class="navbar-brand text-white mr-auto" href="./index.html">EventsManager</a>
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,12 +40,13 @@
 								<input type="text" class="form-control" id="fullname" name="fullname">
 								<label for="email" class="col-form-label">Email address</label>
 								<input type="email" class="form-control" id="email" name="email">
-								<small id="email-help" class="form-text text-muted">A link will be sent to this email to complete sign up.</small>
 								<label for="phone" class="col-form-label">Phone number</label>
 								<input type="text" class="form-control" id="phone" name="phone">
 								<label for="password" class="col-form-label">Password</label>
 								<input type="password" class="form-control" id="password" name="password">
 								<small id="password-help" class="form-text text-muted">Password must be at least 8 characters</small>
+								<label for="confirmPassword" class="col-form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
 								<input type="submit" id="submit" class="btn btn-block btn-outline-primary" value="Sign Up">
 							</div>
 						</form>

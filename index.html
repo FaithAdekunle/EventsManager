@@ -5,6 +5,7 @@
 	<title>EventsManager</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" type="text/css" href="./styles/index.css">
+    <link rel="stylesheet" type="text/css" href="./styles/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="./styles/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
@@ -16,8 +17,10 @@
 		  </button>
 		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 		    <form class="form-inline ml-auto my-lg-0">
-		      <input class="form-control mr-sm-2" type="search" placeholder="Find event center" aria-label="Search">
-		      <button class="btn btn-outline-primary text-white my-2 my-sm-0" type="submit">Search</button>
+		      <div class="input-group">
+            <input type="text" class="form-control" placeholder="search centers" aria-describedby="navbar-search">
+            <span class="input-group-addon" id="navbar-search"><i class="fa fa-search" aria-hidden="true"></i></span>
+          </div>
 		    </form>
 		    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
 		    	<li class="nav-item">
@@ -37,7 +40,25 @@
 				<div class="row">
 					<div class="col-md-6 homepage-message">
 						<h1 class="text-white">Planning an event?</h1>
-						<h3 class="text-white">We've got a variety of multipurpose event centers with latest facilities and at great locations, just for what you have in mind.</h3>>
+						<h3 class="text-white">We've got a variety of multipurpose event centers, structured just for what you have in mind.</h3>
+                <div class="row homepage-highlights">
+                  <div class="col-md border-me">
+                    <div class="text-center">
+                      <h3 class="text-white">Quality Facilities</h3>
+                    </div>
+                  </div>
+                  <div class="col-md border-me">
+                    <div class="text-center">
+                      <h3 class="text-white">Great Locations</h3>
+                    </div>
+                  </div>
+                  <div class="col-md">
+                    <div class="text-center">
+                      <h3 class="text-white">Affordable Prices</h3>
+                    </div>
+                  </div>
+                </div>
+              <button class="btn btn-primary btn-block see-for-yourself" onclick="navTo('./centers.html')">See for yourself</button>
 					</div>
 					<div class="col-md-6 col-lg-4 offset-lg-1">
 						<div class="card">
@@ -53,6 +74,8 @@
 										<label for="password" class="col-form-label">Password</label>
 										<input type="password" class="form-control" id="password" name="password">
 										<small id="password-help" class="form-text text-muted">At least 8 characters</small>
+                    <label for="confirmPassword" class="col-form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
 										<input id="submit" type="submit" class="btn btn-block btn-primary toEvents" value="Sign up to register your event.">
 									</div>
 								</form>
@@ -80,7 +103,7 @@
   					<img class="card-img-top" src="./images/parties.jpg" alt="Card image cap">
   					<div class="card-body">
   					<h4 class="card-title">Parties</h4>
-    				<p class="card-text">From weddings to birthdays and anniversaries. The best space to host your family, friends, well wishers and be celebrated.</p>
+    				<p class="card-text">From weddings to birthdays and anniversaries. The best space to host your family, friends and well wishers.</p>
   					</div>
  				</div>
 			</div>
@@ -107,7 +130,7 @@
   					<img class="card-img-top" src="./images/confhall.jpg" alt="Card image cap">
   					<div class="card-body">
   					<h4 class="card-title">Conferences</h4>
-    				<p class="card-text">Gather your colleges to rub minds at our standard conference halls.</p>
+    				<p class="card-text">Gather your colleages to rub minds at our standard conference halls.</p>
   					</div>
  				</div>
 			</div>
@@ -117,30 +140,16 @@
 		</div>
 		<hr>
 	</div>
-	<div class="container after-body-section">
-		<h1 class="text-center">Our centers offer</h1>
-		<div class="jumbotron">
-			<div class="row">
-				<div class="col-md"><h1 class="text-center bg-primary text-white">Standard Facilities</h1></div>
-				<div class="col-md"><h1 class="text-center bg-primary text-white">Great locations</h1></div>
-				<div class="col-md"><h1 class="text-center bg-primary text-white">Affordable prices</h1></div>
-			</div>
-			<button class="btn btn-primary btn-block" onclick="navTo('./centers.html')">See for yourself</button>
-		</div>
-	</div>
 	<footer id="myFooter">
         <div class="container">
             <div class="row">
-                <div class="col-sm-3 myCols">
+                <div class="col-sm-4 myCols">
                     <a href="./centers.html"><h5>Centers</h5></a>
                 </div>
-                <div class="col-sm-3 myCols">
-                    <a href="./sign_up.html"><h5>Sign up</h5></a>
-                </div>
-                <div class="col-sm-3 myCols">
+                <div class="col-sm-4 myCols">
                     <a href=""><h5>Contact us</h5></a>
                 </div>
-                <div class="col-sm-3 myCols">
+                <div class="col-sm-4 myCols">
                     <a href="./admin_sign_in.html"><h5>Admin</h5></a>
                 </div>
             </div>

@@ -16,8 +16,10 @@
 	  </button>
 	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 	    <form class="form-inline ml-auto my-lg-0">
-	      <input class="form-control mr-sm-2" type="search" placeholder="Find event center" aria-label="Search">
-	      <button class="btn btn-outline-primary text-white my-2 my-sm-0" type="submit">Search</button>
+	      <div class="input-group">
+          <input type="text" class="form-control" placeholder="search centers" aria-describedby="navbar-search">
+          <span class="input-group-addon" id="navbar-search"><i class="fa fa-search" aria-hidden="true"></i></span>
+        </div>
 	    </form>
 	    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
 	    	<li class="nav-item">
@@ -62,41 +64,64 @@
 			<div class="col-lg-8">
 				<p class="text-justify">You need a WOW! Experience? Why waste time, book Brava Events Centre Banquet Hall today. The compound is well plastered with adorning flowers that add beauty to your day. It has a very spacious parking space for your loved ones. Your guest get a first class view of all the action of the day with facilities provided such as televisions, great lighting, projector, well-structured stage, sound system, air conditioning, 24 hour power supply, tables and chairs, rest rooms. You, our most esteemed host get a comfortable private changing room with maximum security. So why contemplate? Visit us now for a golden opportunity.
 Types of events you can host at Brava Events Centre Banquet Hall are; Wedding reception, Marital vows, Seminars, Religious activities, Meetings, Shareholders meetings, Trade shows, Dinners, Press conference, Networking events, Birthdays, Anniversaries, Music concert, Gala Night amongst others.</p>
-				<div class="row more">
-					<div class="col-md-4">
-						<div>Details</div>
-						<ul class="list-group">
-						  <li class="list-group-item"><i class="fa fa-map-marker" aria-hidden="true"></i><span> Block 5, XYZ road, Ikeja, Lagos</span></li>
-						  <li class="list-group-item"><i class="fa fa-users" aria-hidden="true"></i></i><span> 400 Guests</span></li>
-						  <li class="list-group-item"><i class="fa fa-money" aria-hidden="true"></i></i><span> 300, 000</span></li>
-						</ul>
-					</div>
-					<div class="col-md-4">
-						<div>Booked dates</div>
-						<ul class="list-group">
-						  <li class="list-group-item">Sat, 20/11/2017</li>
-						  <li class="list-group-item">Mon, 29/11/2017</li>
-						  <li class="list-group-item">Sat, 04/12/2017</li>
-						  <li class="list-group-item">Sun, 05/12/2017</li>
-						  <li class="list-group-item">Sun, 12/12/2017</li>
-						</ul>
-					</div>
-					<div class="col-md-4">
-						<div>Facilities</div>
-						<ul class="list-group">
-						  <li class="list-group-item">Tables</li>
-						  <li class="list-group-item">Air condition</li>
-						  <li class="list-group-item">Sound system</li>
-						  <li class="list-group-item">Parking space</li>
-						  <li class="list-group-item">Changing room</li>
-						  <li class="list-group-item">Projector</li>
-						  <li class="list-group-item">Power supply</li>
-						</ul>
-					</div>
-				</div>
+			<button type="button" class="btn btn-default btn-lg btn-block" data-toggle="modal" data-target="#myModal">
+    		See more about this center
+  		</button>
+  		<div class="modal fade" id="myModal">
+			  <div class="modal-dialog modal-lg">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h4 class="modal-title text-center">Brava Events Center Banquet Hall</h4>
+			        <button type="button" class="close" data-dismiss="modal">&times;</button>
+			      </div>
+			      <div class="modal-body">
+							<div class="row more">
+								<div class="col-md-4">
+									<div>Details</div>
+									<ul class="list-group">
+									  <li class="list-group-item"><i class="fa fa-map-marker" aria-hidden="true"></i><span> Block 5, XYZ road, Ikeja, Lagos</span></li>
+									  <li class="list-group-item"><i class="fa fa-users" aria-hidden="true"></i></i><span> 400 Guests</span></li>
+									  <li class="list-group-item"><i class="fa fa-money" aria-hidden="true"></i></i><span> 300, 000</span></li>
+									</ul>
+								</div>
+								<div class="col-md-4">
+									<div>Booked dates</div>
+									<ul class="list-group">
+									  <li class="list-group-item">Sat, 20/11/2017</li>
+									  <li class="list-group-item">Mon, 29/11/2017</li>
+									  <li class="list-group-item">Sat, 04/12/2017</li>
+									  <li class="list-group-item">Sun, 05/12/2017</li>
+									  <li class="list-group-item">Sun, 12/12/2017</li>
+									</ul>
+								</div>
+								<div class="col-md-4">
+									<div>Facilities</div>
+									<ul class="list-group">
+									  <li class="list-group-item">Tables</li>
+									  <li class="list-group-item">Air condition</li>
+									  <li class="list-group-item">Sound system</li>
+									  <li class="list-group-item">Parking space</li>
+									  <li class="list-group-item">Changing room</li>
+									  <li class="list-group-item">Projector</li>
+									  <li class="list-group-item">Power supply</li>
+									</ul>
+								</div>
+							</div>
+			      </div>
+			    </div>
+			  </div>
+			</div>
 			</div>
 			<div class="col-lg-4">
 				<form  class="book-now" onsubmit="navT0('./events.html'); return false;">
+					<div class="form-group">
+						<label for="name" class="col-form-label">Name</label>
+						<input type="text" class="form-control" id="name" name="name">
+					</div>
+					<div class="form-group">
+						<label for="center" class="col-form-label">Event center</label>
+						<input type="text" class="form-control" id="center" name="center" value="Brava Events Center Banquet Hall, Lagos" disabled>
+					</div>
 					<div class="row">
 						<div class="col-5">
 							<div class="form-group">
@@ -110,10 +135,6 @@ Types of events you can host at Brava Events Centre Banquet Hall are; Wedding re
 								<input type="date" class="form-control" id="data" name="date">
 							</div>
 						</div>
-					</div>
-					<div class="form-group">
-						<label for="name" class="col-form-label">Name</label>
-						<input type="text" class="form-control" id="name" name="name">
 					</div>
 					<div class="row">
 						<div class="col-6">
@@ -138,35 +159,13 @@ Types of events you can host at Brava Events Centre Banquet Hall are; Wedding re
 							</div>
 						</div>
 					</div>
-					<div class="form-group">
-						<label for="center" class="col-form-label">Event center</label>
-						<input type="text" class="form-control" id="center" name="center" value="Brava Events Center Banquet Hall, Lagos" disabled>
-					</div>
 					<input type="submit" id="submit" class="btn btn-block btn-outline-primary" value="Book this venue" disabled="true">
 				</form>
 			</div>
 		</div>
 	</div>
-	<footer id="myFooter">
-        <div class="container">
-            <div class="row">
-                <div class="col-4 myCols">
-                    <a href="./index.html"><h5>Home</h5></a>
-                </div>
-                <div class="col-4 myCols">
-                    <a href="./centers.html"><h5>Centers</h5></a>
-                </div>
-                <div class="col-4 myCols">
-                    <a href=""><h5>Contact us</h5></a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            <p>	&#9400; 2017 Copyright  </p>
-        </div>
-    </footer>
 	<script src="./javascripts/jquery-3.2.1.min.js"></script>
-    <script src="./styles/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="./styles/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<script src="./javascripts/index.js"></script>
 </body>
 </html>
