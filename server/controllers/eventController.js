@@ -243,6 +243,7 @@ module.exports = class EventController {
                     <p>Thanks. Admin.</p>`,
             };
             return transporter.sendMail(mailOptions, (error, info) => {
+              console.log(error);
               if (error) return res.status(404).json({ err: 'event declined, error occured sending mail to user' });
               return res.json({
                 status: 'success',

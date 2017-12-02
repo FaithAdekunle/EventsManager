@@ -938,6 +938,7 @@ describe('Tests for events api', () => {
         .request(host)
         .put(`/events/${eventId}/decline?token=${adminToken}`)
         .end((err, res) => {
+          console.log(res);
           res.should.have.status(200);
           res.should.be.a('object');
           res.body.should.have.property('status').equal('success');
