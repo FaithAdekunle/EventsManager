@@ -2,12 +2,15 @@
     "extends": "airbnb",
     "parser": "babel-eslint",
     "rules": {
-      "strict": 0
+      "strict": 0,
+      "linebreak-style": 0,
+      "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
     },
     "env": {
     "node": true,
     "mocha": true,
-    "es6": true
+    "es6": true,
+    "browser": true
     },
     "settings": {
         "import/resolver": "node"
