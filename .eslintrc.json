@@ -5,7 +5,9 @@
       "strict": 0,
       "linebreak-style": 0,
       "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
-      "react/prefer-stateless-function": [0, { "ignorePureComponents": true }]
+      "react/prefer-stateless-function": [0, { "ignorePureComponents": true }],
+      "import/extensions": "off",
+      "import/no-unresolved": "off"
     },
     "env": {
     "node": true,
