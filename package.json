@@ -20,7 +20,7 @@
     "test": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 ./server/tests/test.js --compilers js:babel-register",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
-    "pack": "webpack -d && webpack-dev-server --content-base client/dist/ --inline"
+    "pack": "webpack -d && webpack-dev-server --hot"
   },
   "dependencies": {
     "bcrypt": "^1.0.3",
@@ -43,6 +43,7 @@
     "popper.js": "^1.12.9",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-router-dom": "^4.2.2",
     "sequelize": "^4.23.1",
     "sequelize-cli": "^3.1.0",
     "swagger-tools": "^0.10.3",
