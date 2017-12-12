@@ -1,6 +1,6 @@
 import React from 'react';
 import { Switch, Redirect, Route } from 'react-router-dom';
-import Center from './CenterComponent';
+import CenterDetails from './CenterDetailsComponent';
 import Centers from './CentersComponent';
 
 class EventCenters extends React.Component {
@@ -16,7 +16,7 @@ class EventCenters extends React.Component {
           <Route
             exact
             path="/centers/:id"
-            component={Center}
+            component={CenterDetails}
           />
           <Redirect from="/centers/*" to="/centers" />
         </Switch>

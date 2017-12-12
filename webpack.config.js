@@ -3,7 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './client/src/app/index.js',
+  entry: ['./client/src/app/index.js'],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'client/dist/app'),
@@ -28,6 +28,18 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        use: ['url-loader'],
+      },
+      {
+        test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
+        use: ['file-loader'],
       },
     ],
   },

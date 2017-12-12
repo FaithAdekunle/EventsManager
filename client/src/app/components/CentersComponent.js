@@ -1,10 +1,14 @@
 import React from 'react';
+import Center from './CenterComponent';
 
 class Centers extends React.Component {
   render() {
     return (
       <div>
-        <h1 className="text-center">Multiple centers page here...</h1>
+        <div><Center /></div>
+        <div><Center /></div>
+        <div><Center /></div>
+        <div><Center /></div>
       </div>
     );
   }
