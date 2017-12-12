@@ -7,43 +7,53 @@ import Signup from './SignupComponent';
 import Admin from './AdminComponent';
 import UserEvents from './UserEventsComponent';
 
-class Main extends React.Component {
-  render() {
-    return (
-      <div>
-        <Switch>
-          <Route
-            exact
-            path="/home"
-            component={Home}
+const Main = props => (
+  <div>
+    <Switch>
+      <Route
+        exact
+        path="/home"
+        component={Home}
+      />
+      <Route
+        exact
+        path="/signin"
+        render={() => (
+          <Signin
+            updateNavTabState={props.updateNavTabState}
+            updateUserState={props.updateUserState}
           />
-          <Route
-            exact
-            path="/signin"
-            component={Signin}
+        )}
+      />
+      <Route
+        exact
+        path="/signup"
+        render={() => (
+          <Signup
+            updateNavTabState={props.updateNavTabState}
+            updateUserState={props.updateUserState}
           />
-          <Route
-            exact
-            path="/signup"
-            component={Signup}
-          />
-          <Route
-            path="/admin"
-            component={Admin}
-          />
-          <Route
-            path="/events"
-            component={UserEvents}
-          />
-          <Route
-            path="/centers"
-            component={EventCenters}
-          />
-          <Redirect from="*" to="/home" />
-        </Switch>
-      </div>
-    );
-  }
-}
+        )}
+      />
+      <Route
+        path="/admin"
+        render={() => (
+          <Admin updateNavTabState={props.updateNavTabState} />
+        )}
+      />
+      <Route
+        path="/events"
+        render={() => (
+          <UserEvents updateNavTabState={props.updateNavTabState} />
+        )}
+      />
+      <Route
+        path="/centers"
+        component={EventCenters}
+      />
+      <Redirect from="*" to="/home" />
+    </Switch>
+  </div>
+);
 
 export default Main;
