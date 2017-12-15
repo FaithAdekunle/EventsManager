@@ -23,6 +23,7 @@
     "pack": "webpack -d && webpack-dev-server --hot"
   },
   "dependencies": {
+    "axios": "^0.17.1",
     "bcrypt": "^1.0.3",
     "body-parser": "~1.18.2",
     "bootstrap": "^4.0.0-beta.2",
@@ -44,6 +45,7 @@
     "pg": "^7.4.0",
     "pg-hstore": "^2.3.2",
     "popper.js": "^1.12.9",
+    "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",

@@ -22,6 +22,7 @@ const Main = props => (
           <Signin
             updateNavTabState={props.updateNavTabState}
             updateUserState={props.updateUserState}
+            history={props.history}
           />
         )}
       />
@@ -32,24 +33,38 @@ const Main = props => (
           <Signup
             updateNavTabState={props.updateNavTabState}
             updateUserState={props.updateUserState}
+            history={props.history}
           />
         )}
       />
       <Route
         path="/admin"
         render={() => (
-          <Admin updateNavTabState={props.updateNavTabState} />
+          <Admin
+            updateNavTabState={props.updateNavTabState}
+            history={props.history}
+          />
         )}
       />
       <Route
         path="/events"
         render={() => (
-          <UserEvents updateNavTabState={props.updateNavTabState} />
+          <UserEvents
+            updateNavTabState={props.updateNavTabState}
+            history={props.history}
+            match={props.match}
+          />
         )}
       />
       <Route
         path="/centers"
-        component={EventCenters}
+        render={() => (
+          <EventCenters
+            updateNavTabState={props.updateNavTabState}
+            history={props.history}
+            match={props.match}
+          />
+        )}
       />
       <Redirect from="*" to="/home" />
     </Switch>

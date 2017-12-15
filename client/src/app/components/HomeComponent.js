@@ -43,7 +43,7 @@ const Home = () => (
                     <small id="password-help" className="form-text text-muted">At least 8 characters</small>
                     <label htmlFor="confirmPassword" className="col-form-label">Confirm Password</label>
                     <input type="password" className="form-control" id="confirmPassword" name="confirmPassword" />
-                    <input id="submit" type="submit" className="btn btn-block btn-primary to-events" value="Sign up to register your event." />
+                    <input id="submit" type="submit" className="btn btn-block btn-primary submit-button" value="Sign up to register your event." />
                   </div>
                 </form>
               </div>

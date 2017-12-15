@@ -33,13 +33,19 @@ class App extends React.Component {
       email: user.email,
     };
     this.setState({ userState });
+    console.log(user);
   }
 
   render() {
     return (
       <div>
         <NavTab navTabState={this.state.navTabState} userState={this.state.userState} />
-        <Main updateNavTabState={this.updateNavTabState} updateUserState={this.updateUserState} />
+        <Main
+          updateNavTabState={this.updateNavTabState}
+          updateUserState={this.updateUserState}
+          history={this.props.history}
+          match={this.props.match}
+        />
       </div>
     );
   }
