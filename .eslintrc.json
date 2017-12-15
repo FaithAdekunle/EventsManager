@@ -8,7 +8,10 @@
       "react/prefer-stateless-function": [0, { "ignorePureComponents": true }],
       "import/extensions": "off",
       "import/no-unresolved": "off",
-      "jsx-a11y/label-has-for": [0]
+      "jsx-a11y/label-has-for": [0],
+      "no-nested-ternary": "off",
+      "react/require-default-props": "off",
+      "react/forbid-prop-types":"off"
     },
     "env": {
     "node": true,
