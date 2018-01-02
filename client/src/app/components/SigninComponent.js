@@ -1,24 +1,45 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
 class SignIn extends React.Component {
   static propTypes = {
-    updateNavTabState: PropTypes.func,
-    updateUserState: PropTypes.func,
     history: PropTypes.object,
+    alertState: PropTypes.string,
+    loginState: PropTypes.object,
+    updateUserState: PropTypes.func,
+    updateLoginState: PropTypes.func,
+    updateAlertState: PropTypes.func,
+    updatePageState: PropTypes.func,
   }
 
   constructor() {
     super();
     this.changeFormState = this.changeFormState.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-    this.state = {
-      error: {
-        status: false,
-        message: null,
-      },
-    };
+    this.navToSignup = this.navToSignup.bind(this);
+  }
+
+  componentDidMount() {
+    const { loginState, history, updatePageState } = this.props;
+    if (loginState.userIsSignedIn) {
+      if (loginState.userIsAdmin) history.push('/admin');
+      else { history.push('/events'); }
+    } else {
+      updatePageState({
+        userOnSignInPage: true,
+        userOnSignUpPage: false,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.updatePageState({
+      userOnSignInPage: false,
+      userOnSignUpPage: false,
+    });
+    this.props.updateAlertState(null);
   }
 
   onSubmit(event) {
@@ -31,25 +52,29 @@ class SignIn extends React.Component {
     axios
       .post('http://andela-events-manager.herokuapp.com/api/v1/users/login', credentials)
       .then((response) => {
-        const user = {
+        const userState = {
           fullname: response.data.fullName,
           email: response.data.email,
         };
-        localStorage.setItem('appToken', response.data.token);
-        this.props.updateUserState(user);
-        this.props.updateNavTabState({ isSignedIn: true });
+        const loginState = {
+          userIsSignedIn: true,
+          userIsAdmin: response.data.isAdmin,
+        };
+        const eventsManager = {
+          appToken: response.data.token,
+          userState,
+          loginState,
+        };
+        localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
+        this.props.updateUserState(userState);
+        this.props.updateLoginState(loginState);
         this.props.history.push('/events');
       })
       .catch((err) => {
         this.changeFormState(false);
-        this.form.reset();
-        const error = {
-          status: true,
-          message: err.response ? (Array.isArray(err.response.data.err) ? err.response.data.err[0] : err.response.data.err) : 'Poor network. Check connection',
-        };
-        this.setState({ error });
-        this.alert.classList.remove('hidden');
-        setTimeout(() => this.alert.classList.add('hidden'), 10000);
+        this.props.updateAlertState(err.response ? (Array.isArray(err.response.data.err) ?
+          err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
+        setTimeout(() => this.props.updateAlertState(null), 10000);
       });
   }
 
@@ -59,6 +84,10 @@ class SignIn extends React.Component {
     this.password.disabled = disabled;
     if (disabled) return this.spinner.classList.remove('hidden');
     return this.spinner.classList.add('hidden');
+  }
+
+  navToSignup() {
+    this.props.history.push('/signup');
   }
 
   render() {
@@ -72,7 +101,7 @@ class SignIn extends React.Component {
                   <h2>Sign in to manage your events and more <i className="fa fa-spinner fa-spin hidden" ref={(input) => { this.spinner = input; }} aria-hidden="true" /></h2>
                 </div>
                 <div className="card-body">
-                  <form onSubmit={this.onSubmit} ref={(input) => { this.form = input; }}>
+                  <form onSubmit={this.onSubmit}>
                     <div className="form-group">
                       <label htmlFor="email" className="col-form-label">Email address</label>
                       <input
@@ -89,6 +118,7 @@ class SignIn extends React.Component {
                         className="form-control"
                         id="password"
                         minLength="8"
+                        maxLength="20"
                         ref={(input) => { this.password = input; }}
                       />
                       <input
@@ -101,10 +131,13 @@ class SignIn extends React.Component {
                   </form>
                 </div>
               </div>
+              <div className="redirect">
+                <a className="navTo" onClick={this.navToSignup}>New here? Sign up for a new account.</a>
+              </div>
             </div>
             <div className="col-md-2 col-lg-3">
-              <div className="alert alert-danger hidden" role="alert" ref={(input) => { this.alert = input; }}>
-                {this.state.error.message}
+              <div className={`alert alert-danger ${!this.props.alertState ? 'hidden' : ''}`}>
+                {this.props.alertState}
               </div>
             </div>
           </div>
@@ -114,4 +147,40 @@ class SignIn extends React.Component {
   }
 }
 
-export default SignIn;
+const mapStateToProps = (state) => {
+  return {
+    loginState: state.loginState,
+    alertState: state.alertState,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateLoginState: (loginState) => {
+      dispatch({
+        type: 'UPDATE_LOGIN_STATE',
+        payload: loginState,
+      });
+    },
+    updateUserState: (userState) => {
+      dispatch({
+        type: 'UPDATE_USER_STATE',
+        payload: userState,
+      });
+    },
+    updateAlertState: (msg) => {
+      dispatch({
+        type: 'UPDATE_ALERT_STATE',
+        payload: msg,
+      });
+    },
+    updatePageState: (pageState) => {
+      dispatch({
+        type: 'UPDATE_PAGE_STATE',
+        payload: pageState,
+      });
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);

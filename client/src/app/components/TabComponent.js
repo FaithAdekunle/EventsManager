@@ -1,30 +1,64 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
+import Proptypes from 'prop-types';
+import { connect } from 'react-redux';
 
 class NavTab extends React.Component {
+  static propTypes = {
+    loginState: Proptypes.object,
+    pageState: Proptypes.object,
+    userState: Proptypes.object,
+    history: Proptypes.object,
+    updateUserState: Proptypes.func,
+    updateLoginState: Proptypes.func,
+  }
+
+  constructor() {
+    super();
+    this.navTo = this.navTo.bind(this);
+    this.signout = this.signout.bind(this);
+  }
+
+  getFirstName(fullName) {
+    const firstName = fullName.split(' ')[0];
+    return `${firstName[0].toUpperCase()}${firstName.slice(1)}`;
+  }
+
+  navTo(destination) {
+    this.props.history.push(destination);
+  }
+
+  signout() {
+    localStorage.removeItem('eventsManager');
+    this.props.updateUserState({ email: null, fullname: null });
+    this.props.updateLoginState({ userIsSignedIn: false, userIsAdmin: false });
+    this.navTo('/home');
+  }
+
   render() {
-    const { navTabState, userState } = this.props;
-    if (!navTabState.isAdmin) {
-      let firstLink = (<li className="nav-item"><a className="nav-link text-white" href="/signin">Sign in</a></li>);
-      let secondLink = (<li className="nav-item active"><a className="nav-link text-white" href="/signup">Sign up</a></li>);
-      if (!navTabState.isSignedIn) {
-        if (navTabState.onSignupPage) firstLink = null;
-        if (navTabState.onSignInPage) secondLink = null;
-      } else {
+    const { loginState, pageState, userState } = this.props;
+    if (!loginState.userIsAdmin) {
+      let firstLink = (<li className="nav-item"><a className="nav-link text-white navTo" onClick={() => this.navTo('/signin')}>Sign in</a></li>);
+      let secondLink = (<li className="nav-item active"><a className="nav-link text-white navTo"onClick={() => this.navTo('/signup')}>Sign up</a></li>);
+      if (!loginState.userIsSignedIn) {
+        if (pageState.userOnSignInPage) firstLink = null;
+        if (pageState.userOnSignUpPage) secondLink = null;
+      } else if (userState.fullname) {
         firstLink = null;
         secondLink = (
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{userState.fullname.split(' ').join('_')}</a>
+            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{this.getFirstName(userState.fullname)}</a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a className="dropdown-item" href="./add_event.html">Add Event</a>
+              <a className="dropdown-item navTo" onClick={() => this.navTo('/events')}>My Events</a>
               <div className="dropdown-divider" />
-              <a className="dropdown-item" href="#">Sign out</a>
+              <a className="dropdown-item navTo" onClick={this.signout}>Sign out</a>
             </div>
           </li>);
       }
       return (
         <div>
           <nav className="navbar navbar-fixed-top navbar-expand-lg navbar-light bg-dark">
-            <a href="/" className="navbar-brand text-white mr-auto">EventsManager</a>
+            <a className="navbar-brand text-white mr-auto navTo" onClick={() => this.navTo('/home')}>EventsManager</a>
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon" />
             </button>
@@ -37,7 +71,7 @@ class NavTab extends React.Component {
               </form>
               <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
                 <li className="nav-item">
-                  <a className="nav-link text-white" href="/centers">Centers</a>
+                  <a className="nav-link text-white navTo" onClick={() => this.navTo('/centers')}>Centers</a>
                 </li>
                 {firstLink}
                 {secondLink}
@@ -46,18 +80,45 @@ class NavTab extends React.Component {
           </nav>
         </div>
       );
+    } else if (loginState.userIsSignedIn) {
+      return (
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <a className="nav-link active navTo"onClick={() => this.navTo('/admin')}>Centers</a>
+          </li>
+          <li className="nav-item pull-right">
+            <a className="nav-link navTo" onClick={this.signout} >Sign out</a>
+          </li>
+        </ul>
+      );
     }
-    return (
-      <ul className="nav nav-tabs">
-        <li className="nav-item">
-          <a className="nav-link active" href="/admin">Centers</a>
-        </li>
-        <li className="nav-item pull-right">
-          <a className="nav-link" href="/">Sign out</a>
-        </li>
-      </ul>
-    );
+    return null;
   }
 }
 
-export default NavTab;
+const mapStateToProps = (state) => {
+  return {
+    loginState: state.loginState,
+    userState: state.userState,
+    pageState: state.pageState,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateLoginState: (loginState) => {
+      dispatch({
+        type: 'UPDATE_LOGIN_STATE',
+        payload: loginState,
+      });
+    },
+    updateUserState: (userState) => {
+      dispatch({
+        type: 'UPDATE_USER_STATE',
+        payload: userState,
+      });
+    },
+  };
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavTab));

@@ -7,68 +7,40 @@ import Signup from './SignupComponent';
 import Admin from './AdminComponent';
 import UserEvents from './UserEventsComponent';
 
-const Main = props => (
-  <div>
-    <Switch>
-      <Route
-        exact
-        path="/home"
-        component={Home}
-      />
-      <Route
-        exact
-        path="/signin"
-        render={() => (
-          <Signin
-            updateNavTabState={props.updateNavTabState}
-            updateUserState={props.updateUserState}
-            history={props.history}
-          />
-        )}
-      />
-      <Route
-        exact
-        path="/signup"
-        render={() => (
-          <Signup
-            updateNavTabState={props.updateNavTabState}
-            updateUserState={props.updateUserState}
-            history={props.history}
-          />
-        )}
-      />
-      <Route
-        path="/admin"
-        render={() => (
-          <Admin
-            updateNavTabState={props.updateNavTabState}
-            history={props.history}
-          />
-        )}
-      />
-      <Route
-        path="/events"
-        render={() => (
-          <UserEvents
-            updateNavTabState={props.updateNavTabState}
-            history={props.history}
-            match={props.match}
-          />
-        )}
-      />
-      <Route
-        path="/centers"
-        render={() => (
-          <EventCenters
-            updateNavTabState={props.updateNavTabState}
-            history={props.history}
-            match={props.match}
-          />
-        )}
-      />
-      <Redirect from="*" to="/home" />
-    </Switch>
-  </div>
-);
+const Main = () =>
+  (
+    <div>
+      <Switch>
+        <Route
+          exact
+          path="/home"
+          component={Home}
+        />
+        <Route
+          exact
+          path="/signin"
+          component={Signin}
+        />
+        <Route
+          exact
+          path="/signup"
+          component={Signup}
+        />
+        <Route
+          path="/admin"
+          component={Admin}
+        />
+        <Route
+          path="/events"
+          component={UserEvents}
+        />
+        <Route
+          path="/centers"
+          component={EventCenters}
+        />
+        <Redirect from="*" to="/home" />
+      </Switch>
+    </div>
+  );
 
 export default Main;
