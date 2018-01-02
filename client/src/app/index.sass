@@ -4,6 +4,9 @@ nav
 #navbar-search
   cursor: pointer
 
+.navTo
+  cursor: pointer
+
 .top-section
   padding: 50px 0 50px 0
   background: url('/images/trans4.jpg')
@@ -46,6 +49,23 @@ nav
 .hidden
   display: none
 
+.no-visible
+  visibility: hidden
+
+.redirect
+  padding: 15px 0 50px 0
+  .navTo
+    color: blue !important
+    &:hover
+      color: #428bca !important
+      text-decoration: underline !important
+  
+.events-container
+  padding: 50px 0 100px 0
+
+.my-events
+  padding-bottom: 50px
+
 @media only screen and (min-width: 767px)
   nav
     padding: 10px 100px 10px 100px !important
@@ -66,9 +86,16 @@ nav
         display: flex
         justify-content: center
         align-items: center
+
+  .last-row
+    padding-bottom: 15px
+  
+  .fa-times
+		color: #d9534f
           
-          
-          
+@media only screen and (min-width: 767px)   
+  .fa-times
+		margin-left: -8px
 
 @media only screen and (min-width: 992px)
   .border-me
@@ -83,3 +110,6 @@ nav
         .card
           img
             max-height: 168px
+      
+  .fa-times
+		margin-left: -8px
