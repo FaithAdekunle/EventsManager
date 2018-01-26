@@ -5,12 +5,8 @@ import { connect } from 'react-redux';
 
 class NavTab extends React.Component {
   static propTypes = {
-    loginState: Proptypes.object,
     pageState: Proptypes.object,
-    userState: Proptypes.object,
     history: Proptypes.object,
-    updateUserState: Proptypes.func,
-    updateLoginState: Proptypes.func,
   }
 
   constructor() {
@@ -30,13 +26,20 @@ class NavTab extends React.Component {
 
   signout() {
     localStorage.removeItem('eventsManager');
-    this.props.updateUserState({ email: null, fullname: null });
-    this.props.updateLoginState({ userIsSignedIn: false, userIsAdmin: false });
     this.navTo('/home');
   }
 
   render() {
-    const { loginState, pageState, userState } = this.props;
+    const { pageState } = this.props;
+    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
+    const loginState = eventsManager ? eventsManager.loginState : {
+      userIsSignedIn: false,
+      userIsAdmin: false,
+    };
+    const userState = eventsManager ? eventsManager.userState : {
+      fullname: null,
+      email: null,
+    };
     if (!loginState.userIsAdmin) {
       let firstLink = (<li className="nav-item"><a className="nav-link text-white navTo" onClick={() => this.navTo('/signin')}>Sign in</a></li>);
       let secondLink = (<li className="nav-item active"><a className="nav-link text-white navTo"onClick={() => this.navTo('/signup')}>Sign up</a></li>);
@@ -82,11 +85,11 @@ class NavTab extends React.Component {
       );
     } else if (loginState.userIsSignedIn) {
       return (
-        <ul className="nav nav-tabs">
+        <ul className="nav nav-tabs bg-dark">
           <li className="nav-item">
-            <a className="nav-link active navTo"onClick={() => this.navTo('/admin')}>Centers</a>
+            <a className="nav-link navTo text-white"onClick={() => this.navTo('/admin')}>Centers</a>
           </li>
-          <li className="nav-item pull-right">
+          <li className="nav-item pull-right text-white">
             <a className="nav-link navTo" onClick={this.signout} >Sign out</a>
           </li>
         </ul>
@@ -98,27 +101,8 @@ class NavTab extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    loginState: state.loginState,
-    userState: state.userState,
     pageState: state.pageState,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateLoginState: (loginState) => {
-      dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
-      });
-    },
-    updateUserState: (userState) => {
-      dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: userState,
-      });
-    },
-  };
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavTab));
+export default withRouter(connect(mapStateToProps, null)(NavTab));

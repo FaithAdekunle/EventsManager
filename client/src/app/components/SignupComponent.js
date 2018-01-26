@@ -7,9 +7,6 @@ class SignUp extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     alertState: PropTypes.string,
-    loginState: PropTypes.object,
-    updateUserState: PropTypes.func,
-    updateLoginState: PropTypes.func,
     updateAlertState: PropTypes.func,
     updatePageState: PropTypes.func,
   }
@@ -22,16 +19,10 @@ class SignUp extends React.Component {
   }
 
   componentDidMount() {
-    const { loginState, history, updatePageState } = this.props;
-    if (loginState.userIsSignedIn) {
-      if (loginState.userIsAdmin) history.push('/admin');
-      else { history.push('/events'); }
-    } else {
-      updatePageState({
-        userOnSignInPage: false,
-        userOnSignUpPage: true,
-      });
-    }
+    this.props.updatePageState({
+      userOnSignInPage: false,
+      userOnSignUpPage: true,
+    });
   }
 
   componentWillUnmount() {
@@ -56,7 +47,7 @@ class SignUp extends React.Component {
       confirmPassword: this.passwordconfirm.value,
     };
     return axios
-      .post('http://andela-events-manager.herokuapp.com/api/v1/users', credentials)
+      .post('http://localhost:7777/api/v1/users', credentials)
       .then((response) => {
         const userState = {
           fullname: response.data.fullName,
@@ -72,8 +63,6 @@ class SignUp extends React.Component {
           loginState,
         };
         localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
-        this.props.updateUserState(userState);
-        this.props.updateLoginState(loginState);
         this.props.history.push('/events');
       })
       .catch((err) => {
@@ -186,12 +175,6 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({
         type: 'UPDATE_LOGIN_STATE',
         payload: loginState,
-      });
-    },
-    updateUserState: (userState) => {
-      dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: userState,
       });
     },
     updateAlertState: (msg) => {

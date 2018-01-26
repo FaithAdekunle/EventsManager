@@ -13,17 +13,15 @@ class Events extends React.Component {
     alertState: Proptypes.string,
     updateEventsState: Proptypes.func,
     updateAlertState: Proptypes.func,
-    updateUserState: Proptypes.func,
-    updateLoginState: Proptypes.func,
   }
 
   componentDidMount() {
     this.props.updateAlertState('loading');
     const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    if (!eventsManager) return this.props.history.push('/signin');
+    if (!eventsManager || eventsManager.loginState.userIsAdmin) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .get(`http://andela-events-manager.herokuapp.com/api/v1/events?token=${appToken}`)
+      .get(`http://localhost:7777/api/v1/events?token=${appToken}`)
       .then((response) => {
         this.props.updateEventsState(response.data);
         this.props.updateAlertState(null);
@@ -32,8 +30,6 @@ class Events extends React.Component {
         if (!err.response) this.props.updateAlertState('Looks like you\'re offline. Check internet connection.');
         else {
           localStorage.removeItem('eventsManager');
-          this.props.updateUserState({ email: null, fullname: null });
-          this.props.updateLoginState({ userIsSignedIn: false, userIsAdmin: false });
           this.props.updateAlertState(null);
           this.props.history.push('/signin');
         }
@@ -60,7 +56,7 @@ class Events extends React.Component {
     return (
       <div className="container events-container">
         <div className="row">
-          <div className="col-md-10 offset-md-1">
+          <div className="col-lg-10 offset-lg-1">
             <div className="row my-events">
               <div className="col-8">
                 <h5>My Events | {this.props.alertState === 'loading' ? spinner : this.props.eventsState.length}</h5>
@@ -74,14 +70,18 @@ class Events extends React.Component {
                 <strong>{this.props.alertState}</strong>
               </div>
             </div>
-            <div className="row events">
-              <div className={`container ${this.props.eventsState.length === 0 && this.props.alertState !== 'loading' ? '' : 'hidden'}`}>
-                <h5>You have no registered events yet. Click add event above.</h5>
-              </div>
+            <div className={`container ${this.props.eventsState.length === 0 && this.props.alertState !== 'loading' ? '' : 'hidden'}`}>
+              <h5>You have no registered events yet. Click add event above.</h5>
+            </div>
+            <div className="row">
               {this.props.eventsState.map((event, index) => {
                 return (
-                  <div className="col-lg-6">
-                    <Event event={event} key={event.id} index={index} />
+                  <div className="col-md-6" key={event.id}>
+                    <Event
+                      event={event}
+                      index={index}
+                      history={this.props.history}
+                    />
                   </div>
                 );
               })}
@@ -114,18 +114,6 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({
         type: 'UPDATE_EVENTS_STATE',
         payload: events,
-      });
-    },
-    updateLoginState: (loginState) => {
-      dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
-      });
-    },
-    updateUserState: (user) => {
-      dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: user,
       });
     },
   };

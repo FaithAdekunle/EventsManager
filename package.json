@@ -13,8 +13,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "nodemon ./server/dist/index.js --ignore ./server",
-    "build": "babel server -d server/dist --copy-files --ignore server/dist,server/data,server/public,server/tests/",
+    "start": "nodemon ./server/dist/index.js --ignore ./client",
+    "build": "babel server -d server/dist --copy-files --ignore server/dist,server/data,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
     "test": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 ./server/tests/test.js --compilers js:babel-register",

@@ -9,7 +9,7 @@ class Admin extends React.Component {
       <div>
         <Switch>
           <Route exact path="/admin" component={AdminHome} />
-          <Route exact path="/admin/center" component={AdminCenter} />
+          <Route exact path="/admin/center/:id" component={AdminCenter} />
           <Redirect from="/admin/*" to="/admin" />
         </Switch>
       </div>

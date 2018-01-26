@@ -5,10 +5,7 @@ import axios from 'axios';
 
 class Home extends React.Component {
   static propTypes = {
-    updateLoginState: Proptypes.func,
     updateAlertState: Proptypes.func,
-    updateUserState: Proptypes.func,
-    loginState: Proptypes.object,
     history: Proptypes.object,
     alertState: Proptypes.string,
   }
@@ -18,11 +15,16 @@ class Home extends React.Component {
     this.changeFormState = this.changeFormState.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.navToCenters = this.navToCenters.bind(this);
+    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
+    this.loginState = eventsManager ? eventsManager.loginState : {
+      userIsSignedIn: false,
+      userIsAdmin: false,
+    };
   }
 
   onSubmit(event) {
     event.preventDefault();
-    if (!this.props.loginState.userIsSignedIn) {
+    if (!this.loginState.userIsSignedIn) {
       if (this.password.value !== this.passwordconfirm.value) {
         this.props.updateAlertState('Password and Confirm Password fields must be equal');
         return setTimeout(() => this.props.updateAlertState(null), 3000);
@@ -35,7 +37,7 @@ class Home extends React.Component {
         confirmPassword: this.passwordconfirm.value,
       };
       return axios
-        .post('http://andela-events-manager.herokuapp.com/api/v1/users', credentials)
+        .post('http://localhost:7777/api/v1/users', credentials)
         .then((response) => {
           const userState = {
             fullname: response.data.fullName,
@@ -51,8 +53,6 @@ class Home extends React.Component {
             loginState,
           };
           localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
-          this.props.updateUserState(userState);
-          this.props.updateLoginState(loginState);
           this.props.history.push('/events');
         })
         .catch((err) => {
@@ -111,7 +111,6 @@ class Home extends React.Component {
                 <div className="card">
                   <div className="card-body">
                     <fieldset
-                      disabled={this.props.loginState.userIsSignedIn}
                       ref={(input) => { this.form = input; }}
                     >
                       <form onSubmit={this.onSubmit}>
@@ -205,29 +204,16 @@ class Home extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    loginState: state.loginState,
     alertState: state.alertState,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateLoginState: (loginState) => {
-      dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
-      });
-    },
     updateAlertState: (msg) => {
       dispatch({
         type: 'UPDATE_ALERT_STATE',
         payload: msg,
-      });
-    },
-    updateUserState: (user) => {
-      dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: user,
       });
     },
   };

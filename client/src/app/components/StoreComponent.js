@@ -2,18 +2,9 @@ import { createStore, combineReducers } from 'redux';
 
 class AppStore {
   constructor() {
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager')) || {};
-    this.loginState = eventsManager.loginState || {
-      userIsSignedIn: false,
-      userIsAdmin: false,
-    };
     this.pageState = {
       userOnSignInPage: false,
       userOnSignUpPage: false,
-    };
-    this.userState = eventsManager.userState || {
-      fullname: null,
-      email: null,
     };
     this.centerTypes = [
       'Anniversary',
@@ -26,18 +17,33 @@ class AppStore {
       'Funeral',
       'Others',
     ];
+    this.facilities = [
+      'Tables',
+      'Chairs',
+      'Stage',
+      'Power Supply',
+      'Air Condition',
+      'Lighting',
+      'Parking Space',
+      'Dressing Room',
+      'Sound System',
+      'Projector',
+    ];
     this.centersState = [];
+    this.centerState = null;
     this.eventsState = [];
+    this.selectedImages = [];
     this.alertState = null;
-    this.eventState = null;
+    this.eventIndex = null;
     this.pageReducer = this.pageReducer.bind(this);
-    this.userReducer = this.userReducer.bind(this);
-    this.loginReducer = this.loginReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
     this.centersReducer = this.centersReducer.bind(this);
+    this.centerReducer = this.centerReducer.bind(this);
     this.eventReducer = this.eventReducer.bind(this);
     this.typesReducer = this.typesReducer.bind(this);
+    this.facilitiesReducer = this.facilitiesReducer.bind(this);
+    this.imagesReducer = this.imagesReducer.bind(this);
   }
 
   pageReducer(state = this.pageState, action) {
@@ -54,13 +60,12 @@ class AppStore {
     }
   }
 
-  typesReducer(state = this.centerTypes, action) {
-    switch (action.type) {
-      case 'UPDATE_TYPES_STATE':
-        return state;
-      default:
-        return state;
-    }
+  typesReducer(state = this.centerTypes) {
+    return state;
+  }
+
+  facilitiesReducer(state = this.facilities) {
+    return state;
   }
 
   eventsReducer(state = this.eventsState, action) {
@@ -69,14 +74,14 @@ class AppStore {
         return action.payload;
       case 'ADD_TO_EVENTS_STATE':
         return [
-          ...state,
           action.payload,
+          ...state,
         ];
       case 'EDIT_EVENTS_STATE':
         return [
           ...state.slice(0, action.payload.index),
           action.payload.event,
-          ...state.slice(action.payload.index, state.length),
+          ...state.slice(action.payload.index + 1, state.length),
         ];
       case 'DELETE_FROM_EVENTS_STATE':
         return [
@@ -88,9 +93,18 @@ class AppStore {
     }
   }
 
-  eventReducer(state = this.eventState, action) {
+  eventReducer(state = this.eventIndex, action) {
     switch (action.type) {
-      case 'UPDATE_EVENT_STATE':
+      case 'UPDATE_EVENT_INDEX':
+        return action.payload;
+      default:
+        return state;
+    }
+  }
+
+  imagesReducer(state = this.selectedImages, action) {
+    switch (action.type) {
+      case 'UPDATE_SELECTED_IMAGES':
         return action.payload;
       default:
         return state;
@@ -100,19 +114,26 @@ class AppStore {
   centersReducer(state = this.centersState, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_STATE':
-        if (Array.isArray(action.payload)) return action.payload;
+        return action.payload;
+      case 'ADD_TO_CENTERS_STATE':
         return [
-          ...state,
           action.payload,
+          ...state,
+        ];
+      case 'EDIT_CENTERS_STATE':
+        return [
+          ...state.slice(0, action.payload.index),
+          action.payload.center,
+          ...state.slice(action.payload.index, state.length),
         ];
       default:
         return state;
     }
   }
 
-  userReducer(state = this.userState, action) {
+  centerReducer(state = this.centerState, action) {
     switch (action.type) {
-      case 'UPDATE_USER_STATE':
+      case 'UPDATE_CENTER_STATE':
         return action.payload;
       default:
         return state;
@@ -127,28 +148,19 @@ class AppStore {
         return state;
     }
   }
-
-  loginReducer(state = this.loginState, action) {
-    switch (action.type) {
-      case 'UPDATE_LOGIN_STATE':
-        return (!action.payload.userIsSignedIn
-          && action.payload.userIsAdmin) ? state : action.payload;
-      default:
-        return state;
-    }
-  }
 }
 
 const appStore = new AppStore();
 const store = createStore(combineReducers({
   pageState: appStore.pageReducer,
-  loginState: appStore.loginReducer,
-  userState: appStore.userReducer,
   eventsState: appStore.eventsReducer,
   centersState: appStore.centersReducer,
-  eventState: appStore.eventReducer,
+  centerState: appStore.centerReducer,
+  eventIndex: appStore.eventReducer,
   alertState: appStore.alertReducer,
   centerTypes: appStore.typesReducer,
+  centerFacilities: appStore.facilitiesReducer,
+  selectedImages: appStore.imagesReducer,
 }));
 export default store;
 

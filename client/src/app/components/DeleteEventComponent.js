@@ -5,11 +5,10 @@ import axios from 'axios';
 
 class DeleteEvent extends React.Component {
   static propTypes = {
-    eventState: Proptypes.object,
+    eventIndex: Proptypes.number,
+    events: Proptypes.array,
     deleteFromEventsState: Proptypes.func,
-    updateEventState: Proptypes.func,
-    updateUserState: Proptypes.func,
-    updateLoginState: Proptypes.func,
+    updateEventIndex: Proptypes.func,
     history: Proptypes.object,
   }
 
@@ -24,9 +23,10 @@ class DeleteEvent extends React.Component {
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
     axios
-      .delete(`http://andela-events-manager.herokuapp.com/api/v1/events/${this.props.eventState.id}?token=${appToken}`)
+      .delete(`http://localhost:7777/api/v1/events/${this.props.events[this.props.eventIndex].id}?token=${appToken}`)
       .then(() => {
-        this.props.deleteFromEventsState(this.props.eventState.index);
+        this.props.updateEventIndex(null);
+        this.props.deleteFromEventsState(this.props.eventIndex);
         this.confirm.classList.remove('hidden');
         this.deleting.classList.add('hidden');
         this.nullEvent();
@@ -34,8 +34,7 @@ class DeleteEvent extends React.Component {
       .catch((err) => {
         if ([401, 404].includes(err.response.status)) {
           localStorage.removeItem('eventsManager');
-          this.props.updateUserState({ email: null, fullname: null });
-          this.props.updateLoginState({ userIsSignedIn: false, userIsAdmin: false });
+          this.nullEvent();
           return this.props.history.push('/signin');
         }
         return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
@@ -46,40 +45,38 @@ class DeleteEvent extends React.Component {
   nullEvent() {
     const modal = $('#deleteModal');
     modal.modal('toggle');
-    this.props.updateEventState(null);
+    this.props.updateEventIndex(null);
   }
 
   render() {
-    const { eventState } = this.props;
-    if (eventState) {
-      return (
-        <div className="modal fade" id="deleteModal" tabIndex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
-          <div className="modal-dialog modal-sm" role="document">
-            <div className="modal-content">
-              <div className="container">
-                <div ref={(input) => { this.confirm = input; }}>
-                  <h5>Delete event {eventState.name}?</h5>
-                  <div className="pull-right">
-                    <button className="btn btn-danger btn-sm" onClick={this.deleteEvent}>Yes</button>
-                    <button className="btn btn-primary btn-sm" onClick={this.nullEvent}>No</button>
-                  </div>
+    const { eventIndex } = this.props;
+    return (
+      <div className="modal fade" id="deleteModal" tabIndex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="container event-delete">
+              <div ref={(input) => { this.confirm = input; }}>
+                <h5>Delete event{eventIndex !== null && eventIndex >= 0 ? ` "${this.props.events[eventIndex].name}"` : ''}?</h5>
+                <div className="pull-right">
+                  <button className="btn btn-danger" onClick={this.deleteEvent}>Yes</button>
+                  <button className="btn btn-primary" onClick={this.nullEvent}>No</button>
                 </div>
-                <div className="hidden" ref={(input) => { this.deleting = input; }}>
-                  <h5>deleting...</h5>
-                </div>
+              </div>
+              <div className="hidden" ref={(input) => { this.deleting = input; }}>
+                <h5 className="text-center">deleting...</h5>
               </div>
             </div>
           </div>
         </div>
-      );
-    }
-    return null;
+      </div>
+    );
   }
 }
 
 const mapStateToProps = (state) => {
   return {
-    eventState: state.eventState,
+    eventIndex: state.eventIndex,
+    events: state.eventsState,
   };
 };
 
@@ -91,22 +88,10 @@ const mapDispatchToProps = (dispatch) => {
         payload: index,
       });
     },
-    updateEventState: (event) => {
+    updateEventIndex: (index) => {
       dispatch({
-        type: 'UPDATE_EVENT_STATE',
-        payload: event,
-      });
-    },
-    updateLoginState: (loginState) => {
-      dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
-      });
-    },
-    updateUserState: (user) => {
-      dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: user,
+        type: 'UPDATE_EVENT_INDEX',
+        payload: index,
       });
     },
   };

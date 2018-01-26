@@ -66,6 +66,132 @@ nav
 .my-events
   padding-bottom: 50px
 
+.event
+  padding: 12px
+  box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.1)
+  margin-bottom: 25px
+
+.divider
+  margin-top: 1px
+
+.event-title
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+
+.delete-event
+  margin-left: 12px
+
+.fa-pencil
+  color: #0056b3
+
+.event-prop
+  .col-6
+    margin-bottom: 10px
+
+.fa-times
+	color: #d9534f
+
+.event-delete
+  margin: 50px 0px 50px 0px
+  div
+    div
+      .btn-primary
+        margin-left: 5px
+
+.centers-container
+  padding: 40px 0 60px 0
+
+.center-container
+  padding: 10px 0 15px 0
+
+.centers-loader
+  height: 5px
+  width: 0%
+
+.danger-background
+  background-color: #d9534f
+
+.success-background
+  background-color: #0056b3
+
+.center-name
+  font-size: 25px
+  cursor: pointer
+
+.center-card
+  margin-bottom: 10px
+
+.center-image
+  cursor: pointer
+
+.hover
+  font-size: 26px
+    
+.center-location
+  font-size: 20px
+
+.badge-pill
+  padding: 8px 8px 8px 8px
+  margin-bottom: 5px
+
+.center-detail-page
+  margin-bottom: 100px
+
+.book-this-center
+  padding: 20px
+
+.see-more
+  cursor: pointer
+  margin-bottom: 30px
+
+.center-detail-name
+  margin-top: 15px
+  margin-bottom: 15px
+
+.center-loader
+  height: 5px
+  width: 0%
+
+.d-block
+  height: 300px
+
+.admin-page
+  padding: 30px 0px
+
+.centers-list
+  li
+    &:hover
+      color: white
+      background-color: #006dcc
+      cursor: pointer
+
+.selected-image
+  height: 70px
+  width: 100%
+
+.edit-center-btn
+  cursor: pointer
+  margin-top: 5px
+  margin-bottom: 15px
+
+td
+  i
+    visibility: hidden
+
+.hover-date
+  cursor: default
+  color: white
+  background-color: #006dcc
+  i
+    visibility: visible
+    cursor: pointer
+    color: white
+
+.declined
+  text-decoration: line-through
+
+
 @media only screen and (min-width: 767px)
   nav
     padding: 10px 100px 10px 100px !important
@@ -91,11 +217,14 @@ nav
     padding-bottom: 15px
   
   .fa-times
-		color: #d9534f
-          
-@media only screen and (min-width: 767px)   
-  .fa-times
-		margin-left: -8px
+    margin-left: -8px
+
+  .d-block
+    height: 400px
+
+  .cost-label
+    text-align: center
+
 
 @media only screen and (min-width: 992px)
   .border-me
@@ -111,5 +240,30 @@ nav
           img
             max-height: 168px
       
-  .fa-times
-		margin-left: -8px
+  .center-image
+    height: 230px
+
+  .description
+    height: 360px
+    overflow: auto
+
+  .center-card
+    margin-bottom: 0px
+
+  .d-block
+    height: 500px
+
+@media only screen and (min-width: 1100px)
+  .center-image
+    height: 290px
+
+  .description
+    height: 420px
+    overflow: auto
+
+  .center-card
+    margin-bottom: 0px
+
+  .d-block
+    height: 600px
+      
