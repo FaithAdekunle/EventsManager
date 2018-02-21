@@ -31,6 +31,8 @@ class AppStore {
     ];
     this.centersState = [];
     this.centerState = null;
+    this.centerSearch = [];
+    this.centerFilter = '';
     this.eventsState = [];
     this.selectedImages = [];
     this.alertState = null;
@@ -39,6 +41,8 @@ class AppStore {
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
     this.centersReducer = this.centersReducer.bind(this);
+    this.centerSearchReducer = this.centerSearchReducer.bind(this);
+    this.centerFilterReducer = this.centerFilterReducer.bind(this);
     this.centerReducer = this.centerReducer.bind(this);
     this.eventReducer = this.eventReducer.bind(this);
     this.typesReducer = this.typesReducer.bind(this);
@@ -121,7 +125,9 @@ class AppStore {
           ...state,
         ];
       case 'EDIT_CENTERS_STATE':
-        return [
+        return state.length <= 1 ? [
+          action.payload.center,
+        ] : [
           ...state.slice(0, action.payload.index),
           action.payload.center,
           ...state.slice(action.payload.index, state.length),
@@ -134,6 +140,24 @@ class AppStore {
   centerReducer(state = this.centerState, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_STATE':
+        return action.payload;
+      default:
+        return state;
+    }
+  }
+
+  centerSearchReducer(state = this.centerSearch, action) {
+    switch (action.type) {
+      case 'UPDATE_CENTER_SEARCH':
+        return [...action.payload];
+      default:
+        return state;
+    }
+  }
+
+  centerFilterReducer(state = this.centerFilter, action) {
+    switch (action.type) {
+      case 'UPDATE_CENTER_FILTER':
         return action.payload;
       default:
         return state;
@@ -156,6 +180,8 @@ const store = createStore(combineReducers({
   eventsState: appStore.eventsReducer,
   centersState: appStore.centersReducer,
   centerState: appStore.centerReducer,
+  centerSearch: appStore.centerSearchReducer,
+  centerFilter: appStore.centerFilterReducer,
   eventIndex: appStore.eventReducer,
   alertState: appStore.alertReducer,
   centerTypes: appStore.typesReducer,

@@ -14,6 +14,11 @@ module.exports = {
     contentBase: 'client/dist/',
     historyApiFallback: true,
   },
+  externals: {
+    cheerio: 'window',
+    'react/lib/ExecutionEnvironment': true,
+    'react/lib/ReactContext': true,
+  },
   module: {
     rules: [
       {

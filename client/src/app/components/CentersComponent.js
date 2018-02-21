@@ -7,6 +7,7 @@ import Center from './CenterComponent';
 class Centers extends React.Component {
   static propTypes = {
     centers: Proptypes.array,
+    filter: Proptypes.string,
     alert: Proptypes.string,
     history: Proptypes.object,
     updateCentersState: Proptypes.func,
@@ -54,9 +55,10 @@ class Centers extends React.Component {
             </div>
           </div>
           {this.props.centers.map((center) => {
-            return (
+            const match = new RegExp(this.props.filter, 'gi');
+            return center.name.match(match) || center.address.match(match) ? (
               <Center center={center} history={this.props.history} key={center.id} />
-            );
+            ) : null;
           })}
         </div>
       </div>
@@ -67,6 +69,7 @@ class Centers extends React.Component {
 const mapStateToProps = (state) => {
   return {
     centers: state.centersState,
+    filter: state.centerFilter,
     alert: state.alertState,
   };
 };

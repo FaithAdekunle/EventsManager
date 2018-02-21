@@ -40,10 +40,6 @@ module.exports = class CenterModel {
         type: this.DataTypes.INTEGER,
         allowNull: false,
       },
-      state: {
-        type: this.DataTypes.STRING,
-        allowNull: true,
-      },
     });
     return center;
   }
