@@ -11,7 +11,7 @@ class AppStore {
       'Birthday',
       'Wedding',
       'Meeting',
-      'conference',
+      'Conference',
       'Seminar',
       'Summit',
       'Funeral',
@@ -125,12 +125,10 @@ class AppStore {
           ...state,
         ];
       case 'EDIT_CENTERS_STATE':
-        return state.length <= 1 ? [
-          action.payload.center,
-        ] : [
+        return [
           ...state.slice(0, action.payload.index),
           action.payload.center,
-          ...state.slice(action.payload.index, state.length),
+          ...state.slice(action.payload.index + 1, state.length),
         ];
       default:
         return state;
@@ -188,5 +186,5 @@ const store = createStore(combineReducers({
   centerFacilities: appStore.facilitiesReducer,
   selectedImages: appStore.imagesReducer,
 }));
-export default store;
+module.exports = { store, AppStore };
 

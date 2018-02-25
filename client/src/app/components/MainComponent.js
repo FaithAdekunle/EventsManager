@@ -1,11 +1,11 @@
 import React from 'react';
 import { Switch, Redirect, Route } from 'react-router-dom';
 import Home from './HomeComponent';
-import EventCenters from './EventCentersComponent';
-import Signin from './SigninComponent';
-import Signup from './SignupComponent';
-import Admin from './AdminComponent';
-import UserEvents from './UserEventsComponent';
+import EventCenters from './Center/EventCentersComponent';
+import Signin from './Sign/SigninComponent';
+import Signup from './Sign/SignupComponent';
+import Admin from './Admin/AdminComponent';
+import UserEvents from './Event/UserEventsComponent';
 
 class Main extends React.Component {
   render() {

@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
+import { getFirstName } from '../Helpers';
 
 class NavTab extends React.Component {
   static propTypes = {
@@ -19,11 +20,6 @@ class NavTab extends React.Component {
     this.signout = this.signout.bind(this);
     this.searchCenter = this.searchCenter.bind(this);
     this.searchSubmit = this.searchSubmit.bind(this);
-  }
-
-  getFirstName(fullName) {
-    const firstName = fullName.split(' ')[0];
-    return `${firstName[0].toUpperCase()}${firstName.slice(1)}`;
   }
 
   navTo(destination) {
@@ -80,7 +76,7 @@ class NavTab extends React.Component {
         firstLink = null;
         secondLink = (
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{this.getFirstName(userState.fullname)}</a>
+            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{getFirstName(userState.fullname)}</a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
               <a className="dropdown-item navTo" onClick={() => this.navTo('/events')}>My Events</a>
               <div className="dropdown-divider" />

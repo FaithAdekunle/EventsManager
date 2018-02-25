@@ -7,6 +7,6 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import './index.sass';
 import App from './components/AppComponent';
-import store from './components/StoreComponent';
+import { store } from './components/StoreComponent';
 
 render(<Provider store={store}><App /></Provider>, window.document.getElementById('container'));
