@@ -90,9 +90,6 @@ class AdminCenter extends React.Component {
         const update = { ...this.props.center };
         update.events[index].isAccepted = false;
         this.props.updateCenterState(update);
-      })
-      .catch((err) => {
-        console.log(err);
       });
   }
 
