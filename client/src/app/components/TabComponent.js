@@ -2,26 +2,24 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
+import { getFirstName } from '../Helpers';
 
 class NavTab extends React.Component {
   static propTypes = {
-    loginState: Proptypes.object,
     pageState: Proptypes.object,
-    userState: Proptypes.object,
     history: Proptypes.object,
-    updateUserState: Proptypes.func,
-    updateLoginState: Proptypes.func,
+    centerSearch: Proptypes.array,
+    centers: Proptypes.array,
+    updateCenterSearch: Proptypes.func,
+    updateCenterFilter: Proptypes.func,
   }
 
   constructor() {
     super();
     this.navTo = this.navTo.bind(this);
     this.signout = this.signout.bind(this);
-  }
-
-  getFirstName(fullName) {
-    const firstName = fullName.split(' ')[0];
-    return `${firstName[0].toUpperCase()}${firstName.slice(1)}`;
+    this.searchCenter = this.searchCenter.bind(this);
+    this.searchSubmit = this.searchSubmit.bind(this);
   }
 
   navTo(destination) {
@@ -30,13 +28,44 @@ class NavTab extends React.Component {
 
   signout() {
     localStorage.removeItem('eventsManager');
-    this.props.updateUserState({ email: null, fullname: null });
-    this.props.updateLoginState({ userIsSignedIn: false, userIsAdmin: false });
     this.navTo('/home');
   }
 
+  searchCenter(e) {
+    const { value } = e.target;
+    this.props.updateCenterFilter(value);
+    if (e.keyCode === 13) {
+      this.props.updateCenterSearch([]);
+      this.searchBar.blur();
+      return this.navTo('/centers');
+    }
+    if (!value) return this.props.updateCenterSearch([]);
+    const match = new RegExp(value, 'gi');
+    const matches = this.props.centers
+      .filter(center => center.address.match(match) || center.name.match(match));
+    return this.props.updateCenterSearch(matches);
+  }
+
+  searchSubmit(e) {
+    e.preventDefault();
+  }
+
+  navToCenter(id) {
+    this.props.updateCenterSearch([]);
+    this.props.history.push(`/centers/${id}`);
+  }
+
   render() {
-    const { loginState, pageState, userState } = this.props;
+    const { pageState } = this.props;
+    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
+    const loginState = eventsManager ? eventsManager.loginState : {
+      userIsSignedIn: false,
+      userIsAdmin: false,
+    };
+    const userState = eventsManager ? eventsManager.userState : {
+      fullname: null,
+      email: null,
+    };
     if (!loginState.userIsAdmin) {
       let firstLink = (<li className="nav-item"><a className="nav-link text-white navTo" onClick={() => this.navTo('/signin')}>Sign in</a></li>);
       let secondLink = (<li className="nav-item active"><a className="nav-link text-white navTo"onClick={() => this.navTo('/signup')}>Sign up</a></li>);
@@ -47,7 +76,7 @@ class NavTab extends React.Component {
         firstLink = null;
         secondLink = (
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{this.getFirstName(userState.fullname)}</a>
+            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{getFirstName(userState.fullname)}</a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
               <a className="dropdown-item navTo" onClick={() => this.navTo('/events')}>My Events</a>
               <div className="dropdown-divider" />
@@ -63,10 +92,20 @@ class NavTab extends React.Component {
               <span className="navbar-toggler-icon" />
             </button>
             <div className="collapse navbar-collapse" id="navbarSupportedContent">
-              <form className="form-inline ml-auto my-lg-0">
-                <div className="input-group">
-                  <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" />
-                  <span className="input-group-addon" id="navbar-search"><i className="fa fa-search" aria-hidden="true" /></span>
+              <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit} ref={(form) => { this.searchForm = form; }}>
+                <div className="search-entry">
+                  <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={this.searchCenter} onFocus={this.searchCenter} onChange={this.searchCenter} ref={(input) => { this.searchBar = input; }} />
+                  <ul className="list-group search-result" ref={(input) => { this.searchResult = input; }}>
+                    {
+                      this.props.centerSearch.map((center) => {
+                        return (
+                          <li className="list-group-item" key={center.id} onClick={() => this.navToCenter(center.id)}>
+                            {`${center.name} - ${center.address}`}
+                          </li>
+                        );
+                      })
+                    }
+                  </ul>
                 </div>
               </form>
               <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
@@ -82,11 +121,11 @@ class NavTab extends React.Component {
       );
     } else if (loginState.userIsSignedIn) {
       return (
-        <ul className="nav nav-tabs">
+        <ul className="nav nav-tabs bg-dark">
           <li className="nav-item">
-            <a className="nav-link active navTo"onClick={() => this.navTo('/admin')}>Centers</a>
+            <a className="nav-link navTo text-white"onClick={() => this.navTo('/admin')}>Centers</a>
           </li>
-          <li className="nav-item pull-right">
+          <li className="nav-item pull-right text-white">
             <a className="nav-link navTo" onClick={this.signout} >Sign out</a>
           </li>
         </ul>
@@ -98,24 +137,24 @@ class NavTab extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    loginState: state.loginState,
-    userState: state.userState,
     pageState: state.pageState,
+    centers: state.centersState,
+    centerSearch: state.centerSearch,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateLoginState: (loginState) => {
+    updateCenterSearch: (result) => {
       dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
+        type: 'UPDATE_CENTER_SEARCH',
+        payload: result,
       });
     },
-    updateUserState: (userState) => {
+    updateCenterFilter: (value) => {
       dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: userState,
+        type: 'UPDATE_CENTER_FILTER',
+        payload: value,
       });
     },
   };

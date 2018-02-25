@@ -88,8 +88,8 @@ module.exports = class userController {
   static generateToken(user) {
     const token = jwt.sign({
       id: user.id,
-      fulName: user.fullName,
-      expires: Date.now() + 600000,
+      fullName: user.fullName,
+      expires: Date.now() + (user.isAdmin ? 43200000 : 604800000),
     }, process.env.SECRET);
     return token;
   }
