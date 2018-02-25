@@ -7,7 +7,8 @@ import { readFileSync } from 'fs';
 
 chai.use(chaiHttp);
 chai.should();
-const host = 'andela-events-manager.herokuapp.com/api/v1';
+// const host = 'andela-events-manager.herokuapp.com/api/v1';
+const host = 'localhost:7777/api/v1';
 const userEmail = `${uuidv4()}@gmail.com`;
 const adminEmail = `${uuidv4()}@gmail.com`;
 const userPassword = uuidv4();
@@ -395,25 +396,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('center facilities must be between 1 and 100 characters long');
-          done();
-        });
-    });
-
-    it('should return a status 400 error response for no images', (done) => {
-      chai
-        .request(host)
-        .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.should.be.a('object');
-          res.body.should.have.property('err').to.include('no center image found');
+          res.body.should.have.property('err').to.include('center facilities must be between 1 and 300 characters long');
           done();
         });
     });
@@ -887,11 +870,11 @@ describe('Tests for events api', () => {
         .field('type', 'conference')
         .field('guests', 20)
         .field('days', 2)
-        .field('start', '20/12/2017')
+        .field('start', '20/12/2018')
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body.should.have.property('end').equal('21/12/2017');
+          res.body.should.have.property('end').equal('21/12/2018');
           eventId = res.body.id;
           done();
         });
@@ -906,7 +889,7 @@ describe('Tests for events api', () => {
         .field('type', 'conference')
         .field('guests', 20)
         .field('days', 2)
-        .field('start', '20/12/2017')
+        .field('start', '20/12/2018')
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
@@ -924,7 +907,7 @@ describe('Tests for events api', () => {
         .field('type', 'conference')
         .field('guests', 20)
         .field('days', 8)
-        .field('start', '19/12/2017')
+        .field('start', '19/12/2018')
         .end((err, res) => {
           res.should.have.status(409);
           res.should.be.a('object');

@@ -10,7 +10,7 @@ import database from '../db';
 // define storage option for multer
 const storage = multer.diskStorage({
   destination(req, file, next) {
-    next(null, './server/public/images');
+    next(null, './server/dist/public/images');
   },
   filename(req, file, cb) {
     cb(null, `${uuidv4()}.${file.mimetype.split('/')[1]}`);
@@ -30,7 +30,7 @@ const options = {
 /** unmountImages(obj) removes all images
     whose names are present in obj.images */
 export const unmountImages = (obj) => {
-  if (obj.images) obj.images.map(image => fs.unlink(`./server/public/images/${image}`, () => {}));
+  if (obj.images) obj.images.map(image => fs.unlink(`./server/dist/public/images/${image}`, () => {}));
 };
 
 export const jsonHandle = (obj, parse = true) => {
@@ -69,17 +69,14 @@ export class CenterController {
         .exists()
         .withMessage('missing center facilities field')
         .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('center facilities must be between 1 and 100 characters long'),
+        .isLength({ min: 1, max: 300 })
+        .withMessage('center facilities must be between 1 and 300 characters long'),
       body('address')
         .exists()
         .withMessage('missing center address field')
         .trim()
         .isLength({ min: 1, max: 100 })
         .withMessage('center address must be between 1 and 100 characters long'),
-      body('images')
-        .exists()
-        .withMessage('no center image found'),
       body('capacity')
         .exists()
         .withMessage('missing center capacity field'),
@@ -147,6 +144,7 @@ export class CenterController {
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
     if (req.body.state) req.body.state = req.body.state.toLowerCase();
+    if (!req.body.images) req.body.images = [];
     jsonHandle(req.body, false);
     database.center.create(req.body)
       .then((createdCenter) => {
@@ -183,7 +181,7 @@ export class CenterController {
                 return res.json({ err: 'center not found' });
               }
               jsonHandle(center);
-              unmountImages(center);
+              if (req.body.images) unmountImages(center);
               jsonHandle(req.body, false);
               if (req.body.state) req.body.state = req.body.state.toLowerCase();
               return database.center.update(req.body, {
@@ -197,6 +195,9 @@ export class CenterController {
                       where: {
                         id: req.params.id,
                       },
+                      include: [
+                        { model: database.event },
+                      ],
                     })
                       .then((updatedCenter) => {
                         jsonHandle(updatedCenter);
