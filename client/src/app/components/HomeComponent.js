@@ -112,6 +112,7 @@ class Home extends React.Component {
                   <div className="card-body">
                     <fieldset
                       ref={(input) => { this.form = input; }}
+                      disabled={localStorage.getItem('eventsManager')}
                     >
                       <form onSubmit={this.onSubmit}>
                         <div className="form-group">

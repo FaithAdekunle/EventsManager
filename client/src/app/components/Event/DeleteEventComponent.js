@@ -5,10 +5,9 @@ import axios from 'axios';
 
 class DeleteEvent extends React.Component {
   static propTypes = {
-    eventIndex: Proptypes.number,
-    events: Proptypes.array,
+    eventState: Proptypes.object,
     deleteFromEventsState: Proptypes.func,
-    updateEventIndex: Proptypes.func,
+    updateEventState: Proptypes.func,
     history: Proptypes.object,
   }
 
@@ -23,10 +22,10 @@ class DeleteEvent extends React.Component {
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
     axios
-      .delete(`http://localhost:7777/api/v1/events/${this.props.events[this.props.eventIndex].id}?token=${appToken}`)
+      .delete(`http://localhost:7777/api/v1/events/${this.props.eventState.id}?token=${appToken}`)
       .then(() => {
-        this.props.updateEventIndex(null);
-        this.props.deleteFromEventsState(this.props.eventIndex);
+        this.props.deleteFromEventsState(this.props.eventState.id);
+        this.props.updateEventState(null);
         this.confirm.classList.remove('hidden');
         this.deleting.classList.add('hidden');
         this.nullEvent();
@@ -45,18 +44,18 @@ class DeleteEvent extends React.Component {
   nullEvent() {
     const modal = $('#deleteModal');
     modal.modal('toggle');
-    this.props.updateEventIndex(null);
+    this.props.updateEventState(null);
   }
 
   render() {
-    const { eventIndex } = this.props;
+    const { eventState } = this.props;
     return (
       <div className="modal fade" id="deleteModal" tabIndex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
         <div className="modal-dialog" role="document">
           <div className="modal-content">
             <div className="container event-delete">
               <div ref={(input) => { this.confirm = input; }}>
-                <h5>Delete event{eventIndex !== null && eventIndex >= 0 ? ` "${this.props.events[eventIndex].name}"` : ''}?</h5>
+                <h5>Delete event{eventState !== null ? ` "${this.props.eventState.name}"` : ''}?</h5>
                 <div className="pull-right">
                   <button className="btn btn-danger" onClick={this.deleteEvent}>Yes</button>
                   <button className="btn btn-primary" onClick={this.nullEvent}>No</button>
@@ -75,23 +74,22 @@ class DeleteEvent extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    eventIndex: state.eventIndex,
-    events: state.eventsState,
+    eventState: state.eventState,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    deleteFromEventsState: (index) => {
+    deleteFromEventsState: (id) => {
       dispatch({
         type: 'DELETE_FROM_EVENTS_STATE',
-        payload: index,
+        payload: id,
       });
     },
-    updateEventIndex: (index) => {
+    updateEventState: (event) => {
       dispatch({
-        type: 'UPDATE_EVENT_INDEX',
-        payload: index,
+        type: 'UPDATE_EVENT_STATE',
+        payload: event,
       });
     },
   };

@@ -24,6 +24,7 @@ class AdminCenter extends React.Component {
     this.submitCenter = this.submitCenter.bind(this);
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
+    this.closeModal = this.closeModal.bind(this);
     this.facilities = {};
   }
 
@@ -95,6 +96,11 @@ class AdminCenter extends React.Component {
 
   updateFacilities(e) {
     this.facilities[e.target.value] = e.target.checked;
+  }
+
+  closeModal() {
+    this.images.value = null;
+    this.props.updateSelectedImages([]);
   }
 
   computeFacilities() {
@@ -276,7 +282,7 @@ class AdminCenter extends React.Component {
                       <div className="modal-body">
                         <div className="card">
                           <div className="card-header">
-                            <h2>Edit Center<button type="button" className="pull-right close" data-dismiss="modal">&times;</button></h2>
+                            <h2>Edit Center<button type="button" className="pull-right close" data-dismiss="modal" onClick={this.closeModal}>&times;</button></h2>
                           </div>
                           <div className="card-body">
                             <fieldset ref={(input) => { this.fieldset = input; }}>

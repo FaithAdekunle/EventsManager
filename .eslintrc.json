@@ -22,7 +22,8 @@
       "no-param-reassign": "off",
       "jsx-a11y/no-noninteractive-element-interactions": "off",
       "no-plusplus": "off",
-      "no-restricted-syntax": "off"
+      "no-restricted-syntax": "off",
+      "no-case-declarations": "off"
     },
     "env": {
     "node": true,

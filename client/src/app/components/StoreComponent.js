@@ -36,7 +36,7 @@ class AppStore {
     this.eventsState = [];
     this.selectedImages = [];
     this.alertState = null;
-    this.eventIndex = null;
+    this.eventState = null;
     this.pageReducer = this.pageReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
@@ -82,24 +82,24 @@ class AppStore {
           ...state,
         ];
       case 'EDIT_EVENTS_STATE':
-        return [
-          ...state.slice(0, action.payload.index),
-          action.payload.event,
-          ...state.slice(action.payload.index + 1, state.length),
-        ];
+        return state.map((event) => {
+          if (event.id === action.payload.id) return action.payload;
+          return event;
+        });
       case 'DELETE_FROM_EVENTS_STATE':
+        const index = state.findIndex(event => event.id === action.payload.id);
         return [
-          ...state.slice(0, action.payload),
-          ...state.slice(action.payload + 1, state.length),
+          ...state.slice(0, index),
+          ...state.slice(index + 1, state.length),
         ];
       default:
         return state;
     }
   }
 
-  eventReducer(state = this.eventIndex, action) {
+  eventReducer(state = this.eventState, action) {
     switch (action.type) {
-      case 'UPDATE_EVENT_INDEX':
+      case 'UPDATE_EVENT_STATE':
         return action.payload;
       default:
         return state;
@@ -180,11 +180,10 @@ const store = createStore(combineReducers({
   centerState: appStore.centerReducer,
   centerSearch: appStore.centerSearchReducer,
   centerFilter: appStore.centerFilterReducer,
-  eventIndex: appStore.eventReducer,
+  eventState: appStore.eventReducer,
   alertState: appStore.alertReducer,
   centerTypes: appStore.typesReducer,
   centerFacilities: appStore.facilitiesReducer,
   selectedImages: appStore.imagesReducer,
 }));
 module.exports = { store, AppStore };
-

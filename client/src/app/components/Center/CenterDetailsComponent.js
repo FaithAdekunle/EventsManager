@@ -2,6 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import Helpers from '../../Helpers';
 
 class CenterDetails extends React.Component {
   static propTypes = {
@@ -17,11 +18,11 @@ class CenterDetails extends React.Component {
 
   constructor() {
     super();
-    this.changeDateFormat = this.changeDateFormat.bind(this);
     this.submitEvent = this.submitEvent.bind(this);
   }
 
   componentDidMount() {
+    this.props.updateCenterState(null);
     let loaded = false;
     const { id } = this.props.match.params;
     const load = (start = 0, increase = 2, interval = 50) => {
@@ -64,11 +65,6 @@ class CenterDetails extends React.Component {
     this.props.updateCenterState(null);
   }
 
-  changeDateFormat() {
-    const dateSplit = this.eventDate.value.split('-');
-    return `${dateSplit[2]}/${dateSplit[1]}/${dateSplit[0]}`;
-  }
-
   submitEvent(event) {
     event.preventDefault();
     const { appToken } = JSON.parse(localStorage.getItem('eventsManager'));
@@ -77,7 +73,7 @@ class CenterDetails extends React.Component {
       type: this.eventType.value,
       guests: this.eventGuests.value,
       days: this.eventDays.value,
-      start: this.changeDateFormat(),
+      start: Helpers.changeDateFormat(this.eventDate.value),
       centerId: this.props.center.id,
     };
     this.fieldset.disabled = true;
@@ -102,6 +98,7 @@ class CenterDetails extends React.Component {
     const { centerTypes } = this.props;
     const { center } = this.props;
     const { alert } = this.props;
+    const storage = localStorage.getItem('eventsManager');
     return (
       <div className="center-detail-page">
         <div className={`center-loader success-background ${center ? 'hidden' : ''}`} ref={(input) => { this.loader = input; }} />
@@ -147,6 +144,7 @@ class CenterDetails extends React.Component {
                     <div className="col-lg-4 card book-this-center">
                       <fieldset
                         ref={(input) => { this.fieldset = input; }}
+                        disabled={storage === null}
                       >
                         <form ref={(input) => { this.form = input; }} onSubmit={this.submitEvent}>
                           <div className="form-group">

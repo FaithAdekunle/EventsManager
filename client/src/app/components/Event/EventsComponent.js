@@ -65,7 +65,7 @@ class Events extends React.Component {
                 <button className="btn btn-block btn-outline-primary" onClick={this.openModal}>Add Event</button>
               </div>
             </div>
-            <div className={this.props.alertState !== 'Looks like you\'re offline. Check internet connection.' ? 'hidden' : ''}>
+            <div className={this.props.alertState === 'Looks like you\'re offline. Check internet connection.' ? '' : 'hidden'}>
               <div className="alert alert-info" role="alert">
                 <strong>{this.props.alertState}</strong>
               </div>
@@ -74,12 +74,11 @@ class Events extends React.Component {
               <h5>You have no registered events yet. Click add event above.</h5>
             </div>
             <div className="row">
-              {this.props.eventsState.map((event, index) => {
+              {this.props.eventsState.map((event) => {
                 return (
                   <div className="col-md-6" key={event.id}>
                     <Event
                       event={event}
-                      index={index}
                       history={this.props.history}
                     />
                   </div>

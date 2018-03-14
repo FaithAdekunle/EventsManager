@@ -84,10 +84,7 @@ describe('Store Reducers', () => {
     });
 
     it('should edit events state', () => {
-      const payload = {
-        event: { id: 1, name: 'mockEvent1' },
-        index: 1,
-      };
+      const payload = { id: 1, name: 'mockEvent1' };
       const action = {
         type: 'EDIT_EVENTS_STATE',
         payload,
@@ -101,7 +98,7 @@ describe('Store Reducers', () => {
     it('should delete from events state', () => {
       const action = {
         type: 'DELETE_FROM_EVENTS_STATE',
-        payload: 1,
+        payload: { id: 1, name: 'mockEvent1' },
       };
       state = appStore.eventsReducer(state, action);
       expect(state.length).equal(2);
@@ -110,18 +107,18 @@ describe('Store Reducers', () => {
     });
   });
 
-  describe('event index Reducer', () => {
-    const state = appStore.eventIndex;
-    it('initial state index should be null', () => {
+  describe('event state Reducer', () => {
+    const state = appStore.eventState;
+    it('initial event state should be null', () => {
       expect(state).equal(null);
     });
 
-    it('should set event index to 1', () => {
+    it('should set event state', () => {
       const action = {
-        type: 'UPDATE_EVENT_INDEX',
-        payload: 1,
+        type: 'UPDATE_EVENT_STATE',
+        payload: { id: 1, name: 'mock1' },
       };
-      expect(appStore.eventReducer(state, action)).equal(1);
+      expect(appStore.eventReducer(state, action)).eql({ id: 1, name: 'mock1' });
     });
   });
 
