@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import database from '../db';
-import { unmountImages, jsonHandle } from './centerController';
 
 dotenv.config({ path: '.env' });
 
@@ -57,7 +56,6 @@ module.exports = class EventController {
   // check if any of the above validations failed
   static checkFailedValidations(req, res, next) {
     if (validationResult(req).isEmpty()) return next();
-    unmountImages(req.body);
     const errors = validationResult(req).array();
     const response = [];
     errors.map(error => response.push(error.msg));
@@ -67,11 +65,8 @@ module.exports = class EventController {
   // use moment.js to validate the start date field as correct date format and
   // also not a previous or current date
   static checkAndSanitizeDateFields(req, res, next) {
-    if (!moment(req.body.start, 'DD-MM-YYYY').isValid()
-      || !(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) {
-      unmountImages(req.body);
-      return res.status(400).json({ err: 'Invalid date. Use format DD/MM/YYYY for date' });
-    }
+    if (!moment(req.body.start, 'DD-MM-YYYY').isValid()) return res.status(400).json({ err: 'Invalid date. Use format DD/MM/YYYY for date' });
+    if (!(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) return res.status(400).json({ err: 'Pevious dates can not be booked' });
     req.body.start = moment(req.body.start, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
     req.body.end = moment(req.body.start, 'DD-MM-YYYY').add(req.body.days - 1, 'days').format('DD MM YYYY').split(' ')
       .join('/');
@@ -86,7 +81,6 @@ module.exports = class EventController {
       || [-1, 0, -0].includes(Math.sign(req.body.days))
       || [-1, 0, -0].includes(Math.sign(req.body.centerId))
       || [-1, 0, -0].includes(Math.sign(req.body.guests))) {
-      unmountImages(req.body);
       return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for centerId, guests and days fields' });
     }
     return next();
@@ -94,15 +88,11 @@ module.exports = class EventController {
 
   // createEvent(req, res) creates a new user event
   static createEvent(req, res) {
-    jsonHandle(req.body, false);
     database.event.create(req.body)
       .then((createdEvent) => {
-        jsonHandle(createdEvent);
         res.json(createdEvent);
       })
       .catch((err) => {
-        jsonHandle(req.body);
-        unmountImages(req.body);
         res.status(500).json({ err: err.message || 'problem occured creating event' });
       });
   }
@@ -117,12 +107,8 @@ module.exports = class EventController {
     })
       .then((event) => {
         if (!event) {
-          unmountImages(req.body);
           return res.status(404).json({ err: 'event not found' });
         }
-        jsonHandle(event);
-        unmountImages(event);
-        jsonHandle(req.body, false);
         return database.event.update(req.body, {
           where: {
             id: req.params.id,
@@ -138,27 +124,19 @@ module.exports = class EventController {
                 },
               })
                 .then((updatedEvent) => {
-                  jsonHandle(updatedEvent);
                   res.json(updatedEvent);
                 })
                 .catch((err) => {
-                  jsonHandle(req.body);
-                  unmountImages(req.body);
                   return res.status(404).json({ err: err.message || 'problem occured editing event' });
                 });
             }
-            jsonHandle(req.body);
-            unmountImages(req.body);
             return res.status(404).json({ err: 'problem occured editing event' });
           })
           .catch((err) => {
-            jsonHandle(req.body);
-            unmountImages(req.body);
             return res.status(404).json({ err: err.message || 'problem occured editing event' });
           });
       })
       .catch((err) => {
-        unmountImages(req.body);
         return res.status(404).json({ err: err.message || 'problem occured editing event' });
       });
   }
@@ -173,8 +151,6 @@ module.exports = class EventController {
     })
       .then((event) => {
         if (!event) return res.status(404).json({ err: 'event not found' });
-        jsonHandle(event);
-        unmountImages(event);
         return database.event.destroy({
           where: {
             id: req.params.id,
@@ -198,7 +174,6 @@ module.exports = class EventController {
       },
     })
       .then((events) => {
-        events.map(event => jsonHandle(event));
         return res.json(events);
       })
       .catch(err => res.status(404).json({ err: err.message || 'problem occured fetching user events' }));

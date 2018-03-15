@@ -23,7 +23,8 @@
       "jsx-a11y/no-noninteractive-element-interactions": "off",
       "no-plusplus": "off",
       "no-restricted-syntax": "off",
-      "no-case-declarations": "off"
+      "no-case-declarations": "off",
+      "no-await-in-loop": "off"
     },
     "env": {
     "node": true,

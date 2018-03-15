@@ -11,8 +11,6 @@ module.exports = class AppRouter {
     // route handler for creating a new event
     router.post(
       '/api/v1/events',
-      CenterController.handleImages(),
-      (req, res, next) => CenterController.mountImages(req, res, next),
       EventController.eventValidations(),
       (req, res, next) => EventController.checkFailedValidations(req, res, next),
       (req, res, next) => EventController.checkDaysAndGuestsFields(req, res, next),
@@ -26,8 +24,6 @@ module.exports = class AppRouter {
     router.put(
       '/api/v1/events/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
-      CenterController.handleImages(),
-      (req, res, next) => CenterController.mountImages(req, res, next),
       EventController.eventValidations(),
       (req, res, next) => EventController.checkFailedValidations(req, res, next),
       (req, res, next) => EventController.checkDaysAndGuestsFields(req, res, next),
@@ -64,12 +60,10 @@ module.exports = class AppRouter {
     // route handler for creating and adding a new center
     router.post(
       '/api/v1/centers',
-      CenterController.handleImages(),
-      (req, res, next) => CenterController.mountImages(req, res, next),
       CenterController.centerValidations(),
       (req, res, next) => CenterController.checkFailedValidations(req, res, next),
       (req, res, next) => CenterController.checkCostAndCapacityFields(req, res, next),
-      (req, res, next) => CenterController.splitFacilities(req, res, next),
+      (req, res, next) => CenterController.splitFacilitiesAndImages(req, res, next),
       (req, res, next) => UserController.verifyAdmin(req, res, next),
       (req, res) => CenterController.addCenter(req, res),
     );
@@ -78,12 +72,10 @@ module.exports = class AppRouter {
     router.put(
       '/api/v1/centers/:id',
       (req, res, next) => UserController.sanitizeId(req, res, next),
-      CenterController.handleImages(),
-      (req, res, next) => CenterController.mountImages(req, res, next),
       CenterController.centerValidations(),
       (req, res, next) => CenterController.checkFailedValidations(req, res, next),
       (req, res, next) => CenterController.checkCostAndCapacityFields(req, res, next),
-      (req, res, next) => CenterController.splitFacilities(req, res, next),
+      (req, res, next) => CenterController.splitFacilitiesAndImages(req, res, next),
       (req, res, next) => UserController.verifyAdmin(req, res, next),
       (req, res) => CenterController.modifyCenter(req, res),
     );

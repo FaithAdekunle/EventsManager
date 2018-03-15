@@ -23,6 +23,8 @@ class AdminHome extends React.Component {
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
     this.facilities = {};
+    this.cloudinaryPreset = 'axgrmj0a';
+    this.cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload';
   }
 
   componentDidMount() {
@@ -88,25 +90,34 @@ class AdminHome extends React.Component {
     return facilities;
   }
 
-  submitCenter(e) {
+  async submitCenter(e) {
     e.preventDefault();
-    const { files } = this.images;
-    const formData = new FormData();
-    formData.append('name', this.centerName.value);
-    formData.append('address', this.centerAddress.value);
-    formData.append('description', this.centerDescription.value);
-    formData.append('facilities', this.computeFacilities());
-    formData.append('capacity', this.centerCapacity.value);
-    formData.append('cost', this.centerCost.value);
-    for (let i = 0; i < 4; i++) {
-      if (files[i]) formData.append('images', files[i]);
-    }
     this.fieldset.disabled = true;
+    const { files } = this.images;
+    let images = '';
+    for (let i = 0; i < 4; i++) {
+      if (files[i]) {
+        const formData = new FormData();
+        formData.append('upload_preset', this.cloudinaryPreset);
+        formData.append('file', files[i]);
+        const response = await axios.post(this.cloudinaryUrl, formData);
+        images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
+      }
+    }
+    const credentials = {
+      name: this.centerName.value,
+      address: this.centerAddress.value,
+      description: this.centerDescription.value,
+      facilities: this.computeFacilities(),
+      capacity: this.centerCapacity.value,
+      cost: this.centerCost.value,
+      images,
+    };
     const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
     if (!eventsManager) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .post(`http://localhost:7777/api/v1/centers?token=${appToken}`, formData)
+      .post(`http://localhost:7777/api/v1/centers?token=${appToken}`, credentials)
       .then((response) => {
         this.props.addToCentersState(response.data);
         this.props.updateSelectedImages([]);

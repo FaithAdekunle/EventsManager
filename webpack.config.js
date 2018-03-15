@@ -1,10 +1,10 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin-advanced');
 const path = require('path');
 const webpack = require('webpack');
-// const CompressionPlugin = require('compression-webpack-plugin');
+
 
 module.exports = {
-  entry: ['./client/src/app/index.js'],
+  entry: ['babel-polyfill', './client/src/app/index.js'],
   devtool: 'cheap-module-source-map',
   output: {
     filename: 'bundle.js',
@@ -51,6 +51,9 @@ module.exports = {
       },
     ],
   },
+  node: {
+    fs: 'empty',
+  },
   resolve: {
     extensions: ['.js', '.jsx'],
   },
@@ -73,12 +76,5 @@ module.exports = {
       'window.jQuery': 'jquery',
       Popper: ['popper.js', 'default'],
     }),
-    // new CompressionPlugin({
-    //   asset: '[path].gz[query]',
-    //   algorithm: 'gzip',
-    //   test: /\.js$|\.css$|\.html$/,
-    //   threshold: 10240,
-    //   minRatio: 0,
-    // }),
   ],
 };

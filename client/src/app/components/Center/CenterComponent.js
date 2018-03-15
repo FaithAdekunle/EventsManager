@@ -54,7 +54,7 @@ class Center extends React.Component {
                   onMouseEnter={this.increaseNameSize}
                   onMouseLeave={this.decreaseNameSize}
                   onClick={this.navToCenter}
-                  src={`http://localhost:7777/images/${center.images[0]}`}
+                  src={center.images[0]}
                   width="100%"
                   alt={center.name}
                 />

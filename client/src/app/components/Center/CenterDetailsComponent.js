@@ -109,35 +109,31 @@ class CenterDetails extends React.Component {
           center ? (
             <div>
               <div>
-                {
-                  center.images.length > 0 ? (
-                    <div id="center-image-controls" className="carousel slide" data-ride="carousel">
-                      <div className="carousel-inner">
-                        {
-                          center.images.map((image, index) => {
-                          return (
-                            <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={image}><img src={`http://localhost:7777/images/${image}`} alt="" className="d-block w-100" /></div>
-                          );
-                          })
-                        }
-                      </div>
-                      <a className="carousel-control-prev" href="#center-image-controls" role="button" data-slide="prev">
-                        <span className="carousel-control-prev-icon" aria-hidden="true" />
-                        <span className="sr-only">Previous</span>
-                      </a>
-                      <a className="carousel-control-next" href="#center-image-controls" role="button" data-slide="next">
-                        <span className="carousel-control-next-icon" aria-hidden="true" />
-                        <span className="sr-only text-black">Next</span>
-                      </a>
-                    </div>
-                  ) : null
-                }
+                <div id="center-image-controls" className="carousel slide" data-ride="carousel">
+                  <div className="carousel-inner">
+                    {
+                      center.images.map((image, index) => {
+                      return (
+                        <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={image}><img src={image} alt="" className="d-block w-100" /></div>
+                      );
+                      })
+                    }
+                  </div>
+                  <a className="carousel-control-prev" href="#center-image-controls" role="button" data-slide="prev">
+                    <span className="carousel-control-prev-icon" aria-hidden="true" />
+                    <span className="sr-only">Previous</span>
+                  </a>
+                  <a className="carousel-control-next" href="#center-image-controls" role="button" data-slide="next">
+                    <span className="carousel-control-next-icon" aria-hidden="true" />
+                    <span className="sr-only text-black">Next</span>
+                  </a>
+                </div>
                 <h3 className="text-center center-detail-name">{center ? center.name : ''}</h3>
                 <div className="container">
                   <div className="row">
                     <div className="col-lg-8">
                       <p className="text-justify">{center ? center.description : ''}</p>
-                      <button type="button" className="btn btn-default btn-lg btn-block see-more" data-toggle="modal" data-target="#detailsModal">
+                      <button type="button" className="btn btn-primary btn-lg btn-block see-more" data-toggle="modal" data-target="#detailsModal">
                       See more about this center
                       </button>
                     </div>

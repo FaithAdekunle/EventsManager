@@ -24,7 +24,7 @@ class DeleteEvent extends React.Component {
     axios
       .delete(`http://localhost:7777/api/v1/events/${this.props.eventState.id}?token=${appToken}`)
       .then(() => {
-        this.props.deleteFromEventsState(this.props.eventState.id);
+        this.props.deleteFromEventsState(this.props.eventState);
         this.props.updateEventState(null);
         this.confirm.classList.remove('hidden');
         this.deleting.classList.add('hidden');

@@ -1,37 +1,8 @@
-import fs from 'fs';
 import moment from 'moment';
-import multer from 'multer';
-import uuidv4 from 'uuid/v4';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import { Op } from 'sequelize';
 import database from '../db';
-
-// define storage option for multer
-const storage = multer.diskStorage({
-  destination(req, file, next) {
-    next(null, './server/dist/public/images');
-  },
-  filename(req, file, cb) {
-    cb(null, `${uuidv4()}.${file.mimetype.split('/')[1]}`);
-  },
-});
-
-// set multer options
-const options = {
-  storage,
-  fileFilter(req, file, next) {
-    const isImage = file.mimetype.startsWith('image/');
-    if (isImage) return next(null, true);
-    return next({ err: 'File type rejected' }, false);
-  },
-};
-
-/** unmountImages(obj) removes all images
-    whose names are present in obj.images */
-export const unmountImages = (obj) => {
-  if (obj.images) obj.images.map(image => fs.unlink(`./server/dist/public/images/${image}`, () => {}));
-};
 
 export const jsonHandle = (obj, parse = true) => {
   if (parse) {
@@ -42,9 +13,6 @@ export const jsonHandle = (obj, parse = true) => {
     if (obj.facilities) obj.facilities = JSON.stringify(obj.facilities);
   }
 };
-
-
-const upload = multer(options);
 
 /** CenterController class defines static
     methods to be used in handling /centers
@@ -83,26 +51,12 @@ export class CenterController {
       body('cost')
         .exists()
         .withMessage('missing center cost field'),
+      body('images')
+        .exists()
+        .withMessage('missing images field'),
       sanitize('capacity').toInt(),
       sanitize('cost').toInt(),
     ];
-  }
-
-  /** handleImages() reads imcoming uploaded files
-    into local storage, hooks up req.files and req.body */
-  static handleImages() {
-    return upload.array('images', 4);
-  }
-
-  /** mountImages(req, res, next) mounts names of
-      saved files in req.files on req.body for validation check  */
-  static mountImages(req, res, next) {
-    const images = [];
-    if (req.files) {
-      req.files.map(file => images.push(file.filename));
-    }
-    if (images.length > 0) req.body.images = images;
-    return next();
   }
 
   /* checkFailedValidations(req, res, next) checks if
@@ -112,17 +66,19 @@ export class CenterController {
     if (validationResult(req).isEmpty()) {
       return next();
     }
-    unmountImages(req.body);
     const errors = validationResult(req).array();
     errors.map(error => response.push(error.msg));
     return res.status(400).json({ err: response });
   }
 
   // splits facilities string to be saved as an array in storage
-  static splitFacilities(req, res, next) {
+  static splitFacilitiesAndImages(req, res, next) {
     const facilities = [];
+    const images = [];
     req.body.facilities.split(',').map(facility => facilities.push(facility.trim()));
+    req.body.images.split(',').map(image => images.push(image.trim()));
     req.body.facilities = facilities;
+    req.body.images = images;
     return next();
   }
 
@@ -132,7 +88,6 @@ export class CenterController {
       || !Number.isInteger(req.body.capacity)
       || [-1, 0, -0].includes(Math.sign(req.body.cost))
       || [-1, 0, -0].includes(Math.sign(req.body.capacity))) {
-      unmountImages(req.body);
       return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
     }
     if (req.body.cost > 2147483647) return res.status(400).json({ err: 'cost too large' });
@@ -143,8 +98,6 @@ export class CenterController {
   // addCenter(req, res) adds a new center to database
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
-    if (req.body.state) req.body.state = req.body.state.toLowerCase();
-    if (!req.body.images) req.body.images = [];
     jsonHandle(req.body, false);
     database.center.create(req.body)
       .then((createdCenter) => {
@@ -152,8 +105,6 @@ export class CenterController {
         res.status(201).json(createdCenter);
       })
       .catch(() => {
-        jsonHandle(req.body);
-        unmountImages(req.body);
         res.status(400).json({ err: 'center name already exists' });
       });
   }
@@ -177,11 +128,9 @@ export class CenterController {
           })
             .then((center) => {
               if (!center) {
-                unmountImages(req.body);
                 return res.json({ err: 'center not found' });
               }
               jsonHandle(center);
-              if (req.body.images) unmountImages(center);
               jsonHandle(req.body, false);
               if (req.body.state) req.body.state = req.body.state.toLowerCase();
               return database.center.update(req.body, {
@@ -205,13 +154,11 @@ export class CenterController {
                       });
                   }
                   jsonHandle(req.body);
-                  unmountImages(req.body);
                   return res.status(409).json({ err: 'center name already exists' });
                 });
             })
             .catch(err => res.status(500).json({ err: err.message || 'database error' }));
         }
-        unmountImages(req.body);
         return res.status(409).json({ err: 'center name already exists' });
       });
   }
@@ -273,20 +220,19 @@ export class CenterController {
     })
       .then((center) => {
         if (!center) {
-          unmountImages(req.body);
           return res.status(404).json({ err: 'center not found' });
         }
-        for (const event of center.events) {
-          if (event.id === req.params.id) continue;
+        center.events.map((event) => {
+          if (event.id === req.params.id) return null;
           const { start, end } = event;
           if (moment(req.body.start, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
            || moment(req.body.end, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
            || moment(start, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')
            || moment(end, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')) {
-            unmountImages(req.body);
             return res.status(409).json({ err: 'dates have been booked' });
           }
-        }
+          return null;
+        });
         return next();
       });
   }

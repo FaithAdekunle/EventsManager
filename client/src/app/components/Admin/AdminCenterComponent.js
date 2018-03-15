@@ -26,6 +26,8 @@ class AdminCenter extends React.Component {
     this.updateFacilities = this.updateFacilities.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.facilities = {};
+    this.cloudinaryPreset = 'axgrmj0a';
+    this.cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload';
   }
 
 
@@ -51,6 +53,7 @@ class AdminCenter extends React.Component {
         loaded = true;
         this.loader.style.width = '100%';
         this.props.updateCenterState(response.data);
+        this.props.updateSelectedImages(response.data.images);
         setTimeout(() => { this.loader.classList.remove('success-background'); }, 500);
       })
       .catch((err) => {
@@ -100,7 +103,7 @@ class AdminCenter extends React.Component {
 
   closeModal() {
     this.images.value = null;
-    this.props.updateSelectedImages([]);
+    this.props.updateSelectedImages(this.props.center.images);
   }
 
   computeFacilities() {
@@ -131,34 +134,45 @@ class AdminCenter extends React.Component {
     return readFiles();
   }
 
-  submitCenter(e) {
+  async submitCenter(e) {
     e.preventDefault();
+    this.fieldset.disabled = true;
     const { files } = this.images;
-    const formData = new FormData();
-    formData.append('name', this.centerName.value);
-    formData.append('address', this.centerAddress.value);
-    formData.append('description', this.centerDescription.value);
-    formData.append('facilities', this.computeFacilities());
-    formData.append('capacity', this.centerCapacity.value);
-    formData.append('cost', this.centerCost.value);
+    let images = '';
     if (files.length > 0) {
       for (let i = 0; i < 4; i++) {
-        if (files[i]) formData.append('images', files[i]);
+        if (files[i]) {
+          const formData = new FormData();
+          formData.append('upload_preset', this.cloudinaryPreset);
+          formData.append('file', files[i]);
+          const response = await axios.post(this.cloudinaryUrl, formData);
+          images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
+        }
       }
+    } else {
+      images = this.props.center.images.join(',');
     }
-    this.fieldset.disabled = true;
+    const credentials = {
+      name: this.centerName.value,
+      address: this.centerAddress.value,
+      description: this.centerDescription.value,
+      facilities: this.computeFacilities(),
+      capacity: this.centerCapacity.value,
+      cost: this.centerCost.value,
+      images,
+    };
     const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
     if (!eventsManager) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .put(`http://localhost:7777/api/v1/centers/${this.props.match.params.id}?token=${appToken}`, formData)
+      .put(`http://localhost:7777/api/v1/centers/${this.props.match.params.id}?token=${appToken}`, credentials)
       .then((response) => {
+        this.props.updateSelectedImages(response.data.images);
         if (this.props.location.state) {
           this.props.editCentersState(this.props.location.state.index, response.data);
         }
         this.props.updateCenterState(response.data);
         $('#detailsModal').modal('toggle');
-        this.props.updateSelectedImages([]);
         this.props.updateAlertState(null);
         this.form.reset();
         this.fieldset.disabled = false;
@@ -192,9 +206,9 @@ class AdminCenter extends React.Component {
                       <div className="carousel-inner">
                         {
                           center.images.map((image, index) => {
-                          return (
-                            <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={image}><img src={`http://localhost:7777/images/${image}`} alt="" className="d-block w-100" /></div>
-                          );
+                            return (
+                              <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={image}><img src={image} alt="" className="d-block w-100" /></div>
+                            );
                           })
                         }
                       </div>
