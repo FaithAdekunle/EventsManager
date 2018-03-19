@@ -60,50 +60,49 @@ describe('Store Reducers', () => {
     let state = appStore.eventsState;
     it('should set the events state', () => {
       const payload = [
-        { id: 1, name: 'mock1' },
-        { id: 0, name: 'mock0' },
+        { id: 1, name: 'mock1', start: '01/10/2018' },
+        { id: 0, name: 'mock0', start: '01/11/2018' },
       ];
       const action = {
         type: 'UPDATE_EVENTS_STATE',
         payload,
       };
       state = appStore.eventsReducer(state, action);
-      expect(state[0]).to.eql({ id: 1, name: 'mock1' });
-      expect(state[1]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[1]).to.eql({ id: 0, name: 'mock0', start: '01/11/2018' });
+      expect(state[0]).to.eql({ id: 1, name: 'mock1', start: '01/10/2018' });
     });
 
     it('should add to events state', () => {
-      const payload = { id: 2, name: 'mock2' };
+      const payload = { id: 2, name: 'mock2', start: '01/11/2017' };
       const action = {
         type: 'ADD_TO_EVENTS_STATE',
         payload,
       };
       state = appStore.eventsReducer(state, action);
-      expect(state[0]).to.eql({ id: 2, name: 'mock2' });
-      expect(state[2]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[2]).to.eql({ id: 0, name: 'mock0', start: '01/11/2018' });
     });
 
     it('should edit events state', () => {
-      const payload = { id: 1, name: 'mockEvent1' };
+      const payload = { id: 1, name: 'mockEvent1', start: '01/09/2018' };
       const action = {
         type: 'EDIT_EVENTS_STATE',
         payload,
       };
       state = appStore.eventsReducer(state, action);
-      expect(state[0]).to.eql({ id: 2, name: 'mock2' });
-      expect(state[1]).to.eql({ id: 1, name: 'mockEvent1' });
-      expect(state[2]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[0]).to.eql({ id: 2, name: 'mock2', start: '01/11/2017' });
+      expect(state[1]).to.eql({ id: 1, name: 'mockEvent1', start: '01/09/2018' });
+      expect(state[2]).to.eql({ id: 0, name: 'mock0', start: '01/11/2018' });
     });
 
     it('should delete from events state', () => {
       const action = {
         type: 'DELETE_FROM_EVENTS_STATE',
-        payload: { id: 1, name: 'mockEvent1' },
+        payload: { id: 1, name: 'mockEvent1', start: '01/09/2018' },
       };
       state = appStore.eventsReducer(state, action);
       expect(state.length).equal(2);
-      expect(state[0]).to.eql({ id: 2, name: 'mock2' });
-      expect(state[1]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[0]).to.eql({ id: 2, name: 'mock2', start: '01/11/2017' });
+      expect(state[1]).to.eql({ id: 0, name: 'mock0', start: '01/11/2018' });
     });
   });
 
@@ -149,8 +148,8 @@ describe('Store Reducers', () => {
         payload,
       };
       state = appStore.centersReducer(state, action);
-      expect(state[0]).to.eql({ id: 1, name: 'mock1' });
-      expect(state[1]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[1]).to.eql({ id: 1, name: 'mock1' });
+      expect(state[0]).to.eql({ id: 0, name: 'mock0' });
     });
 
     it('should add to centers state', () => {
@@ -160,8 +159,8 @@ describe('Store Reducers', () => {
         payload,
       };
       state = appStore.centersReducer(state, action);
-      expect(state[0]).to.eql({ id: 2, name: 'mock2' });
-      expect(state[2]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[2]).to.eql({ id: 2, name: 'mock2' });
+      expect(state[0]).to.eql({ id: 0, name: 'mock0' });
     });
 
     it('should edit centers state', () => {
@@ -174,9 +173,9 @@ describe('Store Reducers', () => {
         payload,
       };
       state = appStore.centersReducer(state, action);
-      expect(state[0]).to.eql({ id: 2, name: 'mock2' });
+      expect(state[2]).to.eql({ id: 2, name: 'mock2' });
       expect(state[1]).to.eql({ id: 1, name: 'mockCenter1' });
-      expect(state[2]).to.eql({ id: 0, name: 'mock0' });
+      expect(state[0]).to.eql({ id: 0, name: 'mock0' });
     });
   });
 

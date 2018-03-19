@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Helpers from '../../Helpers';
 
 class SignIn extends React.Component {
   static propTypes = {
@@ -41,7 +42,7 @@ class SignIn extends React.Component {
       password: this.password.value,
     };
     axios
-      .post('http://localhost:7777/api/v1/users/login', credentials)
+      .post(`${Helpers.localHost}/users/login`, credentials)
       .then((response) => {
         const userState = {
           fullname: response.data.fullName,

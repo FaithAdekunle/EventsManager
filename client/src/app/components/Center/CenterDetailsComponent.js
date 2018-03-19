@@ -13,7 +13,6 @@ class CenterDetails extends React.Component {
     match: Proptypes.object,
     updateCenterState: Proptypes.func,
     updateAlertState: Proptypes.func,
-    addToEventsState: Proptypes.func,
   }
 
   constructor() {
@@ -39,7 +38,7 @@ class CenterDetails extends React.Component {
     };
     load();
     axios
-      .get(`http://localhost:7777/api/v1/centers/${id}`)
+      .get(`${Helpers.localHost}/centers/${id}`)
       .then((response) => {
         loaded = true;
         this.loader.style.width = '100%';
@@ -65,6 +64,11 @@ class CenterDetails extends React.Component {
     this.props.updateCenterState(null);
   }
 
+  closeSubmitModal() {
+    const submitModal = $('#submitModal');
+    submitModal.modal('toggle');
+  }
+
   submitEvent(event) {
     event.preventDefault();
     const { appToken } = JSON.parse(localStorage.getItem('eventsManager'));
@@ -78,9 +82,9 @@ class CenterDetails extends React.Component {
     };
     this.fieldset.disabled = true;
     axios
-      .post(`http://localhost:7777/api/v1/events?token=${appToken}`, credentials)
-      .then((response) => {
-        this.props.addToEventsState(response.data);
+      .post(`${Helpers.localHost}/events?token=${appToken}`, credentials)
+      .then(() => {
+        this.closeSubmitModal();
         this.props.history.push('/events');
       })
       .catch((err) => {
@@ -99,6 +103,7 @@ class CenterDetails extends React.Component {
     const { center } = this.props;
     const { alert } = this.props;
     const storage = localStorage.getItem('eventsManager');
+    const canBookCenter = storage && !((JSON.parse(storage)).loginState.userIsAdmin);
     return (
       <div className="center-detail-page">
         <div className={`center-loader success-background ${center ? 'hidden' : ''}`} ref={(input) => { this.loader = input; }} />
@@ -107,8 +112,8 @@ class CenterDetails extends React.Component {
         </div>
         {
           center ? (
-            <div>
-              <div>
+            <React.Fragment>
+              <React.Fragment>
                 <div id="center-image-controls" className="carousel slide" data-ride="carousel">
                   <div className="carousel-inner">
                     {
@@ -128,122 +133,144 @@ class CenterDetails extends React.Component {
                     <span className="sr-only text-black">Next</span>
                   </a>
                 </div>
-                <h3 className="text-center center-detail-name">{center ? center.name : ''}</h3>
-                <div className="container">
+                <h3 className="text-center center-detail-name">{center.name}</h3>
+                <div className="center-details">
+                  <p className="text-justify center-description">{center.description}</p>
                   <div className="row">
-                    <div className="col-lg-8">
-                      <p className="text-justify">{center ? center.description : ''}</p>
-                      <button type="button" className="btn btn-primary btn-lg btn-block see-more" data-toggle="modal" data-target="#detailsModal">
-                      See more about this center
-                      </button>
+                    <div className="col-md-6">
+                      <div className="text-primary text-center">Facilities</div>
+                      <table className="table table-bordered">
+                        <tbody>
+                          {
+                            center.facilities.map((facility, index) => {
+                              return index === 0 || index % 3 === 0 ? (
+                                <tr key={facility}>
+                                  <td>{facility}</td>
+                                  {
+                                    [1, 2].map((num) => {
+                                      return center.facilities[index + num] ? (
+                                        <td key={center.facilities[index + num]}>
+                                          {center.facilities[index + num]}
+                                        </td>
+                                      ) : (
+                                        <td key={num} />
+                                      );
+                                    })
+                                  }
+                                </tr>
+                              ) : null;
+                            })
+                          }
+                        </tbody>
+                      </table>
+                      {
+                        canBookCenter ? (
+                          <React.Fragment>
+                            <hr />
+                            <button type="button" className="btn btn-primary btn-lg btn-block see-more" data-toggle="modal" data-target="#submitModal">
+                            Book this center
+                            </button>
+                          </React.Fragment>
+                        ) : null
+                      }
                     </div>
-                    <div className="col-lg-4 card book-this-center">
-                      <fieldset
-                        ref={(input) => { this.fieldset = input; }}
-                        disabled={storage === null}
-                      >
-                        <form ref={(input) => { this.form = input; }} onSubmit={this.submitEvent}>
-                          <div className="form-group">
-                            <label htmlFor="name" className="col-form-label">Name</label>
-                            <input ref={(input) => { this.eventName = input; }} required type="text" className="form-control" id="name" />
-                          </div>
-                          <div className="row">
-                            <div className="col-5">
-                              <div className="form-group">
-                                <label htmlFor="days" className="col-form-label">Days</label>
-                                <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" />
-                              </div>
-                            </div>
-                            <div className="col-7">
-                              <div className="form-group">
-                                <label htmlFor="date" className="col-form-label">Start Date</label>
-                                <input ref={(input) => { this.eventDate = input; }} required type="date" className="form-control" id="date" />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="row last-row">
-                            <div className="col-7">
-                              <div className="form-group">
-                                <label htmlFor="type" className="col-form-label">Event type</label>
-                                <select ref={(input) => { this.eventType = input; }} required id="type" className="custom-select form-control">
-                                  {centerTypes.map((type) => {
-                                    return (
-                                      <option
-                                        key={type}
-                                        defaultValue={type}
-                                      >{type}
-                                      </option>
-                                    );
-                                  })}
-                                </select>
-                              </div>
-                            </div>
-                            <div className="col-5">
-                              <div className="form-group">
-                                <label htmlFor="guests" className="col-form-label">Guests</label>
-                                <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" />
-                              </div>
-                            </div>
-                          </div>
-                          <button type="submit" className="btn btn-outline-primary btn-block">Book this venue</button>
-                        </form>
-                      </fieldset>
+                    <div className="col-md-2 col-6">
+                      <div className="text-primary text-center">Details</div>
+                      <ul className="list-group">
+                        <li className="list-group-item"><i className="fa fa-map-marker" aria-hidden="true" /><span>{center ? ` ${center.address}` : ''}</span></li>
+                        <li className="list-group-item"><i className="fa fa-users" aria-hidden="true" /><span>{center ? ` ${center.capacity}` : ''}</span></li>
+                        <li className="list-group-item"><i className="fa fa-money" aria-hidden="true" /><span>{center ? ` ${center.cost}` : ''}</span></li>
+                      </ul>
+                    </div>
+                    <div className="col-md-4 col-6">
+                      <div className="text-primary text-center">Booked dates</div>
+                      <ul className="list-group">
+                        <li className={`text-center list-group-item ${center.events.length === 0 ? '' : 'hidden'}`}>no booked dates</li>
+                        {
+                          Helpers.sortByDate(center.events).map((event) => {
+                            return (
+                              <li className="list-group-item" key={event.id}>
+                                {
+                                  event.start === event.end ? event.start : `${event.start} - ${event.end}`
+                                }
+                              </li>
+                            );
+                          })
+                        }
+                      </ul>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="modal fade" id="detailsModal">
-                <div className="modal-dialog modal-lg">
-                  <div className="modal-content">
-                    <div className="modal-header">
-                      <h4 className="modal-title text-center">{center ? center.name : ''}</h4>
-                      <button type="button" className="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div className="modal-body">
-                      <div className="row">
-                        <div className="col-md-4">
-                          <div className="text-primary">Details</div>
-                          <ul className="list-group">
-                            <li className="list-group-item"><i className="fa fa-map-marker" aria-hidden="true" /><span>{center ? ` ${center.address}` : ''}</span></li>
-                            <li className="list-group-item"><i className="fa fa-users" aria-hidden="true" /><span>{center ? ` ${center.capacity}` : ''}</span></li>
-                            <li className="list-group-item"><i className="fa fa-money" aria-hidden="true" /><span>{center ? ` ${center.cost}` : ''}</span></li>
-                          </ul>
+              </React.Fragment>
+              {
+                canBookCenter ? (
+                  <div className="modal fade" id="submitModal">
+                    <div className="modal-dialog">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <h4 className="modal-title text-center">{center.name}</h4>
+                          <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
-                        <div className="col-md-4">
-                          <div className="text-primary">Booked dates</div>
-                          <ul className="list-group">
-                            <li className={`text-center list-group-item ${center && center.events.length === 0 ? '' : 'hidden'}`}>none</li>
-                            {
-                              center ? center.events.map((event) => {
-                                return (
-                                  <li className="list-group-item" key={event.id}>
-                                    {
-                                      event.start === event.end ? event.start : `${event.start} - ${event.end}`
-                                    }
-                                  </li>
-                                );
-                              }) : ''
-                            }
-                          </ul>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="text-primary">Facilities</div>
-                          <ul className="list-group">
-                            {
-                              center ? center.facilities.map((facility) => {
-                                return (
-                                  <li className="list-group-item" key={facility}>{facility}</li>
-                                );
-                              }) : ''
-                            }
-                          </ul>
+                        <div className="modal-body">
+                          <fieldset
+                            ref={(input) => { this.fieldset = input; }}
+                          >
+                            <form
+                              ref={(input) => { this.form = input; }}
+                              onSubmit={this.submitEvent}
+                            >
+                              <div className="form-group">
+                                <label htmlFor="name" className="col-form-label">Name</label>
+                                <input ref={(input) => { this.eventName = input; }} required type="text" className="form-control" id="name" />
+                              </div>
+                              <div className="row">
+                                <div className="col-5">
+                                  <div className="form-group">
+                                    <label htmlFor="days" className="col-form-label">Days</label>
+                                    <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" />
+                                  </div>
+                                </div>
+                                <div className="col-7">
+                                  <div className="form-group">
+                                    <label htmlFor="date" className="col-form-label">Start Date</label>
+                                    <input ref={(input) => { this.eventDate = input; }} required type="date" className="form-control" id="date" />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="row last-row">
+                                <div className="col-7">
+                                  <div className="form-group">
+                                    <label htmlFor="type" className="col-form-label">Event type</label>
+                                    <select ref={(input) => { this.eventType = input; }} required id="type" className="custom-select form-control">
+                                      {centerTypes.map((type) => {
+                                        return (
+                                          <option
+                                            key={type}
+                                            defaultValue={type}
+                                          >{type}
+                                          </option>
+                                        );
+                                      })}
+                                    </select>
+                                  </div>
+                                </div>
+                                <div className="col-5">
+                                  <div className="form-group">
+                                    <label htmlFor="guests" className="col-form-label">Guests</label>
+                                    <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" />
+                                  </div>
+                                </div>
+                              </div>
+                              <button type="submit" className="btn btn-outline-primary btn-block">Book this venue</button>
+                            </form>
+                          </fieldset>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
+                ) : null
+              }
+            </React.Fragment>
           ) : null
         }
       </div>
@@ -271,12 +298,6 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({
         type: 'UPDATE_CENTER_STATE',
         payload: center,
-      });
-    },
-    addToEventsState: (event) => {
-      dispatch({
-        type: 'ADD_TO_EVENTS_STATE',
-        payload: event,
       });
     },
   };

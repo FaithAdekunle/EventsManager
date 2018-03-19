@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import database from '../db';
-import { unmountImages } from '../controllers/centerController';
 
 dotenv.config({ path: '.env' });
 
@@ -136,7 +135,6 @@ module.exports = class userController {
   static verifyAdmin(req, res, next) {
     const { token } = req.query;
     if (!token) {
-      unmountImages(req.body);
       return res.status(401).json({ err: 'no token found' });
     }
     try {
@@ -156,7 +154,6 @@ module.exports = class userController {
           return next();
         });
     } catch (err) {
-      unmountImages(req.body);
       return res.status(401).json({ err: 'authentication failed' });
     }
   }

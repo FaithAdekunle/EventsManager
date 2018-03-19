@@ -5,6 +5,7 @@ import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import NavTab from './TabComponent';
 import Main from './MainComponent';
+import Helpers from './../Helpers';
 
 class App extends React.Component {
   static propTypes = {
@@ -13,7 +14,7 @@ class App extends React.Component {
 
   componentDidMount() {
     axios
-      .get('http://localhost:7777/api/v1/centers')
+      .get(`${Helpers.localHost}/centers`)
       .then((response) => {
         this.props.updateCentersState(response.data);
       })
@@ -22,10 +23,10 @@ class App extends React.Component {
   render() {
     return (
       <BrowserRouter>
-        <div>
+        <React.Fragment>
           <NavTab />
           <Main />
-        </div>
+        </React.Fragment>
       </BrowserRouter>
     );
   }

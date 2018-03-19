@@ -3,12 +3,13 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import uuidv4 from 'uuid/v4';
-import { readFileSync } from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env' });
 
 chai.use(chaiHttp);
 chai.should();
-// const host = 'andela-events-manager.herokuapp.com/api/v1';
-const host = 'localhost:7777/api/v1';
+const host = process.env.LOCAL_HOST;
 const userEmail = `${uuidv4()}@gmail.com`;
 const adminEmail = `${uuidv4()}@gmail.com`;
 const userPassword = uuidv4();
@@ -300,11 +301,12 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
+        .send({
+          description: 'This is the description for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -317,12 +319,14 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', '')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
+        .send({
+          name: '',
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -335,11 +339,13 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
+        .send({
+          name: centerName,
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -352,12 +358,14 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', '')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
+        .send({
+          name: centerName,
+          description: '',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -370,11 +378,13 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('address', 'This is the address for this center')
-        .field('description', 'The description')
-        .field('capacity', 450)
-        .field('cost', 300000)
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -387,12 +397,14 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('address', 'This is the address for this center')
-        .field('description', 'The description')
-        .field('facilities', '')
-        .field('capacity', 450)
-        .field('cost', 300000)
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: '',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -405,16 +417,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 'cost')
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 'cost',
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -427,16 +438,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', -450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: -450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -449,16 +459,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', '')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: '',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -471,15 +480,14 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -492,16 +500,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post('/centers/')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(401);
           res.should.be.a('object');
@@ -514,16 +521,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post(`/centers?token=${userToken}`)
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(401);
           res.should.be.a('object');
@@ -535,17 +541,16 @@ describe('Tests for Centers API', () => {
     it('should return a status 401 error response for valid post request with random token', (done) => {
       chai
         .request(host)
-        .post('/centers?token=bbkvjhgvjhgv')
-        .field('name', 'The Conference center')
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .post('/centers?token=randomtoken')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(401);
           res.should.be.a('object');
@@ -558,16 +563,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post(`/centers?token=${adminToken}`)
-        .field('name', centerName)
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
@@ -581,16 +585,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .post(`/centers?token=${adminToken}`)
-        .field('name', anotherCenterName)
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: anotherCenterName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
@@ -643,16 +646,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .put(`/centers/${centerId}?token=${adminToken}`)
-        .field('name', anotherCenterName)
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: anotherCenterName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(409);
           res.should.be.a('object');
@@ -665,16 +667,15 @@ describe('Tests for Centers API', () => {
       chai
         .request(host)
         .put(`/centers/${centerId}?token=${adminToken}`)
-        .field('name', uuidv4())
-        .field('description', 'This is the description for this center')
-        .field('address', 'This is the address for this center')
-        .field('facilities', 'This, is, the, address, for, this, center')
-        .field('capacity', 450)
-        .field('cost', 300000)
-        .attach('images', readFileSync('./server/public/images/pp.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ss.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/wd.jpg'), 'image.jpg')
-        .attach('images', readFileSync('./server/public/images/ws.jpg'), 'image.jpg')
+        .send({
+          name: uuidv4(),
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          images: 'image1, image2, image3, image4',
+          capacity: 450,
+          cost: 300000,
+        })
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
@@ -691,11 +692,13 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('type', 'conference')
-        .field('centerId', centerId)
-        .field('guests', 200)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -708,12 +711,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', '')
-        .field('type', 'conference')
-        .field('centerId', centerId)
-        .field('guests', 200)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: '',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -726,11 +731,13 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('centerId', centerId)
-        .field('guests', 200)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -743,12 +750,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('type', '')
-        .field('centerId', centerId)
-        .field('guests', 200)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: '',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -761,11 +770,13 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('type', 'conference')
-        .field('guests', 200)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -778,12 +789,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('centerId', -2)
-        .field('type', 'conference')
-        .field('guests', 200)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId: -2,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -796,11 +809,13 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('type', 'conference')
-        .field('centerId', centerId)
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -813,12 +828,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('centerId', -2)
-        .field('type', 'conference')
-        .field('guests', 'hfkhhl')
-        .field('days', 2)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 'invalid',
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -831,14 +848,17 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('type', 'conference')
-        .field('centerId', centerId)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('missing guests field');
+          res.body.should.have.property('err').to.include('missing days field');
           done();
         });
     });
@@ -847,12 +867,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post('/events/')
-        .field('name', 'Annual conference')
-        .field('centerId', -2)
-        .field('type', 'conference')
-        .field('guests', 'hfkhhl')
-        .field('days', 0)
-        .field('start', '20/12/2017')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 0,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -865,12 +887,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post(`/events?token=${userToken}`)
-        .field('name', 'Annual conference')
-        .field('centerId', centerId)
-        .field('type', 'conference')
-        .field('guests', 20)
-        .field('days', 2)
-        .field('start', '20/12/2018')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
@@ -879,21 +903,25 @@ describe('Tests for events api', () => {
           done();
         });
     });
+  });
 
+  describe('Test for editing event', () => {
     it('should return a status 200 success response for valid put request', (done) => {
       chai
         .request(host)
         .put(`/events/${eventId}?token=${userToken}`)
-        .field('name', 'Annual')
-        .field('centerId', centerId)
-        .field('type', 'conference')
-        .field('guests', 20)
-        .field('days', 2)
-        .field('start', '20/12/2018')
+        .send({
+          name: 'test event 123 changed',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          days: 2,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body.should.have.property('name').equal('Annual');
+          res.body.should.have.property('name').equal('test event 123 changed');
           done();
         });
     });
@@ -902,12 +930,14 @@ describe('Tests for events api', () => {
       chai
         .request(host)
         .post(`/events?token=${userToken}`)
-        .field('name', 'Annual conference')
-        .field('centerId', centerId)
-        .field('type', 'conference')
-        .field('guests', 20)
-        .field('days', 8)
-        .field('start', '19/12/2018')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '19/12/2018',
+          guests: 20,
+          days: 8,
+          centerId,
+        })
         .end((err, res) => {
           res.should.have.status(409);
           res.should.be.a('object');
@@ -915,7 +945,9 @@ describe('Tests for events api', () => {
           done();
         });
     });
+  });
 
+  describe('Test for declining event', () => {
     it('should return a status 200 success response for declining user event', (done) => {
       chai
         .request(host)
@@ -929,4 +961,3 @@ describe('Tests for events api', () => {
     });
   });
 });
-

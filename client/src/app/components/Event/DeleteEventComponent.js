@@ -2,6 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Helpers from '../../Helpers';
 
 class DeleteEvent extends React.Component {
   static propTypes = {
@@ -22,7 +23,7 @@ class DeleteEvent extends React.Component {
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
     axios
-      .delete(`http://localhost:7777/api/v1/events/${this.props.eventState.id}?token=${appToken}`)
+      .delete(`${Helpers.localHost}/events/${this.props.eventState.id}?token=${appToken}`)
       .then(() => {
         this.props.deleteFromEventsState(this.props.eventState);
         this.props.updateEventState(null);

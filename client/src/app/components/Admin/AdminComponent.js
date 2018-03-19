@@ -6,13 +6,13 @@ import AdminCenter from './AdminCenterComponent';
 class Admin extends React.Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <Switch>
           <Route exact path="/admin" component={AdminHome} />
           <Route exact path="/admin/center/:id" component={AdminCenter} />
           <Redirect from="/admin/*" to="/admin" />
         </Switch>
-      </div>
+      </React.Fragment>
     );
   }
 }

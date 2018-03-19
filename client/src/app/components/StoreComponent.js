@@ -1,4 +1,5 @@
 import { createStore, combineReducers } from 'redux';
+import Helpers from '../Helpers';
 
 class AppStore {
   constructor() {
@@ -29,6 +30,7 @@ class AppStore {
       'Sound System',
       'Projector',
     ];
+    this.centersPageLimit = 15;
     this.centersState = [];
     this.centerState = null;
     this.centerSearch = [];
@@ -37,6 +39,7 @@ class AppStore {
     this.selectedImages = [];
     this.alertState = null;
     this.eventState = null;
+    this.limitReducer = this.limitReducer.bind(this);
     this.pageReducer = this.pageReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
@@ -48,6 +51,17 @@ class AppStore {
     this.typesReducer = this.typesReducer.bind(this);
     this.facilitiesReducer = this.facilitiesReducer.bind(this);
     this.imagesReducer = this.imagesReducer.bind(this);
+  }
+
+  limitReducer(state = this.centersPageLimit, action) {
+    switch (action.type) {
+      case 'UPDATE_CENTERS_PAGE_LIMIT':
+        return state + 15;
+      case 'RESET_CENTERS_PAGE_LIMIT':
+        return 15;
+      default:
+        return state;
+    }
   }
 
   pageReducer(state = this.pageState, action) {
@@ -75,12 +89,12 @@ class AppStore {
   eventsReducer(state = this.eventsState, action) {
     switch (action.type) {
       case 'UPDATE_EVENTS_STATE':
-        return action.payload;
+        return Helpers.sortByDate(action.payload);
       case 'ADD_TO_EVENTS_STATE':
-        return [
+        return Helpers.sortByDate([
           action.payload,
           ...state,
-        ];
+        ]);
       case 'EDIT_EVENTS_STATE':
         return state.map((event) => {
           if (event.id === action.payload.id) return action.payload;
@@ -118,12 +132,12 @@ class AppStore {
   centersReducer(state = this.centersState, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_STATE':
-        return action.payload;
+        return Helpers.sortByName(action.payload);
       case 'ADD_TO_CENTERS_STATE':
-        return [
+        return Helpers.sortByName([
           action.payload,
           ...state,
-        ];
+        ]);
       case 'EDIT_CENTERS_STATE':
         return [
           ...state.slice(0, action.payload.index),
@@ -174,6 +188,7 @@ class AppStore {
 
 const appStore = new AppStore();
 const store = createStore(combineReducers({
+  limit: appStore.limitReducer,
   pageState: appStore.pageReducer,
   eventsState: appStore.eventsReducer,
   centersState: appStore.centersReducer,

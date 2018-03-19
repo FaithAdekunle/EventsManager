@@ -13,6 +13,7 @@ class NavTab extends React.Component {
     centers: Proptypes.array,
     updateCenterSearch: Proptypes.func,
     updateCenterFilter: Proptypes.func,
+    resetPageLimit: Proptypes.func,
   }
 
   constructor() {
@@ -105,7 +106,7 @@ class NavTab extends React.Component {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit} ref={(form) => { this.searchForm = form; }}>
               <div className="search-entry">
-                <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={this.searchCenter} onFocus={this.searchCenter} ref={(input) => { this.searchBar = input; }} />
+                <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); this.props.resetPageLimit(); }} onFocus={this.searchCenter} ref={(input) => { this.searchBar = input; }} />
                 <ul className="list-group search-result" ref={(input) => { this.searchResult = input; }}>
                   {
                     this.props.location.pathname === '/centers' ? null :
@@ -156,6 +157,11 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({
         type: 'UPDATE_CENTER_FILTER',
         payload: value,
+      });
+    },
+    resetPageLimit: () => {
+      dispatch({
+        type: 'RESET_CENTERS_PAGE_LIMIT',
       });
     },
   };

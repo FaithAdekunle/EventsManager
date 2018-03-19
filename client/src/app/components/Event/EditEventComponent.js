@@ -2,6 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Helpers from '../../Helpers';
 
 class EditEvent extends React.Component {
   static propTypes = {
@@ -56,7 +57,7 @@ class EditEvent extends React.Component {
     this.spinner.classList.remove('hidden');
     if (this.props.eventState !== null) {
       axios
-        .put(`http://localhost:7777/api/v1/events/${this.props.eventState.id}?token=${appToken}`, credentials)
+        .put(`${Helpers.localHost}/events/${this.props.eventState.id}?token=${appToken}`, credentials)
         .then((response) => {
           this.props.editEventsState(response.data);
           this.spinner.classList.add('hidden');
@@ -74,7 +75,7 @@ class EditEvent extends React.Component {
         });
     } else {
       axios
-        .post(`http://localhost:7777/api/v1/events?token=${appToken}`, credentials)
+        .post(`${Helpers.localHost}/events?token=${appToken}`, credentials)
         .then((response) => {
           this.props.addToEventsState(response.data);
           this.spinner.classList.add('hidden');

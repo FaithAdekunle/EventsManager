@@ -78,7 +78,7 @@ class Home extends React.Component {
 
   render() {
     return (
-      <div>
+      <React.Fragment>
         <div className="top-section">
           <div className="container">
             <div className="row">
@@ -198,7 +198,7 @@ class Home extends React.Component {
             <h5 className="text-white">&#9400; {(new Date()).getFullYear()} Copyright</h5>
           </div>
         </footer>
-      </div>
+      </React.Fragment>
     );
   }
 }

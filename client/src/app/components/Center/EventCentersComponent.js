@@ -6,7 +6,7 @@ import Centers from './CentersComponent';
 class EventCenters extends React.Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <Switch>
           <Route
             exact
@@ -20,7 +20,7 @@ class EventCenters extends React.Component {
           />
           <Redirect from="/centers/*" to="/centers" />
         </Switch>
-      </div>
+      </React.Fragment>
     );
   }
 }

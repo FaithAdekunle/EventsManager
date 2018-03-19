@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Helpers from '../../Helpers';
 
 class AdminHome extends React.Component {
   static propTypes = {
@@ -23,8 +24,6 @@ class AdminHome extends React.Component {
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
     this.facilities = {};
-    this.cloudinaryPreset = 'axgrmj0a';
-    this.cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload';
   }
 
   componentDidMount() {
@@ -43,7 +42,7 @@ class AdminHome extends React.Component {
     };
     load();
     axios
-      .get('http://localhost:7777/api/v1/centers')
+      .get(`${Helpers.localHost}/centers`)
       .then((response) => {
         loaded = true;
         this.loader.style.width = '100%';
@@ -98,9 +97,9 @@ class AdminHome extends React.Component {
     for (let i = 0; i < 4; i++) {
       if (files[i]) {
         const formData = new FormData();
-        formData.append('upload_preset', this.cloudinaryPreset);
+        formData.append('upload_preset', Helpers.cloudinaryPreset);
         formData.append('file', files[i]);
-        const response = await axios.post(this.cloudinaryUrl, formData);
+        const response = await axios.post(Helpers.cloudinaryUrl, formData);
         images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
       }
     }
@@ -117,7 +116,7 @@ class AdminHome extends React.Component {
     if (!eventsManager) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .post(`http://localhost:7777/api/v1/centers?token=${appToken}`, credentials)
+      .post(`${Helpers.localHost}/centers?token=${appToken}`, credentials)
       .then((response) => {
         this.props.addToCentersState(response.data);
         this.props.updateSelectedImages([]);
@@ -140,7 +139,7 @@ class AdminHome extends React.Component {
   render() {
     const { selectedImages } = this.props;
     return (
-      <div>
+      <React.Fragment>
         <div className="centers-loader success-background" ref={(input) => { this.loader = input; }} />
         <div className="container admin-page">
           <div className={`container ${!this.props.alert ? 'hidden' : ''}`}>
@@ -255,7 +254,7 @@ class AdminHome extends React.Component {
             </div>
           </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

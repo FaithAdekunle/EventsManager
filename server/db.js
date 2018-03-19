@@ -41,7 +41,7 @@ class Database {
   // synchronize models with database
   sync() {
     this.sequelize
-      .sync({ force: true })
+      .sync()
       .then(() => {})
       .catch();
   }

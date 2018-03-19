@@ -2,6 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import Helpers from '../../Helpers';
 
 class AdminCenter extends React.Component {
   static propTypes = {
@@ -26,8 +27,6 @@ class AdminCenter extends React.Component {
     this.updateFacilities = this.updateFacilities.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.facilities = {};
-    this.cloudinaryPreset = 'axgrmj0a';
-    this.cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload';
   }
 
 
@@ -48,7 +47,7 @@ class AdminCenter extends React.Component {
     };
     load();
     axios
-      .get(`http://localhost:7777/api/v1/centers/${id}`)
+      .get(`${Helpers.localHost}/centers/${id}`)
       .then((response) => {
         loaded = true;
         this.loader.style.width = '100%';
@@ -89,7 +88,7 @@ class AdminCenter extends React.Component {
     if (!eventsManager) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .put(`http://localhost:7777/api/v1/events/${id}/decline?token=${appToken}`)
+      .put(`${Helpers.localHost}/events/${id}/decline?token=${appToken}`)
       .then(() => {
         const update = { ...this.props.center };
         update.events[index].isAccepted = false;
@@ -143,9 +142,9 @@ class AdminCenter extends React.Component {
       for (let i = 0; i < 4; i++) {
         if (files[i]) {
           const formData = new FormData();
-          formData.append('upload_preset', this.cloudinaryPreset);
+          formData.append('upload_preset', Helpers.cloudinaryPreset);
           formData.append('file', files[i]);
-          const response = await axios.post(this.cloudinaryUrl, formData);
+          const response = await axios.post(Helpers.cloudinaryUrl, formData);
           images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
         }
       }
@@ -165,7 +164,7 @@ class AdminCenter extends React.Component {
     if (!eventsManager) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .put(`http://localhost:7777/api/v1/centers/${this.props.match.params.id}?token=${appToken}`, credentials)
+      .put(`${Helpers.localHost}/centers/${this.props.match.params.id}?token=${appToken}`, credentials)
       .then((response) => {
         this.props.updateSelectedImages(response.data.images);
         if (this.props.location.state) {
@@ -191,9 +190,9 @@ class AdminCenter extends React.Component {
   render() {
     const { center, alert, selectedImages } = this.props;
     return (
-      <div>
+      <React.Fragment>
         <div className={`center-loader success-background ${center ? 'hidden' : ''}`} ref={(input) => { this.loader = input; }} />
-        <div>
+        <React.Fragment>
           <div className={`container ${alert ? '' : 'hidden'} alert alert-info`} role="alert">
             {alert}
           </div>
@@ -224,8 +223,8 @@ class AdminCenter extends React.Component {
                   ) : null
                 }
                 <h3 className="text-center center-detail-name">{center.name}</h3>
-                <div className="container">
-                  <div>
+                <div className="center-details">
+                  <div className="center-description admin-center-description">
                     <p className="text-justify">{center.description}</p>
                   </div>
                   <div className="row">
@@ -384,8 +383,8 @@ class AdminCenter extends React.Component {
               </div>
             ) : null
           }
-        </div>
-      </div>
+        </React.Fragment>
+      </React.Fragment>
     );
   }
 }

@@ -3,6 +3,7 @@ import Proptypes from 'prop-types';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import Center from './CenterComponent';
+import Helpers from '../../Helpers';
 
 class Centers extends React.Component {
   static propTypes = {
@@ -10,11 +11,20 @@ class Centers extends React.Component {
     filter: Proptypes.string,
     alert: Proptypes.string,
     history: Proptypes.object,
+    limit: Proptypes.number,
     updateCentersState: Proptypes.func,
+    updatePageLimit: Proptypes.func,
+    resetPageLimit: Proptypes.func,
     updateAlertState: Proptypes.func,
   }
 
+  constructor() {
+    super();
+    this.handleScroll = this.handleScroll.bind(this);
+  }
+
   componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll, false);
     let loaded = false;
     const load = (start = 0, increase = 2, interval = 50) => {
       if (!loaded && start < 70) {
@@ -30,7 +40,7 @@ class Centers extends React.Component {
     };
     load();
     axios
-      .get('http://localhost:7777/api/v1/centers')
+      .get(`${Helpers.localHost}/centers`)
       .then((response) => {
         loaded = true;
         this.loader.style.width = '100%';
@@ -41,27 +51,50 @@ class Centers extends React.Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll, false);
+    this.props.resetPageLimit();
     this.props.updateAlertState(null);
   }
 
+  handleScroll() {
+    if (window.innerHeight + window.scrollY === document.body.offsetHeight &&
+        this.props.limit < this.props.centers.length) {
+      this.props.updatePageLimit();
+    }
+  }
+
   render() {
+    const { limit } = this.props;
+    let pointer = 0;
     return (
-      <div>
+      <React.Fragment>
         <div className="centers-loader success-background" ref={(input) => { this.loader = input; }} />
         <div className="centers-container">
-          <div className={`container ${!this.props.alert ? 'hidden' : ''}`}>
+          <div className={`${!this.props.alert ? 'hidden' : ''}`}>
             <div className="alert alert-info" role="alert">
               <strong>{this.props.alert}</strong>
             </div>
           </div>
-          {this.props.centers.map((center) => {
-            const match = new RegExp(this.props.filter, 'gi');
-            return center.name.match(match) || center.address.match(match) ? (
-              <Center center={center} history={this.props.history} key={center.id} />
-            ) : null;
-          })}
+          <div className="row" ref={(input) => { this.container = input; }}>
+            {
+              this.props.centers.map((center) => {
+              const match = new RegExp(this.props.filter, 'gi');
+              if (center.name.match(match) || center.address.match(match)) {
+                if (pointer < limit) {
+                  pointer++;
+                  return (
+                    <div className="col-md-6 col-lg-4" key={center.id}>
+                      <Center center={center} history={this.props.history} />
+                    </div>
+                  );
+                }
+              }
+              return null;
+            })
+            }
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
@@ -71,6 +104,7 @@ const mapStateToProps = (state) => {
     centers: state.centersState,
     filter: state.centerFilter,
     alert: state.alertState,
+    limit: state.limit,
   };
 };
 
@@ -80,6 +114,16 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({
         type: 'UPDATE_ALERT_STATE',
         payload: msg,
+      });
+    },
+    updatePageLimit: () => {
+      dispatch({
+        type: 'UPDATE_CENTERS_PAGE_LIMIT',
+      });
+    },
+    resetPageLimit: () => {
+      dispatch({
+        type: 'RESET_CENTERS_PAGE_LIMIT',
       });
     },
     updateCentersState: (centers) => {

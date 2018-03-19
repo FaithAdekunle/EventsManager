@@ -16,7 +16,7 @@ class Main extends React.Component {
     };
     const { userIsSignedIn, userIsAdmin } = loginState;
     return (
-      <div>
+      <React.Fragment>
         <Switch>
           <Route
             exact
@@ -82,7 +82,7 @@ class Main extends React.Component {
           />
           <Redirect from="*" to="/home" />
         </Switch>
-      </div>
+      </React.Fragment>
     );
   }
 }

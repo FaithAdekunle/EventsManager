@@ -2,6 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Helpers from '../../Helpers';
 import Event from './EventComponent';
 import EditEvent from './EditEventComponent';
 import DeleteEvent from './DeleteEventComponent';
@@ -21,7 +22,7 @@ class Events extends React.Component {
     if (!eventsManager || eventsManager.loginState.userIsAdmin) return this.props.history.push('/signin');
     const { appToken } = eventsManager;
     return axios
-      .get(`http://localhost:7777/api/v1/events?token=${appToken}`)
+      .get(`${Helpers.localHost}/events?token=${appToken}`)
       .then((response) => {
         this.props.updateEventsState(response.data);
         this.props.updateAlertState(null);
@@ -70,7 +71,7 @@ class Events extends React.Component {
                 <strong>{this.props.alertState}</strong>
               </div>
             </div>
-            <div className={`container ${this.props.eventsState.length === 0 && this.props.alertState !== 'loading' ? '' : 'hidden'}`}>
+            <div className={`${this.props.eventsState.length === 0 && this.props.alertState !== 'loading' ? '' : 'hidden'}`}>
               <h5>You have no registered events yet. Click add event above.</h5>
             </div>
             <div className="row">

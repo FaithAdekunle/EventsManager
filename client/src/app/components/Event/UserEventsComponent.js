@@ -6,13 +6,13 @@ import EditEvent from './EditEventComponent';
 class UserEvents extends React.Component {
   render() {
     return (
-      <div>
+      <React.Fragment>
         <Switch>
           <Route exact path="/events" component={Events} />
           <Route exact path="/events/:id/edit" component={EditEvent} />
           <Redirect from="/events/*" to="/events" />
         </Switch>
-      </div>
+      </React.Fragment>
     );
   }
 }

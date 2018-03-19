@@ -29,57 +29,34 @@ class Center extends React.Component {
   render() {
     const { center } = this.props;
     return (
-      <div className="container">
-        <div className="center-container">
-          <div className="row">
-            <div className="col-lg-7">
-              <span
-                className="center-name"
-                ref={(input) => { this.centerName = input; }}
-                onMouseEnter={this.increaseNameSize}
-                onMouseLeave={this.decreaseNameSize}
-                onClick={this.navToCenter}
-              ><strong>{center.name}</strong>
-              </span>
+      <React.Fragment>
+        <span
+          className="center-name"
+          ref={(input) => { this.centerName = input; }}
+          onClick={this.navToCenter}
+        ><strong>{center.name}</strong>
+        </span>
+        <div className="card center-card">
+          <img
+            className="center-image"
+            onClick={this.navToCenter}
+            src={center.images[0]}
+            width="100%"
+            alt={center.name}
+          />
+          <div className="center-preview">
+            <div className="name-and-location">
+              <span className="center-detail"><i className="fa fa-map-marker" aria-hidden="true" /><strong> {center.address}</strong></span>
+              <span className="center-detail"><strong> {center.capacity} guests</strong></span>
             </div>
-            <div className="col-lg-5">
-              <span className="pull-right center-location"><i className="fa fa-map-marker" aria-hidden="true" /><strong> {center.address}</strong></span>
-            </div>
-            <div className="col-lg-6">
-              <div
-                className="card center-card"
-              >
-                <img
-                  className="center-image"
-                  onMouseEnter={this.increaseNameSize}
-                  onMouseLeave={this.decreaseNameSize}
-                  onClick={this.navToCenter}
-                  src={center.images[0]}
-                  width="100%"
-                  alt={center.name}
-                />
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-12">
-                      {center.facilities.map((facility) => {
-                        return (
-                          <span className="badge badge-primary badge-pill" key={facility}>{facility}</span>
-                        );
-                      })}
-                    </div>
-                    <div className="col-6"><span>Capacity: <strong>{center.capacity}</strong></span></div>
-                    <div className="col-6"><span>Price: <strong>#{center.cost}</strong></span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-6">
-              <div className="description"><p className="text-justify">{center.description}</p></div>
-            </div>
+            {center.facilities.map((facility) => {
+              return (
+                <span className="badge badge-primary badge-pill" key={facility}>{facility}</span>
+              );
+            })}
           </div>
         </div>
-        <hr />
-      </div>
+      </React.Fragment>
     );
   }
 }
