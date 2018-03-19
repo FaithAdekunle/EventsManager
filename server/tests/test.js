@@ -559,6 +559,46 @@ describe('Tests for Centers API', () => {
         });
     });
 
+    it('should return a status 400 error response for valid post request with random token', (done) => {
+      chai
+        .request(host)
+        .post('/centers?token=randomtoken')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          capacity: 450,
+          cost: 300000,
+        })
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.a('object');
+          res.body.should.have.property('err').to.include('missing images field');
+          done();
+        });
+    });
+
+    it('should return a status 400 error response for valid post request with random token', (done) => {
+      chai
+        .request(host)
+        .post('/centers?token=randomtoken')
+        .send({
+          name: centerName,
+          description: 'This is the description for this center',
+          address: 'This is the address for this center',
+          facilities: 'This, is, the, address, for, this, center',
+          capacity: 450,
+          cost: 300000,
+        })
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.a('object');
+          res.body.should.have.property('err').to.include('empty images field');
+          done();
+        });
+    });
+
     it('should return a status 201 success response for valid post request with admin token', (done) => {
       chai
         .request(host)

@@ -17,8 +17,9 @@
     "build": "babel server -d server/dist --ignore server/dist,server/data,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
-    "test": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 ./server/tests/test.js --compilers js:babel-register",
-    "test1": "mocha ./client/test/*.test.js --compilers js:babel-register --require ./client/test/setup.js",
+    "testServer": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 ./server/tests/test.js --compilers js:babel-register",
+    "testClient": "mocha ./client/test/*.test.js --compilers js:babel-register --require ./client/test/setup.js",
+    "test": "npm run testServer && npm run testClient",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
     "pack": "webpack -d && webpack-dev-server --hot"

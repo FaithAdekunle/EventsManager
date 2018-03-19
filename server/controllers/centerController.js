@@ -53,7 +53,10 @@ export class CenterController {
         .withMessage('missing center cost field'),
       body('images')
         .exists()
-        .withMessage('missing images field'),
+        .withMessage('missing images field')
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage('empty images field'),
       sanitize('capacity').toInt(),
       sanitize('cost').toInt(),
     ];

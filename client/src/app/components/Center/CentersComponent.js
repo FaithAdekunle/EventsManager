@@ -75,7 +75,7 @@ class Centers extends React.Component {
               <strong>{this.props.alert}</strong>
             </div>
           </div>
-          <div className="row" ref={(input) => { this.container = input; }}>
+          <div className="row">
             {
               this.props.centers.map((center) => {
               const match = new RegExp(this.props.filter, 'gi');
