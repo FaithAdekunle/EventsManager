@@ -63,7 +63,7 @@ module.exports = class EventController {
   }
 
   // use moment.js to validate the start date field as correct date format and
-  // also not a previous or current date
+  // also not a previous date
   static checkAndSanitizeDateFields(req, res, next) {
     if (!moment(req.body.start, 'DD-MM-YYYY').isValid()) return res.status(400).json({ err: 'Invalid date. Use format DD/MM/YYYY for date' });
     if (!(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) return res.status(400).json({ err: 'Pevious dates can not be booked' });
@@ -79,7 +79,7 @@ module.exports = class EventController {
       || !Number.isInteger(req.body.guests)
       || !Number.isInteger(req.body.centerId)
       || [-1, 0, -0].includes(Math.sign(req.body.days))
-      || [-1, 0, -0].includes(Math.sign(req.body.centerId))
+      || Math.sign(req.body.centerId) === -1
       || [-1, 0, -0].includes(Math.sign(req.body.guests))) {
       return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for centerId, guests and days fields' });
     }
@@ -90,55 +90,35 @@ module.exports = class EventController {
   static createEvent(req, res) {
     database.event.create(req.body)
       .then((createdEvent) => {
-        res.json(createdEvent);
+        res.status(201).json(createdEvent);
       })
-      .catch((err) => {
-        res.status(500).json({ err: err.message || 'problem occured creating event' });
+      .catch(() => {
+        res.status(500).json({ err: 'Internal server error' });
       });
   }
 
   // modifyEvent(req, res) modifies an existing user event
   static modifyEvent(req, res) {
-    database.event.findOne({
+    database.event.update(req.body, {
       where: {
         id: req.params.id,
         userId: req.body.userId,
       },
     })
-      .then((event) => {
-        if (!event) {
-          return res.status(404).json({ err: 'event not found' });
-        }
-        return database.event.update(req.body, {
+      .then((rows) => {
+        if (rows[0] === 0) return res.status(404).json({ err: 'event not found' });
+        return database.event.findOne({
           where: {
             id: req.params.id,
             userId: req.body.userId,
           },
         })
-          .then((rows) => {
-            if (rows[0] > 0) {
-              return database.event.findOne({
-                where: {
-                  id: req.params.id,
-                  userId: req.body.userId,
-                },
-              })
-                .then((updatedEvent) => {
-                  res.json(updatedEvent);
-                })
-                .catch((err) => {
-                  return res.status(404).json({ err: err.message || 'problem occured editing event' });
-                });
-            }
-            return res.status(404).json({ err: 'problem occured editing event' });
+          .then((updatedEvent) => {
+            res.json(updatedEvent);
           })
-          .catch((err) => {
-            return res.status(404).json({ err: err.message || 'problem occured editing event' });
-          });
+          .catch(() => res.status(500).json({ err: 'Internal server error' }));
       })
-      .catch((err) => {
-        return res.status(404).json({ err: err.message || 'problem occured editing event' });
-      });
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
   // deleteEvent(req, res) deletes an existing user event
@@ -157,13 +137,12 @@ module.exports = class EventController {
             userId: req.body.userId,
           },
         })
-          .then((num) => {
-            if (num > 0) return res.json({ status: 'success' });
-            return res.status(404).json({ err: 'event not found' });
+          .then(() => {
+            return res.json({ status: 'success' });
           })
-          .catch(err => res.status(404).json({ err: err.message || 'problem occured deleting event' }));
+          .catch(() => res.status(500).json({ err: 'Internal server error' }));
       })
-      .catch(err => res.status(404).json({ err: err.message || 'problem occured deleting event' }));
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
   // fetchEvent(req, res) fetches all events belonging to user
@@ -176,7 +155,7 @@ module.exports = class EventController {
       .then((events) => {
         return res.json(events);
       })
-      .catch(err => res.status(404).json({ err: err.message || 'problem occured fetching user events' }));
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
   /** declineEvent(req, res) declines a user's event
@@ -188,10 +167,10 @@ module.exports = class EventController {
       },
     })
       .then((rows) => {
-        if (rows <= 0) return res.status(404).json({ err: 'event not found' });
+        if (rows[0] === 0) return res.status(404).json({ err: 'event not found' });
         return next();
       })
-      .catch(err => res.status(404).json({ err: err.message || 'problem occured declining event' }));
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
   // sendMail(req, res) sends a mail to user informing user of the decline
@@ -202,7 +181,6 @@ module.exports = class EventController {
       },
     })
       .then((event) => {
-        if (!event) return res.status(404).json({ err: 'event declined, mail could not be sent' });
         return database.user.findOne({
           where: {
             id: event.userId,
@@ -225,9 +203,9 @@ module.exports = class EventController {
               });
             });
           })
-          .catch(err => res.status(404).json({ err: err.message || 'event declined, problem occured notifying user' }));
+          .catch(() => res.status(500).json({ err: 'internal server error' }));
       })
-      .catch(err => res.status(404).json({ err: err.message || 'event declined, problem occured notifying user' }));
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 };
 

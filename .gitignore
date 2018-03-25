@@ -1,6 +1,8 @@
 node_modules
 .nyc_output
 server/dist
+server/.DS_Store
 client/dist
 /coverage
 .env
+package-lock.json

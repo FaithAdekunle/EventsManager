@@ -93,8 +93,6 @@ export class CenterController {
       || [-1, 0, -0].includes(Math.sign(req.body.capacity))) {
       return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
     }
-    if (req.body.cost > 2147483647) return res.status(400).json({ err: 'cost too large' });
-    if (req.body.capacity > 2147483647) return res.status(400).json({ err: 'capacity too large' });
     return next();
   }
 
@@ -124,59 +122,36 @@ export class CenterController {
     })
       .then((centerCheck) => {
         if (!centerCheck) {
-          return database.center.findOne({
+          jsonHandle(req.body, false);
+          return database.center.update(req.body, {
             where: {
               id: req.params.id,
             },
           })
-            .then((center) => {
-              if (!center) {
-                return res.json({ err: 'center not found' });
-              }
-              jsonHandle(center);
-              jsonHandle(req.body, false);
-              if (req.body.state) req.body.state = req.body.state.toLowerCase();
-              return database.center.update(req.body, {
+            .then((rows) => {
+              if (rows[0] === 0) return res.status(404).json({ err: 'center not found' });
+              return database.center.findOne({
                 where: {
                   id: req.params.id,
                 },
+                include: [
+                  { model: database.event },
+                ],
               })
-                .then((row) => {
-                  if (row[0] > 0) {
-                    return database.center.findOne({
-                      where: {
-                        id: req.params.id,
-                      },
-                      include: [
-                        { model: database.event },
-                      ],
-                    })
-                      .then((updatedCenter) => {
-                        jsonHandle(updatedCenter);
-                        return res.json(updatedCenter);
-                      });
-                  }
-                  jsonHandle(req.body);
-                  return res.status(409).json({ err: 'center name already exists' });
+                .then((updatedCenter) => {
+                  jsonHandle(updatedCenter);
+                  return res.json(updatedCenter);
                 });
             })
-            .catch(err => res.status(500).json({ err: err.message || 'database error' }));
+            .catch(() => res.status(500).json({ err: 'Internal server error' }));
         }
         return res.status(409).json({ err: 'center name already exists' });
-      });
+      })
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
   // fetchCenters(req, res) fetches the details of all centers including their events
   static fetchCenters(req, res) {
-    if (req.query.state) {
-      return database.center.findAll({
-        where: {
-          state: req.query.state,
-        },
-      })
-        .then(centers => res.json(centers))
-        .catch(err => res.status(500).json({ err: err.message || 'problem occured searching database' }));
-    }
     return database.center.findAll({
       include: [
         { model: database.event },
@@ -184,8 +159,7 @@ export class CenterController {
     })
       .then((centers) => {
         centers.map((center) => {
-          jsonHandle(center);
-          return center.events.map(event => jsonHandle(event));
+          return jsonHandle(center);
         });
         return res.json(centers);
       });
@@ -204,7 +178,6 @@ export class CenterController {
       .then((center) => {
         if (!center) return res.status(404).json({ err: 'center not found' });
         jsonHandle(center);
-        center.events.map(event => jsonHandle(event));
         return res.send(center);
       });
   }
@@ -222,9 +195,7 @@ export class CenterController {
       }],
     })
       .then((center) => {
-        if (!center) {
-          return res.status(404).json({ err: 'center not found' });
-        }
+        if (!center) return res.status(404).json({ err: 'center not found' });
         center.events.map((event) => {
           if (event.id === req.params.id) return null;
           const { start, end } = event;

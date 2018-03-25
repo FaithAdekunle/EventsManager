@@ -56,18 +56,14 @@ module.exports = class userController {
   // check if any of the above validations failed
   static checkFailedValidations(req, res, next) {
     const response = [];
+    if (req.body.confirmPassword
+      && req.body.password !== req.body.confirmPassword) response.push('password and confirmPassword fields are not equal');
     if (validationResult(req).isEmpty()) {
-      if (req.body.confirmPassword
-        && req.body.password !== req.body.confirmPassword) {
-        response.push('password and confirmPassowrd field are not equal');
-        return res.status(400).json({ err: response });
-      }
+      if (response.length > 0) return res.status(400).json({ err: response });
       return next();
     }
     const errors = validationResult(req).array();
     errors.map(error => response.push(error.msg));
-    if (req.body.confirmPassword
-      && req.body.password !== req.body.confirmPassword) response.push('password and confirmPassowrd fields are not equal');
     return res.status(400).json({ err: response });
   }
 
@@ -75,11 +71,8 @@ module.exports = class userController {
   static hashPassword(req, res, next) {
     const saltRounds = 10;
     bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
-      if (hash) {
-        req.body.password = hash;
-        next();
-      }
-      if (err) res.json({ err: 'password hash failed' });
+      req.body.password = hash;
+      return next();
     });
   }
 
@@ -110,7 +103,7 @@ module.exports = class userController {
   // verifyUserToken(req, res, next) verifies token sent with user req
   static verifyUserToken(req, res, next) {
     const { token } = req.query;
-    if (!token) return res.json({ err: 'missing token' });
+    if (!token) return res.status(400).json({ err: 'missing token' });
     try {
       const payload = jwt.verify(token, process.env.SECRET);
       if (Date.now() >= payload.expires) return res.status(401).json({ err: 'token has expired' });
@@ -120,9 +113,7 @@ module.exports = class userController {
         },
       })
         .then((user) => {
-          if (!user) {
-            return res.status(404).json({ err: 'user not found' });
-          }
+          if (!user) return res.status(404).json({ err: 'user not found' });
           req.body.userId = user.id;
           return next();
         });

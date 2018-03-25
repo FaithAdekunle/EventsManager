@@ -1,9 +1,8 @@
 import debug from 'debug';
 import http from 'http';
 import dotenv from 'dotenv';
-import App from './app';
+import app from './app';
 
-const app = App.setUp();
 const bugDebug = debug('myapp:server');
 
 
@@ -55,3 +54,5 @@ function onListening() {
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+export default app;
