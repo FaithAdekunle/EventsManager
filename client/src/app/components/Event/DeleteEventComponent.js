@@ -1,14 +1,13 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import axios from 'axios';
+import EventActions from '../../actions/eventActions';
+import OtherActions from '../../actions/others';
 
 class DeleteEvent extends React.Component {
   static propTypes = {
-    eventIndex: Proptypes.number,
-    events: Proptypes.array,
-    deleteFromEventsState: Proptypes.func,
-    updateEventIndex: Proptypes.func,
+    token: Proptypes.string,
+    eventState: Proptypes.object,
     history: Proptypes.object,
   }
 
@@ -16,47 +15,53 @@ class DeleteEvent extends React.Component {
     super();
     this.deleteEvent = this.deleteEvent.bind(this);
     this.nullEvent = this.nullEvent.bind(this);
+    this.onDeleteSuccesful = this.onDeleteSuccesful.bind(this);
+  }
+
+  onDeleteSuccesful() {
+    EventActions.deleteFromEventsState(this.props.eventState);
+    EventActions.updateEventState(null);
+    this.confirm.classList.remove('hidden');
+    this.deleting.classList.add('hidden');
+    this.nullEvent();
+  }
+
+  onDeleteFail(err) {
+    if ([401, 404].includes(err.response.status)) {
+      OtherActions.removeToken();
+      this.nullEvent();
+      return this.props.history.push('/signin');
+    }
+    return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
+      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
   }
 
   deleteEvent() {
-    const { appToken } = JSON.parse(localStorage.getItem('eventsManager'));
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
-    axios
-      .delete(`http://localhost:7777/api/v1/events/${this.props.events[this.props.eventIndex].id}?token=${appToken}`)
-      .then(() => {
-        this.props.updateEventIndex(null);
-        this.props.deleteFromEventsState(this.props.eventIndex);
-        this.confirm.classList.remove('hidden');
-        this.deleting.classList.add('hidden');
-        this.nullEvent();
-      })
-      .catch((err) => {
-        if ([401, 404].includes(err.response.status)) {
-          localStorage.removeItem('eventsManager');
-          this.nullEvent();
-          return this.props.history.push('/signin');
-        }
-        return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
-          err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
-      });
+    EventActions.deleteEvent(
+      this.props.eventState,
+      this.props.token,
+      this.onDeleteSuccesful,
+      this.onDeleteFail,
+    );
   }
 
   nullEvent() {
     const modal = $('#deleteModal');
     modal.modal('toggle');
-    this.props.updateEventIndex(null);
+    EventActions.updateEventState(null);
   }
 
   render() {
-    const { eventIndex } = this.props;
+    const { eventState } = this.props;
     return (
       <div className="modal fade" id="deleteModal" tabIndex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
         <div className="modal-dialog" role="document">
           <div className="modal-content">
             <div className="container event-delete">
               <div ref={(input) => { this.confirm = input; }}>
-                <h5>Delete event{eventIndex !== null && eventIndex >= 0 ? ` "${this.props.events[eventIndex].name}"` : ''}?</h5>
+                <h5>Delete event{eventState !== null ? ` "${this.props.eventState.name}"` : ''}?</h5>
                 <div className="pull-right">
                   <button className="btn btn-danger" onClick={this.deleteEvent}>Yes</button>
                   <button className="btn btn-primary" onClick={this.nullEvent}>No</button>
@@ -75,26 +80,9 @@ class DeleteEvent extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    eventIndex: state.eventIndex,
-    events: state.eventsState,
+    token: state.token,
+    eventState: state.eventState,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    deleteFromEventsState: (index) => {
-      dispatch({
-        type: 'DELETE_FROM_EVENTS_STATE',
-        payload: index,
-      });
-    },
-    updateEventIndex: (index) => {
-      dispatch({
-        type: 'UPDATE_EVENT_INDEX',
-        payload: index,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteEvent);
+export default connect(mapStateToProps)(DeleteEvent);

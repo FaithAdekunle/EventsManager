@@ -2,8 +2,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin-advanced');
 const path = require('path');
 const webpack = require('webpack');
 
+
 module.exports = {
-  entry: ['./client/src/app/index.js'],
+  entry: ['babel-polyfill', './client/src/app/index.js'],
+  devtool: 'cheap-module-source-map',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'client/dist/app'),
@@ -13,6 +15,7 @@ module.exports = {
     inline: true,
     contentBase: 'client/dist/',
     historyApiFallback: true,
+    compress: true,
   },
   externals: {
     cheerio: 'window',
@@ -47,6 +50,9 @@ module.exports = {
         use: ['file-loader'],
       },
     ],
+  },
+  node: {
+    fs: 'empty',
   },
   resolve: {
     extensions: ['.js', '.jsx'],

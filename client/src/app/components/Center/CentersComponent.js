@@ -1,8 +1,10 @@
 import React from 'react';
 import Proptypes from 'prop-types';
-import axios from 'axios';
 import { connect } from 'react-redux';
 import Center from './CenterComponent';
+import OtherActions from '../../actions/others';
+import CenterActions from '../../actions/centerActions';
+
 
 class Centers extends React.Component {
   static propTypes = {
@@ -10,58 +12,64 @@ class Centers extends React.Component {
     filter: Proptypes.string,
     alert: Proptypes.string,
     history: Proptypes.object,
-    updateCentersState: Proptypes.func,
-    updateAlertState: Proptypes.func,
+    limit: Proptypes.number,
+  }
+
+  constructor() {
+    super();
+    this.handleScroll = this.handleScroll.bind(this);
   }
 
   componentDidMount() {
-    let loaded = false;
-    const load = (start = 0, increase = 2, interval = 50) => {
-      if (!loaded && start < 70) {
-        start += increase;
-        this.loader.style.width = `${start}%`;
-        if (start === 50) {
-          interval = 1000;
-        }
-        setTimeout(() => {
-          load(start, increase, interval);
-        }, interval);
-      }
-    };
-    load();
-    axios
-      .get('http://localhost:7777/api/v1/centers')
-      .then((response) => {
-        loaded = true;
-        this.loader.style.width = '100%';
-        this.props.updateCentersState(response.data);
-        setTimeout(() => { this.loader.classList.remove('success-background'); }, 500);
-      })
-      .catch(() => this.props.updateAlertState('Looks like you\'re offline. Check internet connection.'));
+    window.addEventListener('scroll', this.handleScroll, false);
+    CenterActions.updateCenters(this.loader);
   }
 
   componentWillUnmount() {
-    this.props.updateAlertState(null);
+    window.removeEventListener('scroll', this.handleScroll, false);
+    OtherActions.resetPageLimit();
+    OtherActions.updateAlertState(null);
+  }
+
+  handleScroll() {
+    if (window.innerHeight + window.scrollY === document.body.offsetHeight &&
+      this.props.limit < this.props.centers.length) {
+      OtherActions.updatePageLimit();
+    }
   }
 
   render() {
+    const { limit } = this.props;
+    let pointer = 0;
     return (
-      <div>
+      <React.Fragment>
         <div className="centers-loader success-background" ref={(input) => { this.loader = input; }} />
         <div className="centers-container">
-          <div className={`container ${!this.props.alert ? 'hidden' : ''}`}>
+          <div className={`${!this.props.alert ? 'hidden' : ''}`}>
             <div className="alert alert-info" role="alert">
               <strong>{this.props.alert}</strong>
             </div>
           </div>
-          {this.props.centers.map((center) => {
-            const match = new RegExp(this.props.filter, 'gi');
-            return center.name.match(match) || center.address.match(match) ? (
-              <Center center={center} history={this.props.history} key={center.id} />
-            ) : null;
-          })}
+          <div className="row">
+            {
+              this.props.centers.map((center) => {
+              const match = new RegExp(this.props.filter, 'gi');
+              if (center.name.match(match) || center.address.match(match)) {
+                if (pointer < limit) {
+                  pointer++;
+                  return (
+                    <div className="col-md-6 col-lg-4 single-center" key={center.id}>
+                      <Center center={center} history={this.props.history} />
+                    </div>
+                  );
+                }
+              }
+              return null;
+            })
+            }
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
@@ -71,24 +79,8 @@ const mapStateToProps = (state) => {
     centers: state.centersState,
     filter: state.centerFilter,
     alert: state.alertState,
+    limit: state.limit,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-    updateCentersState: (centers) => {
-      dispatch({
-        type: 'UPDATE_CENTERS_STATE',
-        payload: centers,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Centers);
+export default connect(mapStateToProps)(Centers);

@@ -1,19 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Helpers from '../../Helpers';
+import OtherActions from '../../actions/others';
+import CenterActions from '../../actions/centerActions';
 
 class AdminHome extends React.Component {
   static propTypes = {
-    centers: PropTypes.array,
-    facilities: PropTypes.array,
-    selectedImages: PropTypes.array,
-    alert: PropTypes.string,
-    history: PropTypes.object,
-    updateCentersState: PropTypes.func,
-    addToCentersState: PropTypes.func,
-    updateAlertState: PropTypes.func,
-    updateSelectedImages: PropTypes.func,
+    centers: Proptypes.array,
+    selectedImages: Proptypes.array,
+    alert: Proptypes.string,
+    token: Proptypes.string,
+    history: Proptypes.object,
   }
 
   constructor() {
@@ -22,38 +21,37 @@ class AdminHome extends React.Component {
     this.submitCenter = this.submitCenter.bind(this);
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
+    this.onCenterAddSuccessful = this.onCenterAddSuccessful.bind(this);
+    this.onCenterAddFail = this.onCenterAddFail.bind(this);
     this.facilities = {};
   }
 
   componentDidMount() {
-    let loaded = false;
-    const load = (start = 0, increase = 2, interval = 50) => {
-      if (!loaded && start < 70) {
-        start += increase;
-        this.loader.style.width = `${start}%`;
-        if (start === 50) {
-          interval = 1000;
-        }
-        setTimeout(() => {
-          load(start, increase, interval);
-        }, interval);
-      }
-    };
-    load();
-    axios
-      .get('http://localhost:7777/api/v1/centers')
-      .then((response) => {
-        loaded = true;
-        this.loader.style.width = '100%';
-        this.props.updateCentersState(response.data);
-        setTimeout(() => { this.loader.classList.remove('success-background'); }, 500);
-      })
-      .catch(() => this.props.updateAlertState('Looks like you\'re offline. Check internet connection.'));
+    CenterActions.updateCenters(this.loader);
   }
 
   componentWillUnmount() {
-    this.props.updateSelectedImages([]);
-    this.props.updateAlertState(null);
+    OtherActions.updateSelectedImages([]);
+    OtherActions.updateAlertState(null);
+  }
+
+  onCenterAddSuccessful(response) {
+    CenterActions.addToCentersState(response.data);
+    OtherActions.updateSelectedImages([]);
+    OtherActions.updateAlertState(null);
+    this.form.reset();
+    this.facilities = {};
+    this.fieldset.disabled = false;
+  }
+
+  onCenterAddFail(err) {
+    this.fieldset.disabled = false;
+    if (err.response.status === 401) {
+      OtherActions.removeToken();
+      return this.props.history.push('/signin');
+    }
+    if ([404, 409].includes(err.response.status)) return window.alert(err.response.data.err);
+    return window.alert('Looks like you\'re offline. Check internet connection.');
   }
 
   updateImages() {
@@ -62,7 +60,7 @@ class AdminHome extends React.Component {
     const reader = new FileReader();
     const readFiles = (index = 0, selectedImages = []) => {
       if (index >= files.length) {
-        return this.props.updateSelectedImages(selectedImages);
+        return OtherActions.updateSelectedImages(selectedImages);
       }
       reader.onloadend = (e) => {
         selectedImages.push(e.target.result);
@@ -88,48 +86,41 @@ class AdminHome extends React.Component {
     return facilities;
   }
 
-  submitCenter(e) {
+  async submitCenter(e) {
     e.preventDefault();
-    const { files } = this.images;
-    const formData = new FormData();
-    formData.append('name', this.centerName.value);
-    formData.append('address', this.centerAddress.value);
-    formData.append('description', this.centerDescription.value);
-    formData.append('facilities', this.computeFacilities());
-    formData.append('capacity', this.centerCapacity.value);
-    formData.append('cost', this.centerCost.value);
-    for (let i = 0; i < 4; i++) {
-      if (files[i]) formData.append('images', files[i]);
-    }
     this.fieldset.disabled = true;
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    if (!eventsManager) return this.props.history.push('/signin');
-    const { appToken } = eventsManager;
-    return axios
-      .post(`http://localhost:7777/api/v1/centers?token=${appToken}`, formData)
-      .then((response) => {
-        this.props.addToCentersState(response.data);
-        this.props.updateSelectedImages([]);
-        this.props.updateAlertState(null);
-        this.form.reset();
-        this.facilities = {};
-        this.fieldset.disabled = false;
-      })
-      .catch((err) => {
-        this.fieldset.disabled = false;
-        if (!err.response) this.props.updateAlertState('Looks like you\'re offline. Check internet connection.');
-        else {
-          localStorage.removeItem('eventsManager');
-          this.props.updateAlertState(null);
-          this.props.history.push('/signin');
-        }
-      });
+    const { files } = this.images;
+    let images = '';
+    for (let i = 0; i < 4; i++) {
+      if (files[i]) {
+        const formData = new FormData();
+        formData.append('upload_preset', Helpers.cloudinaryPreset);
+        formData.append('file', files[i]);
+        const response = await axios.post(Helpers.cloudinaryUrl, formData);
+        images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
+      }
+    }
+    const credentials = {
+      name: this.centerName.value,
+      address: this.centerAddress.value,
+      description: this.centerDescription.value,
+      facilities: this.computeFacilities(),
+      capacity: this.centerCapacity.value,
+      cost: this.centerCost.value,
+      images,
+    };
+    CenterActions.addCenter(
+      credentials,
+      this.props.token,
+      this.onCenterAddSuccessful,
+      this.onCenterAddFail,
+    );
   }
 
   render() {
     const { selectedImages } = this.props;
     return (
-      <div>
+      <React.Fragment>
         <div className="centers-loader success-background" ref={(input) => { this.loader = input; }} />
         <div className="container admin-page">
           <div className={`container ${!this.props.alert ? 'hidden' : ''}`}>
@@ -216,7 +207,7 @@ class AdminHome extends React.Component {
                             <div className="col-md-9">
                               <div className="row">
                                 {
-                                  this.props.facilities.map((facility) => {
+                                  Helpers.facilities.map((facility) => {
                                     return (
                                       <div className="col-6" key={facility}>
                                         <div className="form-check">
@@ -244,58 +235,19 @@ class AdminHome extends React.Component {
             </div>
           </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = (state) => {
   return {
+    alert: state.alertState,
+    token: state.token,
     centers: state.centersState,
     facilities: state.centerFacilities,
     selectedImages: state.selectedImages,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateLoginState: (loginState) => {
-      dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
-      });
-    },
-    updateUserState: (userState) => {
-      dispatch({
-        type: 'UPDATE_USER_STATE',
-        payload: userState,
-      });
-    },
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-    updateCentersState: (centers) => {
-      dispatch({
-        type: 'UPDATE_CENTERS_STATE',
-        payload: centers,
-      });
-    },
-    addToCentersState: (centers) => {
-      dispatch({
-        type: 'ADD_TO_CENTERS_STATE',
-        payload: centers,
-      });
-    },
-    updateSelectedImages: (images) => {
-      dispatch({
-        type: 'UPDATE_SELECTED_IMAGES',
-        payload: images,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdminHome);
+export default connect(mapStateToProps)(AdminHome);

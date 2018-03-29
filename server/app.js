@@ -14,7 +14,7 @@ const options = {
 };
 
 
-module.exports = class App {
+class App {
   static setUp() {
     database.authenticate();
     database.setUp();
@@ -34,4 +34,6 @@ module.exports = class App {
     app.use('/', AppRouter.Router());
     return app;
   }
-};
+}
+
+export default App.setUp();

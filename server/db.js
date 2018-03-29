@@ -9,7 +9,16 @@ dotenv.config({ path: '.env' });
 class Database {
   constructor() {
     this.Sequelize = Sequelize;
-    this.sequelize = new this.Sequelize(process.env.DATABASE);
+    const mode = process.env.NODE_ENV || 'development';
+    let database;
+    if (mode === 'test') {
+      database = process.env.TEST_DATABASE;
+    } else if (mode === 'development') {
+      database = process.env.DEV_DATABASE;
+    } else {
+      database = process.env.PROD_DATABASE;
+    }
+    this.sequelize = new this.Sequelize(database);
     const userModel = new UserModel(this.sequelize, this.Sequelize);
     const eventModel = new EventModel(this.sequelize, this.Sequelize);
     const centerModel = new CenterModel(this.sequelize, this.Sequelize);
@@ -41,7 +50,7 @@ class Database {
   // synchronize models with database
   sync() {
     this.sequelize
-      .sync({ force: true })
+      .sync()
       .then(() => {})
       .catch();
   }

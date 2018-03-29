@@ -1,42 +1,12 @@
 import { createStore, combineReducers } from 'redux';
+import Helpers from './Helpers';
+import appState from './StoreComponent';
 
-class AppStore {
-  constructor() {
-    this.pageState = {
-      userOnSignInPage: false,
-      userOnSignUpPage: false,
-    };
-    this.centerTypes = [
-      'Anniversary',
-      'Birthday',
-      'Wedding',
-      'Meeting',
-      'Conference',
-      'Seminar',
-      'Summit',
-      'Funeral',
-      'Others',
-    ];
-    this.facilities = [
-      'Tables',
-      'Chairs',
-      'Stage',
-      'Power Supply',
-      'Air Condition',
-      'Lighting',
-      'Parking Space',
-      'Dressing Room',
-      'Sound System',
-      'Projector',
-    ];
-    this.centersState = [];
-    this.centerState = null;
-    this.centerSearch = [];
-    this.centerFilter = '';
-    this.eventsState = [];
-    this.selectedImages = [];
-    this.alertState = null;
-    this.eventIndex = null;
+class Reducers {
+  constructor(state) {
+    this.state = state;
+    this.tokenReducer = this.tokenReducer.bind(this);
+    this.limitReducer = this.limitReducer.bind(this);
     this.pageReducer = this.pageReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
@@ -45,12 +15,37 @@ class AppStore {
     this.centerFilterReducer = this.centerFilterReducer.bind(this);
     this.centerReducer = this.centerReducer.bind(this);
     this.eventReducer = this.eventReducer.bind(this);
-    this.typesReducer = this.typesReducer.bind(this);
-    this.facilitiesReducer = this.facilitiesReducer.bind(this);
     this.imagesReducer = this.imagesReducer.bind(this);
   }
 
-  pageReducer(state = this.pageState, action) {
+  tokenReducer(state = this.state.token, action) {
+    switch (action.type) {
+      case 'UPDATE_TOKEN':
+        const eventsManager = {
+          appToken: action.payload,
+        };
+        localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
+        return action.payload;
+      case 'REMOVE_TOKEN':
+        localStorage.removeItem('eventsManager');
+        return null;
+      default:
+        return state;
+    }
+  }
+
+  limitReducer(state = this.state.centersPageLimit, action) {
+    switch (action.type) {
+      case 'UPDATE_CENTERS_PAGE_LIMIT':
+        return state + 15;
+      case 'RESET_CENTERS_PAGE_LIMIT':
+        return 15;
+      default:
+        return state;
+    }
+  }
+
+  pageReducer(state = this.state.pageState, action) {
     const newState = {
       ...state,
       ...action.payload,
@@ -64,49 +59,41 @@ class AppStore {
     }
   }
 
-  typesReducer(state = this.centerTypes) {
-    return state;
-  }
-
-  facilitiesReducer(state = this.facilities) {
-    return state;
-  }
-
-  eventsReducer(state = this.eventsState, action) {
+  eventsReducer(state = this.state.eventsState, action) {
     switch (action.type) {
       case 'UPDATE_EVENTS_STATE':
-        return action.payload;
+        return Helpers.sortByDate(action.payload);
       case 'ADD_TO_EVENTS_STATE':
-        return [
+        return Helpers.sortByDate([
           action.payload,
           ...state,
-        ];
+        ]);
       case 'EDIT_EVENTS_STATE':
-        return [
-          ...state.slice(0, action.payload.index),
-          action.payload.event,
-          ...state.slice(action.payload.index + 1, state.length),
-        ];
+        return state.map((event) => {
+          if (event.id === action.payload.id) return action.payload;
+          return event;
+        });
       case 'DELETE_FROM_EVENTS_STATE':
+        const index = state.findIndex(event => event.id === action.payload.id);
         return [
-          ...state.slice(0, action.payload),
-          ...state.slice(action.payload + 1, state.length),
+          ...state.slice(0, index),
+          ...state.slice(index + 1, state.length),
         ];
       default:
         return state;
     }
   }
 
-  eventReducer(state = this.eventIndex, action) {
+  eventReducer(state = this.state.eventState, action) {
     switch (action.type) {
-      case 'UPDATE_EVENT_INDEX':
+      case 'UPDATE_EVENT_STATE':
         return action.payload;
       default:
         return state;
     }
   }
 
-  imagesReducer(state = this.selectedImages, action) {
+  imagesReducer(state = this.state.selectedImages, action) {
     switch (action.type) {
       case 'UPDATE_SELECTED_IMAGES':
         return action.payload;
@@ -115,15 +102,15 @@ class AppStore {
     }
   }
 
-  centersReducer(state = this.centersState, action) {
+  centersReducer(state = this.state.centersState, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_STATE':
-        return action.payload;
+        return Helpers.sortByName(action.payload);
       case 'ADD_TO_CENTERS_STATE':
-        return [
+        return Helpers.sortByName([
           action.payload,
           ...state,
-        ];
+        ]);
       case 'EDIT_CENTERS_STATE':
         return [
           ...state.slice(0, action.payload.index),
@@ -135,7 +122,7 @@ class AppStore {
     }
   }
 
-  centerReducer(state = this.centerState, action) {
+  centerReducer(state = this.state.centerState, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_STATE':
         return action.payload;
@@ -144,7 +131,7 @@ class AppStore {
     }
   }
 
-  centerSearchReducer(state = this.centerSearch, action) {
+  centerSearchReducer(state = this.state.centerSearch, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_SEARCH':
         return [...action.payload];
@@ -153,7 +140,7 @@ class AppStore {
     }
   }
 
-  centerFilterReducer(state = this.centerFilter, action) {
+  centerFilterReducer(state = this.state.centerFilter, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_FILTER':
         return action.payload;
@@ -162,7 +149,7 @@ class AppStore {
     }
   }
 
-  alertReducer(state = this.alertState, action) {
+  alertReducer(state = this.state.alertState, action) {
     switch (action.type) {
       case 'UPDATE_ALERT_STATE':
         return action.payload;
@@ -172,19 +159,18 @@ class AppStore {
   }
 }
 
-const appStore = new AppStore();
+const appStore = new Reducers(appState);
 const store = createStore(combineReducers({
+  token: appStore.tokenReducer,
+  limit: appStore.limitReducer,
   pageState: appStore.pageReducer,
   eventsState: appStore.eventsReducer,
   centersState: appStore.centersReducer,
   centerState: appStore.centerReducer,
   centerSearch: appStore.centerSearchReducer,
   centerFilter: appStore.centerFilterReducer,
-  eventIndex: appStore.eventReducer,
+  eventState: appStore.eventReducer,
   alertState: appStore.alertReducer,
-  centerTypes: appStore.typesReducer,
-  centerFacilities: appStore.facilitiesReducer,
   selectedImages: appStore.imagesReducer,
 }));
-module.exports = { store, AppStore };
-
+module.exports = store;

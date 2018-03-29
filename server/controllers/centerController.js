@@ -1,37 +1,8 @@
-import fs from 'fs';
 import moment from 'moment';
-import multer from 'multer';
-import uuidv4 from 'uuid/v4';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import { Op } from 'sequelize';
 import database from '../db';
-
-// define storage option for multer
-const storage = multer.diskStorage({
-  destination(req, file, next) {
-    next(null, './server/dist/public/images');
-  },
-  filename(req, file, cb) {
-    cb(null, `${uuidv4()}.${file.mimetype.split('/')[1]}`);
-  },
-});
-
-// set multer options
-const options = {
-  storage,
-  fileFilter(req, file, next) {
-    const isImage = file.mimetype.startsWith('image/');
-    if (isImage) return next(null, true);
-    return next({ err: 'File type rejected' }, false);
-  },
-};
-
-/** unmountImages(obj) removes all images
-    whose names are present in obj.images */
-export const unmountImages = (obj) => {
-  if (obj.images) obj.images.map(image => fs.unlink(`./server/dist/public/images/${image}`, () => {}));
-};
 
 export const jsonHandle = (obj, parse = true) => {
   if (parse) {
@@ -43,14 +14,14 @@ export const jsonHandle = (obj, parse = true) => {
   }
 };
 
-
-const upload = multer(options);
-
 /** CenterController class defines static
     methods to be used in handling /centers
     routes */
 export class CenterController {
-  // validate incoming body fields for /events requests
+/**
+ * provides validation for incoming request body for creating/editing centers
+ * @returns { array } an array of functions to parse request
+ */
   static centerValidations() {
     return [
       body('name')
@@ -83,68 +54,76 @@ export class CenterController {
       body('cost')
         .exists()
         .withMessage('missing center cost field'),
+      body('images')
+        .exists()
+        .withMessage('missing images field')
+        .trim()
+        .isLength({ min: 1 })
+        .withMessage('empty images field'),
       sanitize('capacity').toInt(),
       sanitize('cost').toInt(),
     ];
   }
 
-  /** handleImages() reads imcoming uploaded files
-    into local storage, hooks up req.files and req.body */
-  static handleImages() {
-    return upload.array('images', 4);
-  }
-
-  /** mountImages(req, res, next) mounts names of
-      saved files in req.files on req.body for validation check  */
-  static mountImages(req, res, next) {
-    const images = [];
-    if (req.files) {
-      req.files.map(file => images.push(file.filename));
-    }
-    if (images.length > 0) req.body.images = images;
-    return next();
-  }
-
-  /* checkFailedValidations(req, res, next) checks if
-   all validations have passed and that user uploaded mount  */
+  /**
+   * checks if there are any failed validations
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {object | function} next() if validations pass or sends error object otherwise
+ */
   static checkFailedValidations(req, res, next) {
     const response = [];
     if (validationResult(req).isEmpty()) {
       return next();
     }
-    unmountImages(req.body);
     const errors = validationResult(req).array();
     errors.map(error => response.push(error.msg));
     return res.status(400).json({ err: response });
   }
 
-  // splits facilities string to be saved as an array in storage
-  static splitFacilities(req, res, next) {
+  /**
+   * splits center facilities into an array
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {function} next()
+ */
+  static splitFacilitiesAndImages(req, res, next) {
     const facilities = [];
+    const images = [];
     req.body.facilities.split(',').map(facility => facilities.push(facility.trim()));
+    req.body.images.split(',').map(image => images.push(image.trim()));
     req.body.facilities = facilities;
+    req.body.images = images;
     return next();
   }
 
-  // checks that cost and capacity hold valid values
+  /**
+   * checks that cost and capacity fields are valid
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns { object | function } next() if validations pass or sends error object otherwise
+ */
   static checkCostAndCapacityFields(req, res, next) {
     if (!Number.isInteger(req.body.cost)
       || !Number.isInteger(req.body.capacity)
       || [-1, 0, -0].includes(Math.sign(req.body.cost))
       || [-1, 0, -0].includes(Math.sign(req.body.capacity))) {
-      unmountImages(req.body);
       return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
     }
-    if (req.body.cost > 2147483647) return res.status(400).json({ err: 'cost too large' });
-    if (req.body.capacity > 2147483647) return res.status(400).json({ err: 'capacity too large' });
     return next();
   }
 
-  // addCenter(req, res) adds a new center to database
+  /**
+ * creates new ecenter
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing created center or sends error message
+ */
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
-    if (req.body.state) req.body.state = req.body.state.toLowerCase();
-    if (!req.body.images) req.body.images = [];
     jsonHandle(req.body, false);
     database.center.create(req.body)
       .then((createdCenter) => {
@@ -152,13 +131,16 @@ export class CenterController {
         res.status(201).json(createdCenter);
       })
       .catch(() => {
-        jsonHandle(req.body);
-        unmountImages(req.body);
         res.status(400).json({ err: 'center name already exists' });
       });
   }
 
-  // modifyCenter(req, res) modifies details of an existing center
+  /**
+ * modifies existing center
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing modified center or sends error message
+ */
   static modifyCenter(req, res) {
     database.center.findOne({
       where: {
@@ -170,63 +152,41 @@ export class CenterController {
     })
       .then((centerCheck) => {
         if (!centerCheck) {
-          return database.center.findOne({
+          jsonHandle(req.body, false);
+          return database.center.update(req.body, {
             where: {
               id: req.params.id,
             },
           })
-            .then((center) => {
-              if (!center) {
-                unmountImages(req.body);
-                return res.json({ err: 'center not found' });
-              }
-              jsonHandle(center);
-              if (req.body.images) unmountImages(center);
-              jsonHandle(req.body, false);
-              if (req.body.state) req.body.state = req.body.state.toLowerCase();
-              return database.center.update(req.body, {
+            .then((rows) => {
+              if (rows[0] === 0) return res.status(404).json({ err: 'center not found' });
+              return database.center.findOne({
                 where: {
                   id: req.params.id,
                 },
+                include: [
+                  { model: database.event },
+                ],
               })
-                .then((row) => {
-                  if (row[0] > 0) {
-                    return database.center.findOne({
-                      where: {
-                        id: req.params.id,
-                      },
-                      include: [
-                        { model: database.event },
-                      ],
-                    })
-                      .then((updatedCenter) => {
-                        jsonHandle(updatedCenter);
-                        return res.json(updatedCenter);
-                      });
-                  }
-                  jsonHandle(req.body);
-                  unmountImages(req.body);
-                  return res.status(409).json({ err: 'center name already exists' });
+                .then((updatedCenter) => {
+                  jsonHandle(updatedCenter);
+                  return res.json(updatedCenter);
                 });
             })
-            .catch(err => res.status(500).json({ err: err.message || 'database error' }));
+            .catch(() => res.status(500).json({ err: 'Internal server error' }));
         }
-        unmountImages(req.body);
         return res.status(409).json({ err: 'center name already exists' });
-      });
+      })
+      .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
-  // fetchCenters(req, res) fetches the details of all centers including their events
+  /**
+ * fetches existing centers
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing all centers or fetch error message
+ */
   static fetchCenters(req, res) {
-    if (req.query.state) {
-      return database.center.findAll({
-        where: {
-          state: req.query.state,
-        },
-      })
-        .then(centers => res.json(centers))
-        .catch(err => res.status(500).json({ err: err.message || 'problem occured searching database' }));
-    }
     return database.center.findAll({
       include: [
         { model: database.event },
@@ -234,14 +194,18 @@ export class CenterController {
     })
       .then((centers) => {
         centers.map((center) => {
-          jsonHandle(center);
-          return center.events.map(event => jsonHandle(event));
+          return jsonHandle(center);
         });
         return res.json(centers);
       });
   }
 
-  // fetchCenters(req, res) fetches the details of one center including it's events
+  /**
+ * fetches existing events
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } fetched center or fetch error message
+ */
   static fetchCenter(req, res) {
     database.center.findOne({
       where: {
@@ -254,14 +218,17 @@ export class CenterController {
       .then((center) => {
         if (!center) return res.status(404).json({ err: 'center not found' });
         jsonHandle(center);
-        center.events.map(event => jsonHandle(event));
         return res.send(center);
       });
   }
 
-  /** checkAvailability(req, res, next) checks if dates
-      for an event to be set in a particular center are
-      available */
+  /**
+ * checks if a center is available to be booked and if there is any booking date conflict
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { object | function } next() or object containing error message
+ */
   static checkAvailability(req, res, next) {
     database.center.findOne({
       where: {
@@ -272,21 +239,18 @@ export class CenterController {
       }],
     })
       .then((center) => {
-        if (!center) {
-          unmountImages(req.body);
-          return res.status(404).json({ err: 'center not found' });
-        }
-        for (const event of center.events) {
-          if (event.id === req.params.id) continue;
+        if (!center) return res.status(404).json({ err: 'center not found' });
+        center.events.map((event) => {
+          if (event.id === req.params.id) return null;
           const { start, end } = event;
           if (moment(req.body.start, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
            || moment(req.body.end, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
            || moment(start, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')
            || moment(end, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')) {
-            unmountImages(req.body);
             return res.status(409).json({ err: 'dates have been booked' });
           }
-        }
+          return null;
+        });
         return next();
       });
   }

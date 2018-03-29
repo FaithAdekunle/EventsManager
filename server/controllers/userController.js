@@ -3,12 +3,14 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import database from '../db';
-import { unmountImages } from '../controllers/centerController';
 
 dotenv.config({ path: '.env' });
 
 module.exports = class userController {
-  // validate incoming body fields for /events requests
+/**
+ * provides validation for incoming request body for user signup
+ * @returns { array } an array of functions to parse request
+ */
   static userValidations() {
     return [
       body('fullName')
@@ -35,7 +37,10 @@ module.exports = class userController {
     ];
   }
 
-  // validate incoming body fields for /events/login requests
+  /**
+ * provides validation for incoming request body for user signin
+ * @returns { array } an array of functions to parse request
+ */
   static signInValidations() {
     return [
       body('email')
@@ -54,64 +59,93 @@ module.exports = class userController {
     ];
   }
 
-  // check if any of the above validations failed
+  /**
+   * checks if there are any failed validations
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {object | function} next() if validations pass or sends error object otherwise
+ */
   static checkFailedValidations(req, res, next) {
     const response = [];
+    if (req.body.confirmPassword
+      && req.body.password !== req.body.confirmPassword) response.push('password and confirmPassword fields are not equal');
     if (validationResult(req).isEmpty()) {
-      if (req.body.confirmPassword
-        && req.body.password !== req.body.confirmPassword) {
-        response.push('password and confirmPassowrd field are not equal');
-        return res.status(400).json({ err: response });
-      }
+      if (response.length > 0) return res.status(400).json({ err: response });
       return next();
     }
     const errors = validationResult(req).array();
     errors.map(error => response.push(error.msg));
-    if (req.body.confirmPassword
-      && req.body.password !== req.body.confirmPassword) response.push('password and confirmPassowrd fields are not equal');
     return res.status(400).json({ err: response });
   }
 
-  // hashPassword(req, res) hashes the incoming password
+  /**
+   * hashes or encrypts incoming user password
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { fucntion } next()
+   */
   static hashPassword(req, res, next) {
     const saltRounds = 10;
     bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
-      if (hash) {
-        req.body.password = hash;
-        next();
-      }
-      if (err) res.json({ err: 'password hash failed' });
+      req.body.password = hash;
+      return next();
     });
   }
 
-  // generateToken(user) generates a token using user properties
+  /**
+ * generates a token using a secret key and user details
+ * @param {object} user
+ * @returns { string } user token
+ */
   static generateToken(user) {
     const token = jwt.sign({
       id: user.id,
       fullName: user.fullName,
+      isAdmin: user.isAdmin,
       expires: Date.now() + (user.isAdmin ? 43200000 : 604800000),
     }, process.env.SECRET);
     return token;
   }
 
-  // toLowerCase(req, res, next) converts fullName and email fields to lower case
+  /**
+ * converts incoming user's fullname and email to lowercase
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { function } calls next middleware
+ */
   static toLowerCase(req, res, next) {
     if (req.body.fullName) req.body.fullName = req.body.fullName.toLowerCase();
     req.body.email = req.body.email.toLowerCase();
     return next();
   }
 
-  // sanitizeId(req, res, next) sanitizes id path parameter in req.params
+  /**
+ * ensures incoming id in url is valid
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { function | object } next() if id parameter in url is
+ * valid or sends error reaponse otherwise
+ */
   static sanitizeId(req, res, next) {
     req.params.id = parseInt(req.params.id, 10);
     if (!Number.isInteger(req.params.id)) return res.status(400).json({ err: 'invalid id parameter' });
     return next();
   }
 
-  // verifyUserToken(req, res, next) verifies token sent with user req
+  /**
+ * verifies user token
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { function | object } next() if token is valid or sends err object otherwise
+ */
   static verifyUserToken(req, res, next) {
     const { token } = req.query;
-    if (!token) return res.json({ err: 'missing token' });
+    if (!token) return res.status(400).json({ err: 'missing token' });
     try {
       const payload = jwt.verify(token, process.env.SECRET);
       if (Date.now() >= payload.expires) return res.status(401).json({ err: 'token has expired' });
@@ -121,9 +155,7 @@ module.exports = class userController {
         },
       })
         .then((user) => {
-          if (!user) {
-            return res.status(404).json({ err: 'user not found' });
-          }
+          if (!user) return res.status(404).json({ err: 'user not found' });
           req.body.userId = user.id;
           return next();
         });
@@ -132,11 +164,16 @@ module.exports = class userController {
     }
   }
 
-  // verifyUserToken(req, res, next) verifies token sent with admin req
+  /**
+ * verifies admin token
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { function | object } next() if token is valid or sends err object otherwise
+ */
   static verifyAdmin(req, res, next) {
     const { token } = req.query;
     if (!token) {
-      unmountImages(req.body);
       return res.status(401).json({ err: 'no token found' });
     }
     try {
@@ -156,20 +193,20 @@ module.exports = class userController {
           return next();
         });
     } catch (err) {
-      unmountImages(req.body);
       return res.status(401).json({ err: 'authentication failed' });
     }
   }
 
-  // signUp(req, res, next) creates a new user account
+  /**
+ * verifies user token
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing created user's token or sends error message
+ */
   static signUp(req, res) {
     database.user.create(req.body)
       .then((createdUser) => {
         const user = {
-          fullName: createdUser.fullName,
-          email: createdUser.email,
-          id: createdUser.id,
-          isAdmin: createdUser.isAdmin,
           token: userController.generateToken(createdUser),
         };
         return res.status(201).json(user);
@@ -177,7 +214,12 @@ module.exports = class userController {
       .catch(err => res.status(400).json({ err: err.errors[0].none || 'a user already exits with this email' }));
   }
 
-  // signUp(req, res, next) logs an existing user in.
+  /**
+ * verifies user token
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing signed in user's token or sends error message
+ */
   static signIn(req, res) {
     database.user.findOne({
       where: {
@@ -191,10 +233,6 @@ module.exports = class userController {
         return bcrypt.compare(req.body.password, user.password, (error, response) => {
           if (!response) return res.status(400).json({ err: 'email and password combination invalid' });
           const userDone = {
-            fullName: user.fullName,
-            email: user.email,
-            id: user.id,
-            isAdmin: user.isAdmin,
             token: userController.generateToken(user),
           };
           return res.json(userDone);

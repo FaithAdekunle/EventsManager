@@ -7,8 +7,7 @@ class Event extends React.Component {
     event: Proptypes.object,
     history: Proptypes.object,
     centers: Proptypes.array,
-    index: Proptypes.number,
-    updateEventIndex: Proptypes.func,
+    updateEventState: Proptypes.func,
   }
 
   constructor() {
@@ -36,12 +35,12 @@ class Event extends React.Component {
         keyboard: false,
         backdrop: 'static',
       });
-      this.props.updateEventIndex(this.props.index);
+      this.props.updateEventState(this.props.event);
     }
   }
 
   openDeleteModal() {
-    this.props.updateEventIndex(this.props.index);
+    this.props.updateEventState(this.props.event);
     const modal = $('#deleteModal');
     modal.modal({
       show: true,
@@ -86,9 +85,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateEventIndex: (event) => {
+    updateEventState: (event) => {
       dispatch({
-        type: 'UPDATE_EVENT_INDEX',
+        type: 'UPDATE_EVENT_STATE',
         payload: event,
       });
     },

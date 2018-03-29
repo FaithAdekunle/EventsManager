@@ -2,6 +2,10 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import Helpers from '../../Helpers';
+import OtherActions from '../../actions/others';
+import CenterActions from '../../actions/centerActions';
+import EventActions from '../../actions/eventActions';
 
 class AdminCenter extends React.Component {
   static propTypes = {
@@ -9,67 +13,31 @@ class AdminCenter extends React.Component {
     match: Proptypes.object,
     history: Proptypes.object,
     selectedImages: Proptypes.array,
-    facilities: Proptypes.array,
-    location: Proptypes.object,
     alert: Proptypes.string,
-    editCentersState: Proptypes.func,
-    updateCenterState: Proptypes.func,
-    updateAlertState: Proptypes.func,
-    updateSelectedImages: Proptypes.func,
+    token: Proptypes.string,
   }
 
   constructor() {
     super();
     this.updateImages = this.updateImages.bind(this);
     this.submitCenter = this.submitCenter.bind(this);
+    this.oncenterEditSuccessful = this.oncenterEditSuccessful.bind(this);
+    this.onCenterEditFailed = this.onCenterEditFailed.bind(this);
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
+    this.closeModal = this.closeModal.bind(this);
     this.facilities = {};
   }
 
 
   componentDidMount() {
-    let loaded = false;
-    const { id } = this.props.match.params;
-    const load = (start = 0, increase = 2, interval = 50) => {
-      if (!loaded && start < 70) {
-        start += increase;
-        this.loader.style.width = `${start}%`;
-        if (start === 50) {
-          interval = 1000;
-        }
-        setTimeout(() => {
-          load(start, increase, interval);
-        }, interval);
-      }
-    };
-    load();
-    axios
-      .get(`http://localhost:7777/api/v1/centers/${id}`)
-      .then((response) => {
-        loaded = true;
-        this.loader.style.width = '100%';
-        this.props.updateCenterState(response.data);
-        setTimeout(() => { this.loader.classList.remove('success-background'); }, 500);
-      })
-      .catch((err) => {
-        if (err.response) {
-          loaded = true;
-          this.loader.style.width = '100%';
-          this.props.updateAlertState(err.response.data.err);
-          setTimeout(() => {
-            this.loader.classList.remove('success-background');
-          }, 500);
-        } else {
-          this.props.updateAlertState('Looks like you\'re offline. Check internet connection.');
-        }
-      });
+    CenterActions.getCenter(this.loader, this.props.match.params.id, true);
   }
 
   componentWillUnmount() {
-    this.props.updateAlertState(null);
-    this.props.updateCenterState(null);
-    this.props.updateSelectedImages([]);
+    OtherActions.updateAlertState(null);
+    CenterActions.updateCenterState(null);
+    OtherActions.updateSelectedImages([]);
   }
 
   onMouseEnterDate(e) {
@@ -80,21 +48,37 @@ class AdminCenter extends React.Component {
     e.target.classList.remove('hover-date');
   }
 
-  declineEvent(id, index) {
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    if (!eventsManager) return this.props.history.push('/signin');
-    const { appToken } = eventsManager;
-    return axios
-      .put(`http://localhost:7777/api/v1/events/${id}/decline?token=${appToken}`)
-      .then(() => {
-        const update = { ...this.props.center };
-        update.events[index].isAccepted = false;
-        this.props.updateCenterState(update);
-      });
+  oncenterEditSuccessful(response) {
+    OtherActions.updateSelectedImages(response.data.images);
+    CenterActions.updateCenterState(response.data);
+    $('#detailsModal').modal('toggle');
+    OtherActions.updateAlertState(null);
+    this.form.reset();
+    this.fieldset.disabled = false;
+  }
+
+  onCenterEditFailed(err) {
+    this.fieldset.disabled = false;
+    if (err.response.status === 401) {
+      OtherActions.removeToken();
+      $('#detailsModal').modal('toggle');
+      return this.props.history.push('/signin');
+    }
+    if ([404, 409].includes(err.response.status)) return window.alert(err.response.data.err);
+    return window.alert('Looks like you\'re offline. Check internet connection.');
+  }
+
+  closeModal() {
+    this.images.value = null;
+    OtherActions.updateSelectedImages(this.props.center.images);
   }
 
   updateFacilities(e) {
     this.facilities[e.target.value] = e.target.checked;
+  }
+
+  declineEvent(event, index, token) {
+    EventActions.declineEvent(this.props.center, event.id, index, token);
   }
 
   computeFacilities() {
@@ -113,7 +97,7 @@ class AdminCenter extends React.Component {
     const reader = new FileReader();
     const readFiles = (index = 0, selectedImages = []) => {
       if (index >= files.length) {
-        return this.props.updateSelectedImages(selectedImages);
+        return OtherActions.updateSelectedImages(selectedImages);
       }
       reader.onloadend = (e) => {
         selectedImages.push(e.target.result);
@@ -125,55 +109,53 @@ class AdminCenter extends React.Component {
     return readFiles();
   }
 
-  submitCenter(e) {
+  async submitCenter(e) {
     e.preventDefault();
+    this.fieldset.disabled = true;
     const { files } = this.images;
-    const formData = new FormData();
-    formData.append('name', this.centerName.value);
-    formData.append('address', this.centerAddress.value);
-    formData.append('description', this.centerDescription.value);
-    formData.append('facilities', this.computeFacilities());
-    formData.append('capacity', this.centerCapacity.value);
-    formData.append('cost', this.centerCost.value);
+    let images = '';
     if (files.length > 0) {
       for (let i = 0; i < 4; i++) {
-        if (files[i]) formData.append('images', files[i]);
+        if (files[i]) {
+          const formData = new FormData();
+          formData.append('upload_preset', Helpers.cloudinaryPreset);
+          formData.append('file', files[i]);
+          const response = await axios.post(Helpers.cloudinaryUrl, formData);
+          images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
+        }
       }
+    } else {
+      images = this.props.center.images.join(',');
     }
-    this.fieldset.disabled = true;
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    if (!eventsManager) return this.props.history.push('/signin');
-    const { appToken } = eventsManager;
-    return axios
-      .put(`http://localhost:7777/api/v1/centers/${this.props.match.params.id}?token=${appToken}`, formData)
-      .then((response) => {
-        if (this.props.location.state) {
-          this.props.editCentersState(this.props.location.state.index, response.data);
-        }
-        this.props.updateCenterState(response.data);
-        $('#detailsModal').modal('toggle');
-        this.props.updateSelectedImages([]);
-        this.props.updateAlertState(null);
-        this.form.reset();
-        this.fieldset.disabled = false;
-      })
-      .catch((err) => {
-        this.fieldset.disabled = false;
-        if (!err.response) window.alert('Looks like you\'re offline. Check internet connection.');
-        else {
-          localStorage.removeItem('eventsManager');
-          $('#detailsModal').modal('toggle');
-          this.props.history.push('/signin');
-        }
-      });
+    const credentials = {
+      name: this.centerName.value,
+      address: this.centerAddress.value,
+      description: this.centerDescription.value,
+      facilities: this.computeFacilities(),
+      capacity: this.centerCapacity.value,
+      cost: this.centerCost.value,
+      images,
+    };
+    CenterActions.editCenter(
+      credentials,
+      this.props.token,
+      this.props.match.params.id,
+      this.oncenterEditSuccessful,
+      this.onCenterEditFailed,
+    );
   }
 
   render() {
-    const { center, alert, selectedImages } = this.props;
+    const {
+      center,
+      alert,
+      selectedImages,
+      token,
+    } = this.props;
     return (
-      <div>
+      <React.Fragment>
         <div className={`center-loader success-background ${center ? 'hidden' : ''}`} ref={(input) => { this.loader = input; }} />
-        <div>
+        <React.Fragment>
           <div className={`container ${alert ? '' : 'hidden'} alert alert-info`} role="alert">
             {alert}
           </div>
@@ -186,9 +168,9 @@ class AdminCenter extends React.Component {
                       <div className="carousel-inner">
                         {
                           center.images.map((image, index) => {
-                          return (
-                            <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={image}><img src={`http://localhost:7777/images/${image}`} alt="" className="d-block w-100" /></div>
-                          );
+                            return (
+                              <div className={`carousel-item ${index === 0 ? 'active' : ''}`} key={image}><img src={image} alt="" className="d-block w-100" /></div>
+                            );
                           })
                         }
                       </div>
@@ -204,8 +186,8 @@ class AdminCenter extends React.Component {
                   ) : null
                 }
                 <h3 className="text-center center-detail-name">{center.name}</h3>
-                <div className="container">
-                  <div>
+                <div className="center-details">
+                  <div className="center-description admin-center-description">
                     <p className="text-justify">{center.description}</p>
                   </div>
                   <div className="row">
@@ -255,10 +237,10 @@ class AdminCenter extends React.Component {
                             center.events.map((event, index) => {
                               return index === 0 || index % 2 === 0 ? (
                                 <tr key={event.id}>
-                                  <td className={!event.isAccepted ? 'declined' : ''} onMouseEnter={this.onMouseEnterDate} onMouseLeave={this.onMouseLeaveDate}>{event.start === event.end ? event.start : `${event.start} - ${event.end}`}{ event.isAccepted ? (<i className="fa fa-times pull-right" aria-hidden="true" onClick={() => this.declineEvent(event.id, index)} />) : null}</td>
+                                  <td className={!event.isAccepted ? 'declined' : ''} onMouseEnter={this.onMouseEnterDate} onMouseLeave={this.onMouseLeaveDate}>{event.start === event.end ? event.start : `${event.start} - ${event.end}`}{ event.isAccepted ? (<i className="fa fa-times pull-right" aria-hidden="true" onClick={() => this.declineEvent(event, index, token)} />) : null}</td>
                                   {
                                     center.events[index + 1] ? (
-                                      <td className={!center.events[index + 1].isAccepted ? 'declined' : ''} onMouseEnter={this.onMouseEnterDate} onMouseLeave={this.onMouseLeaveDate}>{center.events[index + 1].start === center.events[index + 1].end ? center.events[index + 1].start : `${center.events[index + 1].start} - ${center.events[index + 1].end}`}{center.events[index + 1].isAccepted ? (<i className="fa fa-times pull-right" aria-hidden="true" onClick={() => this.declineEvent(center.events[index + 1].id, index + 1)} />) : null}</td>
+                                      <td className={!center.events[index + 1].isAccepted ? 'declined' : ''} onMouseEnter={this.onMouseEnterDate} onMouseLeave={this.onMouseLeaveDate}>{center.events[index + 1].start === center.events[index + 1].end ? center.events[index + 1].start : `${center.events[index + 1].start} - ${center.events[index + 1].end}`}{center.events[index + 1].isAccepted ? (<i className="fa fa-times pull-right" aria-hidden="true" onClick={() => this.declineEvent(center.events[index + 1], index + 1, token)} />) : null}</td>
                                     ) : null
                                   }
                                 </tr>
@@ -276,7 +258,7 @@ class AdminCenter extends React.Component {
                       <div className="modal-body">
                         <div className="card">
                           <div className="card-header">
-                            <h2>Edit Center<button type="button" className="pull-right close" data-dismiss="modal">&times;</button></h2>
+                            <h2>Edit Center<button type="button" className="pull-right close" data-dismiss="modal" onClick={this.closeModal}>&times;</button></h2>
                           </div>
                           <div className="card-body">
                             <fieldset ref={(input) => { this.fieldset = input; }}>
@@ -332,7 +314,7 @@ class AdminCenter extends React.Component {
                                   <div className="col-md-9">
                                     <div className="row">
                                       {
-                                        this.props.facilities.map((facility) => {
+                                        Helpers.facilities.map((facility) => {
                                         const checked = center.facilities.includes(facility);
                                           this.facilities[facility] = checked;
                                           return (
@@ -364,47 +346,19 @@ class AdminCenter extends React.Component {
               </div>
             ) : null
           }
-        </div>
-      </div>
+        </React.Fragment>
+      </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = (state) => {
   return {
+    token: state.token,
     center: state.centerState,
     alert: state.alertState,
-    facilities: state.centerFacilities,
     selectedImages: state.selectedImages,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-    updateCenterState: (center) => {
-      dispatch({
-        type: 'UPDATE_CENTER_STATE',
-        payload: center,
-      });
-    },
-    editCentersState: (index, center) => {
-      dispatch({
-        type: 'EDIT_CENTERS_STATE',
-        payload: { index, center },
-      });
-    },
-    updateSelectedImages: (images) => {
-      dispatch({
-        type: 'UPDATE_SELECTED_IMAGES',
-        payload: images,
-      });
-    },
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(AdminCenter);
+export default connect(mapStateToProps)(AdminCenter);
