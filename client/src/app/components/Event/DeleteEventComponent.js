@@ -1,14 +1,13 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import Helpers from '../../Helpers';
+import EventActions from '../../actions/eventActions';
+import OtherActions from '../../actions/others';
 
 class DeleteEvent extends React.Component {
   static propTypes = {
+    token: Proptypes.string,
     eventState: Proptypes.object,
-    deleteFromEventsState: Proptypes.func,
-    updateEventState: Proptypes.func,
     history: Proptypes.object,
   }
 
@@ -16,36 +15,42 @@ class DeleteEvent extends React.Component {
     super();
     this.deleteEvent = this.deleteEvent.bind(this);
     this.nullEvent = this.nullEvent.bind(this);
+    this.onDeleteSuccesful = this.onDeleteSuccesful.bind(this);
+  }
+
+  onDeleteSuccesful() {
+    EventActions.deleteFromEventsState(this.props.eventState);
+    EventActions.updateEventState(null);
+    this.confirm.classList.remove('hidden');
+    this.deleting.classList.add('hidden');
+    this.nullEvent();
+  }
+
+  onDeleteFail(err) {
+    if ([401, 404].includes(err.response.status)) {
+      OtherActions.removeToken();
+      this.nullEvent();
+      return this.props.history.push('/signin');
+    }
+    return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
+      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
   }
 
   deleteEvent() {
-    const { appToken } = JSON.parse(localStorage.getItem('eventsManager'));
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
-    axios
-      .delete(`${Helpers.localHost}/events/${this.props.eventState.id}?token=${appToken}`)
-      .then(() => {
-        this.props.deleteFromEventsState(this.props.eventState);
-        this.props.updateEventState(null);
-        this.confirm.classList.remove('hidden');
-        this.deleting.classList.add('hidden');
-        this.nullEvent();
-      })
-      .catch((err) => {
-        if ([401, 404].includes(err.response.status)) {
-          localStorage.removeItem('eventsManager');
-          this.nullEvent();
-          return this.props.history.push('/signin');
-        }
-        return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
-          err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
-      });
+    EventActions.deleteEvent(
+      this.props.eventState,
+      this.props.token,
+      this.onDeleteSuccesful,
+      this.onDeleteFail,
+    );
   }
 
   nullEvent() {
     const modal = $('#deleteModal');
     modal.modal('toggle');
-    this.props.updateEventState(null);
+    EventActions.updateEventState(null);
   }
 
   render() {
@@ -75,25 +80,9 @@ class DeleteEvent extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    token: state.token,
     eventState: state.eventState,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    deleteFromEventsState: (id) => {
-      dispatch({
-        type: 'DELETE_FROM_EVENTS_STATE',
-        payload: id,
-      });
-    },
-    updateEventState: (event) => {
-      dispatch({
-        type: 'UPDATE_EVENT_STATE',
-        payload: event,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteEvent);
+export default connect(mapStateToProps)(DeleteEvent);

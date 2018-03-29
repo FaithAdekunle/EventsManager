@@ -17,7 +17,10 @@ const transporter = nodemailer.createTransport({
 });
 
 module.exports = class EventController {
-  // validate incoming body fields for /events requests
+/**
+ * provides validation for incoming request body for creating/editing event
+ * @returns { array } an array of functions to parse request
+ */
   static eventValidations() {
     return [
       body('name')
@@ -53,7 +56,13 @@ module.exports = class EventController {
     ];
   }
 
-  // check if any of the above validations failed
+  /**
+   * checks if there are any failed validations
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {object | function} next() if validations pass or sends error object otherwise
+ */
   static checkFailedValidations(req, res, next) {
     if (validationResult(req).isEmpty()) return next();
     const errors = validationResult(req).array();
@@ -62,8 +71,13 @@ module.exports = class EventController {
     return res.status(400).json({ err: response });
   }
 
-  // use moment.js to validate the start date field as correct date format and
-  // also not a previous date
+  /**
+   * checks if there are any failed validations
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {object | function} next() if validations pass or sends error object otherwise
+ */
   static checkAndSanitizeDateFields(req, res, next) {
     if (!moment(req.body.start, 'DD-MM-YYYY').isValid()) return res.status(400).json({ err: 'Invalid date. Use format DD/MM/YYYY for date' });
     if (!(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) return res.status(400).json({ err: 'Pevious dates can not be booked' });
@@ -73,7 +87,13 @@ module.exports = class EventController {
     return next();
   }
 
-  // validate the days and guests field as actual non signed integers
+  /**
+   * checks that days and guest fields are valid
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns { object | function } next() if validations pass or sends error object otherwise
+ */
   static checkDaysAndGuestsFields(req, res, next) {
     if (!Number.isInteger(req.body.days)
       || !Number.isInteger(req.body.guests)
@@ -86,7 +106,12 @@ module.exports = class EventController {
     return next();
   }
 
-  // createEvent(req, res) creates a new user event
+  /**
+ * creates new event
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing created event or sends error message
+ */
   static createEvent(req, res) {
     database.event.create(req.body)
       .then((createdEvent) => {
@@ -97,7 +122,12 @@ module.exports = class EventController {
       });
   }
 
-  // modifyEvent(req, res) modifies an existing user event
+  /**
+ * modifies existing event
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing modified event or sends error message
+ */
   static modifyEvent(req, res) {
     database.event.update(req.body, {
       where: {
@@ -121,7 +151,12 @@ module.exports = class EventController {
       .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
-  // deleteEvent(req, res) deletes an existing user event
+  /**
+ * deletes existing event
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing delete success message or error message
+ */
   static deleteEvent(req, res) {
     database.event.findOne({
       where: {
@@ -145,7 +180,12 @@ module.exports = class EventController {
       .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
-  // fetchEvent(req, res) fetches all events belonging to user
+  /**
+ * fetches existing events
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing all user's event or fetch error message
+ */
   static fetchUserEvents(req, res) {
     database.event.findAll({
       where: {
@@ -158,8 +198,13 @@ module.exports = class EventController {
       .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
-  /** declineEvent(req, res) declines a user's event
-      and sets its isAccepted field value to false */
+  /**
+ * declines existing event
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { object } object containing modified event or sends error message
+ */
   static declineUserEvent(req, res, next) {
     database.event.update({ isAccepted: false }, {
       where: {
@@ -173,7 +218,12 @@ module.exports = class EventController {
       .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
-  // sendMail(req, res) sends a mail to user informing user of the decline
+  /**
+ * sends mail to user
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing success message or sends error message
+ */
   static sendMail(req, res) {
     database.event.findOne({
       where: {

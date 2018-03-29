@@ -1,67 +1,51 @@
 import React from 'react';
 import Proptypes from 'prop-types';
-import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 import { connect } from 'react-redux';
 import Helpers from '../../Helpers';
+import OtherActions from '../../actions/others';
+import CenterActions from '../../actions/centerActions';
+import EventActions from '../../actions/eventActions';
 
 class CenterDetails extends React.Component {
   static propTypes = {
     center: Proptypes.object,
     history: Proptypes.object,
     alert: Proptypes.string,
-    centerTypes: Proptypes.array,
+    token: Proptypes.string,
     match: Proptypes.object,
-    updateCenterState: Proptypes.func,
-    updateAlertState: Proptypes.func,
   }
 
   constructor() {
     super();
     this.submitEvent = this.submitEvent.bind(this);
+    this.onEventSubmitSuccessful = this.onEventSubmitSuccessful.bind(this);
+    this.onEventSubmitFail = this.onEventSubmitFail.bind(this);
   }
 
   componentDidMount() {
-    this.props.updateCenterState(null);
-    let loaded = false;
-    const { id } = this.props.match.params;
-    const load = (start = 0, increase = 2, interval = 50) => {
-      if (!loaded && start < 70) {
-        start += increase;
-        this.loader.style.width = `${start}%`;
-        if (start === 50) {
-          interval = 1000;
-        }
-        setTimeout(() => {
-          load(start, increase, interval);
-        }, interval);
-      }
-    };
-    load();
-    axios
-      .get(`${Helpers.localHost}/centers/${id}`)
-      .then((response) => {
-        loaded = true;
-        this.loader.style.width = '100%';
-        this.props.updateCenterState(response.data);
-        setTimeout(() => { this.loader.classList.remove('success-background'); }, 500);
-      })
-      .catch((err) => {
-        if (err.response) {
-          loaded = true;
-          this.loader.style.width = '100%';
-          this.props.updateAlertState(err.response.data.err);
-          setTimeout(() => {
-            this.loader.classList.remove('success-background');
-          }, 500);
-        } else {
-          this.props.updateAlertState('Looks like you\'re offline. Check internet connection.');
-        }
-      });
+    CenterActions.getCenter(this.loader, this.props.match.params.id, false);
   }
 
   componentWillUnmount() {
-    this.props.updateAlertState(null);
-    this.props.updateCenterState(null);
+    this.closeSubmitModal();
+    OtherActions.updateAlertState(null);
+    CenterActions.updateCenterState(null);
+  }
+
+  onEventSubmitSuccessful() {
+    this.closeSubmitModal();
+    this.props.history.push('/events');
+  }
+
+  onEventSubmitFail(err) {
+    if ([401, 404].includes(err.response.status)) {
+      localStorage.removeItem('eventsManager');
+      return this.props.history.push('/signin');
+    }
+    this.fieldset.disabled = false;
+    return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
+      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
   }
 
   closeSubmitModal() {
@@ -71,7 +55,7 @@ class CenterDetails extends React.Component {
 
   submitEvent(event) {
     event.preventDefault();
-    const { appToken } = JSON.parse(localStorage.getItem('eventsManager'));
+    this.fieldset.disabled = true;
     const credentials = {
       name: this.eventName.value,
       type: this.eventType.value,
@@ -80,30 +64,27 @@ class CenterDetails extends React.Component {
       start: Helpers.changeDateFormat(this.eventDate.value),
       centerId: this.props.center.id,
     };
-    this.fieldset.disabled = true;
-    axios
-      .post(`${Helpers.localHost}/events?token=${appToken}`, credentials)
-      .then(() => {
-        this.closeSubmitModal();
-        this.props.history.push('/events');
-      })
-      .catch((err) => {
-        if ([401, 404].includes(err.response.status)) {
-          localStorage.removeItem('eventsManager');
-          return this.props.history.push('/signin');
-        }
-        this.fieldset.disabled = false;
-        return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
-          err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
-      });
+    EventActions.addEventFromCenter(
+      credentials,
+      this.props.token,
+      this.onEventSubmitSuccessful,
+      this.onEventSubmitFail,
+    );
   }
 
   render() {
-    const { centerTypes } = this.props;
-    const { center } = this.props;
-    const { alert } = this.props;
-    const storage = localStorage.getItem('eventsManager');
-    const canBookCenter = storage && !((JSON.parse(storage)).loginState.userIsAdmin);
+    const {
+      center,
+      alert,
+      token,
+    } = this.props;
+    let userIsAdmin = false;
+    try {
+      userIsAdmin = (jwtDecode(token)).isAdmin;
+    } catch (error) {
+      userIsAdmin = false;
+    }
+    const canBookCenter = token && !userIsAdmin;
     return (
       <div className="center-detail-page">
         <div className={`center-loader success-background ${center ? 'hidden' : ''}`} ref={(input) => { this.loader = input; }} />
@@ -242,7 +223,7 @@ class CenterDetails extends React.Component {
                                   <div className="form-group">
                                     <label htmlFor="type" className="col-form-label">Event type</label>
                                     <select ref={(input) => { this.eventType = input; }} required id="type" className="custom-select form-control">
-                                      {centerTypes.map((type) => {
+                                      {Helpers.centerTypes.map((type) => {
                                         return (
                                           <option
                                             key={type}
@@ -280,27 +261,10 @@ class CenterDetails extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    token: state.token,
     center: state.centerState,
     alert: state.alertState,
-    centerTypes: state.centerTypes,
   };
 };
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-    updateCenterState: (center) => {
-      dispatch({
-        type: 'UPDATE_CENTER_STATE',
-        payload: center,
-      });
-    },
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(CenterDetails);
+export default connect(mapStateToProps)(CenterDetails);
 

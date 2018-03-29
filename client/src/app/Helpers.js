@@ -5,7 +5,32 @@ class Helpers {
 
   static cloudinaryPreset = 'axgrmj0a';
 
-  static loudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload'
+  static cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload'
+
+  static centerTypes = [
+    'Anniversary',
+    'Birthday',
+    'Wedding',
+    'Meeting',
+    'Conference',
+    'Seminar',
+    'Summit',
+    'Funeral',
+    'Others',
+  ];
+
+  static facilities = [
+    'Tables',
+    'Chairs',
+    'Stage',
+    'Power Supply',
+    'Air Condition',
+    'Lighting',
+    'Parking Space',
+    'Dressing Room',
+    'Sound System',
+    'Projector',
+  ];
 
   static getFirstName(fullName) {
     const firstName = fullName.split(' ')[0];
@@ -29,6 +54,16 @@ class Helpers {
       if (item1Start[1] !== item2Start[1]) return item1Start[1] > item2Start[1];
       return item1Start[0] > item2Start[0];
     });
+  }
+
+  static getCenterId(eventCenter, centersState) {
+    const centerName = eventCenter.value;
+    let centerId = 0;
+    centersState.map((center) => {
+      if (center.name === centerName) centerId = center.id;
+      return null;
+    });
+    return centerId;
   }
 }
 

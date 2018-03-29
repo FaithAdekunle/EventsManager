@@ -10,6 +10,7 @@ class SignUp extends React.Component {
     alertState: PropTypes.string,
     updateAlertState: PropTypes.func,
     updatePageState: PropTypes.func,
+    updateToken: PropTypes.func,
   }
 
   constructor() {
@@ -50,20 +51,7 @@ class SignUp extends React.Component {
     return axios
       .post(`${Helpers.localHost}/users`, credentials)
       .then((response) => {
-        const userState = {
-          fullname: response.data.fullName,
-          email: response.data.email,
-        };
-        const loginState = {
-          userIsSignedIn: true,
-          userIsAdmin: response.data.isAdmin,
-        };
-        const eventsManager = {
-          appToken: response.data.token,
-          userState,
-          loginState,
-        };
-        localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
+        this.props.updateToken(response.data.token);
         this.props.history.push('/events');
       })
       .catch((err) => {
@@ -165,17 +153,16 @@ class SignUp extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    loginState: state.loginState,
     alertState: state.alertState,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateLoginState: (loginState) => {
+    updateToken: (token) => {
       dispatch({
-        type: 'UPDATE_LOGIN_STATE',
-        payload: loginState,
+        type: 'UPDATE_TOKEN',
+        payload: token,
       });
     },
     updateAlertState: (msg) => {

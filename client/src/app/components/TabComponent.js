@@ -1,11 +1,13 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import jwtDecode from 'jwt-decode';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helpers from '../Helpers';
 
 class NavTab extends React.Component {
   static propTypes = {
+    token: Proptypes.string,
     pageState: Proptypes.object,
     history: Proptypes.object,
     location: Proptypes.object,
@@ -14,6 +16,7 @@ class NavTab extends React.Component {
     updateCenterSearch: Proptypes.func,
     updateCenterFilter: Proptypes.func,
     resetPageLimit: Proptypes.func,
+    removeToken: Proptypes.func,
   }
 
   constructor() {
@@ -29,7 +32,7 @@ class NavTab extends React.Component {
   }
 
   signout() {
-    localStorage.removeItem('eventsManager');
+    this.props.removeToken();
     this.navTo('/home');
   }
 
@@ -58,19 +61,23 @@ class NavTab extends React.Component {
   }
 
   render() {
-    const { pageState } = this.props;
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    const userState = eventsManager ? eventsManager.userState : null;
-    const loginState = eventsManager ? eventsManager.loginState : {
-      userIsSignedIn: false,
-      userIsAdmin: false,
-    };
+    const { pageState, token } = this.props;
+    // const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
+    let user = null;
+    try {
+      // user = jwtDecode(eventsManager.appToken);
+      user = jwtDecode(token);
+    } catch (error) {
+      user = null;
+    }
+    const fullName = user ? user.fullName : null;
+    const userIsAdmin = user ? user.isAdmin : false;
     let firstLink = '';
     let secondLink = '';
     let thirdLink = '';
     let fourthLink = '';
-    if (loginState.userIsSignedIn) {
-      if (loginState.userIsAdmin) {
+    if (user) {
+      if (userIsAdmin) {
         fourthLink = (
           <React.Fragment>
             <li className="nav-item">
@@ -84,7 +91,7 @@ class NavTab extends React.Component {
       } else {
         thirdLink = (
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{Helpers.getFirstName(userState.fullname)}</a>
+            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{Helpers.getFirstName(fullName)}</a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
               <a className="dropdown-item navTo" onClick={() => this.navTo('/events')}>My Events</a>
               <div className="dropdown-divider" />
@@ -139,6 +146,7 @@ class NavTab extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    token: state.token,
     pageState: state.pageState,
     centers: state.centersState,
     centerSearch: state.centerSearch,
@@ -147,6 +155,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    removeToken: () => {
+      dispatch({
+        type: 'REMOVE_TOKEN',
+      });
+    },
     updateCenterSearch: (result) => {
       dispatch({
         type: 'UPDATE_CENTER_SEARCH',

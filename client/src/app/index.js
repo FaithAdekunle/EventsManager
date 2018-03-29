@@ -5,8 +5,8 @@ import 'font-awesome-loader';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import './index.sass';
+import '../style/index.sass';
 import App from './components/AppComponent';
-import { store } from './components/StoreComponent';
+import store from './Reducers';
 
 render(<Provider store={store}><App /></Provider>, window.document.getElementById('container'));

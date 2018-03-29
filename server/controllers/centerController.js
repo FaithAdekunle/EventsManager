@@ -18,7 +18,10 @@ export const jsonHandle = (obj, parse = true) => {
     methods to be used in handling /centers
     routes */
 export class CenterController {
-  // validate incoming body fields for /events requests
+/**
+ * provides validation for incoming request body for creating/editing centers
+ * @returns { array } an array of functions to parse request
+ */
   static centerValidations() {
     return [
       body('name')
@@ -62,8 +65,13 @@ export class CenterController {
     ];
   }
 
-  /* checkFailedValidations(req, res, next) checks if
-   all validations have passed and that user uploaded mount  */
+  /**
+   * checks if there are any failed validations
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {object | function} next() if validations pass or sends error object otherwise
+ */
   static checkFailedValidations(req, res, next) {
     const response = [];
     if (validationResult(req).isEmpty()) {
@@ -74,7 +82,13 @@ export class CenterController {
     return res.status(400).json({ err: response });
   }
 
-  // splits facilities string to be saved as an array in storage
+  /**
+   * splits center facilities into an array
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns {function} next()
+ */
   static splitFacilitiesAndImages(req, res, next) {
     const facilities = [];
     const images = [];
@@ -85,7 +99,13 @@ export class CenterController {
     return next();
   }
 
-  // checks that cost and capacity hold valid values
+  /**
+   * checks that cost and capacity fields are valid
+ * @param {object} req
+ * @param {object} res
+ * @param {function} next
+ * @returns { object | function } next() if validations pass or sends error object otherwise
+ */
   static checkCostAndCapacityFields(req, res, next) {
     if (!Number.isInteger(req.body.cost)
       || !Number.isInteger(req.body.capacity)
@@ -96,7 +116,12 @@ export class CenterController {
     return next();
   }
 
-  // addCenter(req, res) adds a new center to database
+  /**
+ * creates new ecenter
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing created center or sends error message
+ */
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
     jsonHandle(req.body, false);
@@ -110,7 +135,12 @@ export class CenterController {
       });
   }
 
-  // modifyCenter(req, res) modifies details of an existing center
+  /**
+ * modifies existing center
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing modified center or sends error message
+ */
   static modifyCenter(req, res) {
     database.center.findOne({
       where: {
@@ -150,7 +180,12 @@ export class CenterController {
       .catch(() => res.status(500).json({ err: 'Internal server error' }));
   }
 
-  // fetchCenters(req, res) fetches the details of all centers including their events
+  /**
+ * fetches existing centers
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing all centers or fetch error message
+ */
   static fetchCenters(req, res) {
     return database.center.findAll({
       include: [
@@ -165,7 +200,12 @@ export class CenterController {
       });
   }
 
-  // fetchCenters(req, res) fetches the details of one center including it's events
+  /**
+ * fetches existing events
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } fetched center or fetch error message
+ */
   static fetchCenter(req, res) {
     database.center.findOne({
       where: {
@@ -182,9 +222,13 @@ export class CenterController {
       });
   }
 
-  /** checkAvailability(req, res, next) checks if dates
-      for an event to be set in a particular center are
-      available */
+  /**
+ * checks if a center is available to be booked and if there is any booking date conflict
+ * @param {object} req
+ * @param {object} res
+ * @param {object} next
+ * @returns { object | function } next() or object containing error message
+ */
   static checkAvailability(req, res, next) {
     database.center.findOne({
       where: {

@@ -1,5 +1,8 @@
 import React from 'react';
-import { Switch, Redirect, Route } from 'react-router-dom';
+import { Switch, Redirect, Route, withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import jwtDecode from 'jwt-decode';
 import Home from './HomeComponent';
 import EventCenters from './Center/EventCentersComponent';
 import Signin from './Sign/SigninComponent';
@@ -8,13 +11,18 @@ import Admin from './Admin/AdminComponent';
 import UserEvents from './Event/UserEventsComponent';
 
 class Main extends React.Component {
+  static propTypes = {
+    token: PropTypes.string,
+  }
+
   render() {
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    const loginState = eventsManager ? eventsManager.loginState : {
-      userIsSignedIn: false,
-      userIsAdmin: false,
-    };
-    const { userIsSignedIn, userIsAdmin } = loginState;
+    const { token } = this.props;
+    let userIsAdmin = false;
+    try {
+      userIsAdmin = (jwtDecode(token)).isAdmin;
+    } catch (error) {
+      userIsAdmin = false;
+    }
     return (
       <React.Fragment>
         <Switch>
@@ -22,7 +30,7 @@ class Main extends React.Component {
             exact
             path="/home"
             render={props => (
-                userIsSignedIn ? (
+                token ? (
                   <Redirect to={`${userIsAdmin ? '/admin' : '/events'}`} />
                 ) : (
                   <Home {...props} />
@@ -34,7 +42,7 @@ class Main extends React.Component {
             exact
             path="/signin"
             render={props => (
-                userIsSignedIn ? (
+                token ? (
                   <Redirect to={`${userIsAdmin ? '/admin' : '/events'}`} />
                 ) : (
                   <Signin {...props} />
@@ -46,7 +54,7 @@ class Main extends React.Component {
             exact
             path="/signup"
             render={props => (
-                userIsSignedIn ? (
+                token ? (
                   <Redirect to={`${userIsAdmin ? '/admin' : '/events'}`} />
                 ) : (
                   <Signup {...props} />
@@ -68,7 +76,7 @@ class Main extends React.Component {
           <Route
             path="/events"
             render={props => (
-                userIsSignedIn && !userIsAdmin ? (
+                token && !userIsAdmin ? (
                   <UserEvents {...props} />
                 ) : (
                   <Redirect to="/signin" />
@@ -87,4 +95,10 @@ class Main extends React.Component {
   }
 }
 
-export default Main;
+const mapStateToProps = (state) => {
+  return {
+    token: state.token,
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(Main));

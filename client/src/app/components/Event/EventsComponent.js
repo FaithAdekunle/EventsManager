@@ -1,44 +1,26 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import Helpers from '../../Helpers';
 import Event from './EventComponent';
 import EditEvent from './EditEventComponent';
 import DeleteEvent from './DeleteEventComponent';
+import OtherActions from '../../actions/others';
+import EventActions from '../../actions/eventActions';
 
 class Events extends React.Component {
   static propTypes = {
     history: Proptypes.object,
     eventsState: Proptypes.array,
     alertState: Proptypes.string,
-    updateEventsState: Proptypes.func,
-    updateAlertState: Proptypes.func,
+    token: Proptypes.string,
   }
 
   componentDidMount() {
-    this.props.updateAlertState('loading');
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    if (!eventsManager || eventsManager.loginState.userIsAdmin) return this.props.history.push('/signin');
-    const { appToken } = eventsManager;
-    return axios
-      .get(`${Helpers.localHost}/events?token=${appToken}`)
-      .then((response) => {
-        this.props.updateEventsState(response.data);
-        this.props.updateAlertState(null);
-      })
-      .catch((err) => {
-        if (!err.response) this.props.updateAlertState('Looks like you\'re offline. Check internet connection.');
-        else {
-          localStorage.removeItem('eventsManager');
-          this.props.updateAlertState(null);
-          this.props.history.push('/signin');
-        }
-      });
+    EventActions.updateEvents(this.props.token, this.props.history);
   }
 
   componentWillUnmount() {
-    this.props.updateAlertState(null);
+    OtherActions.updateAlertState(null);
   }
 
   openModal() {
@@ -97,27 +79,11 @@ class Events extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    token: state.token,
     eventsState: state.eventsState,
     alertState: state.alertState,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-    updateEventsState: (events) => {
-      dispatch({
-        type: 'UPDATE_EVENTS_STATE',
-        payload: events,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Events);
+export default connect(mapStateToProps)(Events);
 
