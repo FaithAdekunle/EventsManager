@@ -1,81 +1,96 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
-import axios from 'axios';
+import OtherActions from './../actions/others';
 
+/**
+ * Home component class
+ */
 class Home extends React.Component {
   static propTypes = {
-    updateAlertState: Proptypes.func,
     history: Proptypes.object,
     alertState: Proptypes.string,
+    token: Proptypes.string,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.changeFormState = this.changeFormState.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.navToCenters = this.navToCenters.bind(this);
-    const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
-    this.loginState = eventsManager ? eventsManager.loginState : {
-      userIsSignedIn: false,
-      userIsAdmin: false,
-    };
+    this.onSignupFail = this.onSignupFail.bind(this);
+    this.onSignupSuccessful = this.onSignupSuccessful.bind(this);
   }
 
+  /**
+   * executes after user logs in succesfully
+   * @param { object } response
+   * @returns { void }
+   */
+  onSignupSuccessful(response) {
+    OtherActions.updateToken(response.data.token);
+    this.props.history.push('/events');
+  }
+
+  /**
+   * executes after failed login attempt
+   * @param { object } err
+   * @returns { void }
+   */
+  onSignupFail(err) {
+    this.changeFormState(false);
+    OtherActions.updateAlertState(err.response ? (Array.isArray(err.response.data.err) ?
+      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
+    setTimeout(() => OtherActions.updateAlertState(null), 10000);
+  }
+
+  /**
+   * creates new user
+   * @param { object } event
+   * @returns { void }
+   */
   onSubmit(event) {
     event.preventDefault();
-    if (!this.loginState.userIsSignedIn) {
-      if (this.password.value !== this.passwordconfirm.value) {
-        this.props.updateAlertState('Password and Confirm Password fields must be equal');
-        return setTimeout(() => this.props.updateAlertState(null), 3000);
-      }
-      this.changeFormState();
-      const credentials = {
-        fullName: this.fullname.value,
-        email: this.email.value,
-        password: this.password.value,
-        confirmPassword: this.passwordconfirm.value,
-      };
-      return axios
-        .post('http://localhost:7777/api/v1/users', credentials)
-        .then((response) => {
-          const userState = {
-            fullname: response.data.fullName,
-            email: response.data.email,
-          };
-          const loginState = {
-            userIsSignedIn: true,
-            userIsAdmin: response.data.isAdmin,
-          };
-          const eventsManager = {
-            appToken: response.data.token,
-            userState,
-            loginState,
-          };
-          localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
-          this.props.history.push('/events');
-        })
-        .catch((err) => {
-          this.changeFormState(false);
-          this.props.updateAlertState(err.response ? (Array.isArray(err.response.data.err) ?
-            err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
-          setTimeout(() => this.props.updateAlertState(null), 10000);
-        });
+    if (this.password.value !== this.passwordconfirm.value) {
+      OtherActions.updateAlertState('Password and Confirm Password fields must be equal');
+      return setTimeout(() => OtherActions.updateAlertState(null), 10000);
     }
-    this.props.updateAlertState('Log out to create new account');
-    return setTimeout(() => this.props.updateAlertState(null), 3000);
+    this.changeFormState();
+    const credentials = {
+      fullName: this.fullname.value,
+      email: this.email.value,
+      password: this.password.value,
+      confirmPassword: this.passwordconfirm.value,
+    };
+    return OtherActions.signup(credentials, this.onSignupSuccessful, this.onSignupFail);
   }
 
+  /**
+   * called in submit user
+   * @param { boolean } disabled
+   * @returns { void }
+   */
   changeFormState(disabled = true) {
     this.form.disabled = disabled;
     if (disabled) return this.spinner.classList.remove('hidden');
     return this.spinner.classList.add('hidden');
   }
 
+  /**
+   * navigates to centers page
+   * @returns { void }
+   */
   navToCenters() {
     this.props.history.push('/centers');
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     return (
       <React.Fragment>
@@ -112,7 +127,7 @@ class Home extends React.Component {
                   <div className="card-body">
                     <fieldset
                       ref={(input) => { this.form = input; }}
-                      disabled={localStorage.getItem('eventsManager')}
+                      disabled={this.props.token}
                     >
                       <form onSubmit={this.onSubmit}>
                         <div className="form-group">
@@ -206,18 +221,8 @@ class Home extends React.Component {
 const mapStateToProps = (state) => {
   return {
     alertState: state.alertState,
+    token: state.token,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps)(Home);

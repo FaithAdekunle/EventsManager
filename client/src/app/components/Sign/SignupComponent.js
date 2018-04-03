@@ -1,45 +1,84 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import Helpers from '../../Helpers';
+import OtherActions from '../../actions/others';
 
+/**
+ * SignIn component class
+ */
 class SignUp extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     alertState: PropTypes.string,
-    updateAlertState: PropTypes.func,
-    updatePageState: PropTypes.func,
-    updateToken: PropTypes.func,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.changeFormState = this.changeFormState.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.navToSignin = this.navToSignin.bind(this);
+    this.onSignupFail = this.onSignupFail.bind(this);
+    this.onSignupSuccessful = this.onSignupSuccessful.bind(this);
   }
 
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
   componentDidMount() {
-    this.props.updatePageState({
+    OtherActions.updatePageState({
       userOnSignInPage: false,
       userOnSignUpPage: true,
     });
   }
 
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
   componentWillUnmount() {
-    this.props.updatePageState({
+    OtherActions.updatePageState({
       userOnSignInPage: false,
       userOnSignUpPage: false,
     });
-    this.props.updateAlertState(null);
+    OtherActions.updateAlertState(null);
   }
 
+  /**
+   * executes after user logs in succesfully
+   * @param { object } response
+   * @returns { void }
+   */
+  onSignupSuccessful(response) {
+    OtherActions.updateToken(response.data.token);
+    this.props.history.push('/events');
+  }
+
+  /**
+   * executes after failed login attempt
+   * @param { object } err
+   * @returns { void }
+   */
+  onSignupFail(err) {
+    this.changeFormState(false);
+    OtherActions.updateAlertState(err.response ? (Array.isArray(err.response.data.err) ?
+      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
+    setTimeout(() => OtherActions.updateAlertState(null), 10000);
+  }
+
+  /**
+   * creates new user
+   * @param { object } event
+   * @returns { void }
+   */
   onSubmit(event) {
     event.preventDefault();
     if (this.password.value !== this.passwordconfirm.value) {
-      this.props.updateAlertState('Password and Confirm Password fields must be equal');
-      return setTimeout(() => this.props.updateAlertState(null), 3000);
+      OtherActions.updateAlertState('Password and Confirm Password fields must be equal');
+      return setTimeout(() => OtherActions.updateAlertState(null), 3000);
     }
     this.changeFormState();
     const credentials = {
@@ -48,20 +87,14 @@ class SignUp extends React.Component {
       password: this.password.value,
       confirmPassword: this.passwordconfirm.value,
     };
-    return axios
-      .post(`${Helpers.localHost}/users`, credentials)
-      .then((response) => {
-        this.props.updateToken(response.data.token);
-        this.props.history.push('/events');
-      })
-      .catch((err) => {
-        this.changeFormState(false);
-        this.props.updateAlertState(err.response ? (Array.isArray(err.response.data.err) ?
-          err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
-        setTimeout(() => this.props.updateAlertState(null), 10000);
-      });
+    return OtherActions.signup(credentials, this.onSignupSuccessful, this.onSignupFail);
   }
 
+  /**
+   * called in submit user
+   * @param { boolean } disabled
+   * @returns { void }
+   */
   changeFormState(disabled = true) {
     this.submit.disabled = disabled;
     this.email.disabled = disabled;
@@ -72,10 +105,18 @@ class SignUp extends React.Component {
     return this.spinner.classList.add('hidden');
   }
 
+  /**
+   * navigates to signin page
+   * @returns { void }
+   */
   navToSignin() {
     this.props.history.push('/signin');
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     return (
       <div className="form-page">
@@ -157,27 +198,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateToken: (token) => {
-      dispatch({
-        type: 'UPDATE_TOKEN',
-        payload: token,
-      });
-    },
-    updateAlertState: (msg) => {
-      dispatch({
-        type: 'UPDATE_ALERT_STATE',
-        payload: msg,
-      });
-    },
-    updatePageState: (pageState) => {
-      dispatch({
-        type: 'UPDATE_PAGE_STATE',
-        payload: pageState,
-      });
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
+export default connect(mapStateToProps)(SignUp);

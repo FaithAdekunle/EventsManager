@@ -4,6 +4,9 @@ import { connect } from 'react-redux';
 import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/others';
 
+/**
+ * DeleteEvent component class
+ */
 class DeleteEvent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
@@ -11,6 +14,9 @@ class DeleteEvent extends React.Component {
     history: Proptypes.object,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.deleteEvent = this.deleteEvent.bind(this);
@@ -18,6 +24,11 @@ class DeleteEvent extends React.Component {
     this.onDeleteSuccesful = this.onDeleteSuccesful.bind(this);
   }
 
+  /**
+   * executes after event has been deleted succesfully
+   * @param { object } response
+   * @returns { void }
+   */
   onDeleteSuccesful() {
     EventActions.deleteFromEventsState(this.props.eventState);
     EventActions.updateEventState(null);
@@ -26,6 +37,11 @@ class DeleteEvent extends React.Component {
     this.nullEvent();
   }
 
+  /**
+   * executes after attempt to delete event fails
+   * @param { object } err
+   * @returns { void }
+   */
   onDeleteFail(err) {
     if ([401, 404].includes(err.response.status)) {
       OtherActions.removeToken();
@@ -36,6 +52,10 @@ class DeleteEvent extends React.Component {
       err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
   }
 
+  /**
+   * executes when edit modal closes or when event has been deleted
+   * @returns { void }
+   */
   deleteEvent() {
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
@@ -47,12 +67,20 @@ class DeleteEvent extends React.Component {
     );
   }
 
+  /**
+   * executes when edit modal closes or when event has been deleted
+   * @returns { void }
+   */
   nullEvent() {
     const modal = $('#deleteModal');
-    modal.modal('toggle');
+    modal.modal('hide');
     EventActions.updateEventState(null);
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const { eventState } = this.props;
     return (

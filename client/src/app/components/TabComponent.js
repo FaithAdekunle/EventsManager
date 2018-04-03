@@ -4,7 +4,11 @@ import jwtDecode from 'jwt-decode';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helpers from '../Helpers';
+import OtherActions from './../actions/others';
 
+/**
+ * NavTab component class
+ */
 class NavTab extends React.Component {
   static propTypes = {
     token: Proptypes.string,
@@ -13,12 +17,11 @@ class NavTab extends React.Component {
     location: Proptypes.object,
     centerSearch: Proptypes.array,
     centers: Proptypes.array,
-    updateCenterSearch: Proptypes.func,
-    updateCenterFilter: Proptypes.func,
-    resetPageLimit: Proptypes.func,
-    removeToken: Proptypes.func,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.navTo = this.navTo.bind(this);
@@ -27,39 +30,67 @@ class NavTab extends React.Component {
     this.searchSubmit = this.searchSubmit.bind(this);
   }
 
+  /**
+   * navigates to specified destination
+   * @param { string } destination
+   * @returns { void }
+   */
   navTo(destination) {
     this.props.history.push(destination);
   }
 
+  /**
+   * sign user/admin out
+   * @returns { void }
+   */
   signout() {
-    this.props.removeToken();
+    OtherActions.removeToken();
     this.navTo('/home');
   }
 
+  /**
+   * search center
+   * @param { object } e
+   * @returns { void }
+   */
   searchCenter(e) {
     const { value } = e.target;
-    this.props.updateCenterFilter(value);
+    OtherActions.updateCenterFilter(value);
     if (e.keyCode === 13) {
-      this.props.updateCenterSearch([]);
+      OtherActions.updateCenterSearch([]);
       this.searchBar.blur();
       return this.navTo('/centers');
     }
-    if (!value) return this.props.updateCenterSearch([]);
+    if (!value) return OtherActions.updateCenterSearch([]);
     const match = new RegExp(value, 'gi');
     const matches = this.props.centers
       .filter(center => center.address.match(match) || center.name.match(match));
-    return this.props.updateCenterSearch(matches);
+    return OtherActions.updateCenterSearch(matches);
   }
 
+  /**
+   * prevents default form submit
+   * @param { object } e
+   * @returns { void }
+   */
   searchSubmit(e) {
     e.preventDefault();
   }
 
+  /**
+   * navigates to center details page
+   * @param { number } id
+   * @returns { void }
+   */
   navToCenter(id) {
-    this.props.updateCenterSearch([]);
+    OtherActions.updateCenterSearch([]);
     this.props.history.push(`/centers/${id}`);
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const { pageState, token } = this.props;
     // const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
@@ -113,7 +144,7 @@ class NavTab extends React.Component {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit} ref={(form) => { this.searchForm = form; }}>
               <div className="search-entry">
-                <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); this.props.resetPageLimit(); }} onFocus={this.searchCenter} ref={(input) => { this.searchBar = input; }} />
+                <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); OtherActions.resetPageLimit(); }} onFocus={this.searchCenter} ref={(input) => { this.searchBar = input; }} />
                 <ul className="list-group search-result" ref={(input) => { this.searchResult = input; }}>
                   {
                     this.props.location.pathname === '/centers' ? null :
@@ -153,31 +184,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    removeToken: () => {
-      dispatch({
-        type: 'REMOVE_TOKEN',
-      });
-    },
-    updateCenterSearch: (result) => {
-      dispatch({
-        type: 'UPDATE_CENTER_SEARCH',
-        payload: result,
-      });
-    },
-    updateCenterFilter: (value) => {
-      dispatch({
-        type: 'UPDATE_CENTER_FILTER',
-        payload: value,
-      });
-    },
-    resetPageLimit: () => {
-      dispatch({
-        type: 'RESET_CENTERS_PAGE_LIMIT',
-      });
-    },
-  };
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(NavTab));
+export default withRouter(connect(mapStateToProps)(NavTab));

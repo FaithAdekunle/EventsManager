@@ -7,8 +7,12 @@ import UserController from '../controllers/userController';
 const router = express.Router();
 
 module.exports = class AppRouter {
+/**
+ * defines routes endpoints for the api
+ * @returns { void }
+ */
   static Router() {
-    // route handler for creating a new event
+    // route handler for creating event
     router.post(
       '/api/v1/events',
       EventController.eventValidations(),

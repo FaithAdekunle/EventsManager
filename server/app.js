@@ -13,8 +13,14 @@ const options = {
   useStubs: true,
 };
 
-
+/**
+ * defines class for express application
+ * @returns { void }
+ */
 class App {
+  /** creates and defines dependencies for express app instance
+   * @returns { object } express app instance
+   */
   static setUp() {
     database.authenticate();
     database.setUp();
@@ -30,8 +36,10 @@ class App {
     app.use(logger('dev'));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(express.static(path.join(__dirname, 'public')));
     app.use('/', AppRouter.Router());
+    app.get('/bundle.js', (req, res) => res.sendFile('bundle.js', { root: path.resolve('./client/dist/app') }));
+    app.use('/images', express.static(path.resolve('./client/src/images')));
+    app.get('*', (req, res) => res.sendFile('index.html', { root: path.resolve('./client/dist') }));
     return app;
   }
 }

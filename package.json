@@ -23,12 +23,13 @@
     "build": "babel server -d server/dist --copy-files --ignore server/dist,server/data,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
-    "testServer": "nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/*.test.js --require babel-core/register",
+    "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/*.test.js --require babel-core/register",
     "testClient": "mocha ./client/test/*.test.js --compilers js:babel-register --require ./client/test/setup.js",
-    "test": "npm run testServer && npm run testClient",
+    "testAll": "npm run test && npm run testClient",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
-    "pack": "webpack -d && webpack-dev-server --hot"
+    "pack:dev": "webpack -d && webpack-dev-server --hot",
+    "pack:prod": "webpack -p"
   },
   "dependencies": {
     "axios": "^0.17.1",

@@ -2,6 +2,9 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 
+/**
+ * Event component class
+ */
 class Event extends React.Component {
   static propTypes = {
     event: Proptypes.object,
@@ -10,6 +13,9 @@ class Event extends React.Component {
     updateEventState: Proptypes.func,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.getCenterName = this.getCenterName.bind(this);
@@ -18,6 +24,10 @@ class Event extends React.Component {
     this.navToCenter = this.navToCenter.bind(this);
   }
 
+  /**
+   * gets center name using id
+   * @returns { string } centerName
+   */
   getCenterName() {
     let centerName = '';
     this.props.centers.map((center) => {
@@ -27,6 +37,10 @@ class Event extends React.Component {
     return centerName;
   }
 
+  /**
+   * opens edit modal
+   * @returns { void }
+   */
   openEditModal() {
     if (this.props.event.isAccepted) {
       const modal = $('#editModal');
@@ -39,6 +53,10 @@ class Event extends React.Component {
     }
   }
 
+  /**
+   * opens delete modal
+   * @returns { void }
+   */
   openDeleteModal() {
     this.props.updateEventState(this.props.event);
     const modal = $('#deleteModal');
@@ -49,10 +67,18 @@ class Event extends React.Component {
     });
   }
 
+  /**
+   * navigates to center page
+   * @returns { void }
+   */
   navToCenter() {
     this.props.history.push(`/centers/${this.props.event.centerId}`);
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const { event } = this.props;
     return (
