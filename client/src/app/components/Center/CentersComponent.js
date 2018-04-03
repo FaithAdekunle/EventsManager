@@ -5,7 +5,9 @@ import Center from './CenterComponent';
 import OtherActions from '../../actions/others';
 import CenterActions from '../../actions/centerActions';
 
-
+/**
+ * Centers component class
+ */
 class Centers extends React.Component {
   static propTypes = {
     centers: Proptypes.array,
@@ -15,22 +17,37 @@ class Centers extends React.Component {
     limit: Proptypes.number,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.handleScroll = this.handleScroll.bind(this);
   }
 
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
   componentDidMount() {
     window.addEventListener('scroll', this.handleScroll, false);
     CenterActions.updateCenters(this.loader);
   }
 
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
   componentWillUnmount() {
     window.removeEventListener('scroll', this.handleScroll, false);
     OtherActions.resetPageLimit();
     OtherActions.updateAlertState(null);
   }
 
+  /**
+   * onScroll event handler
+   * @returns { void }
+   */
   handleScroll() {
     if (window.innerHeight + window.scrollY === document.body.offsetHeight &&
       this.props.limit < this.props.centers.length) {
@@ -38,6 +55,10 @@ class Centers extends React.Component {
     }
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const { limit } = this.props;
     let pointer = 0;

@@ -6,7 +6,13 @@ import CenterModel from './models/centerModel';
 
 dotenv.config({ path: '.env' });
 
+/**
+ * @returns { void }
+ */
 class Database {
+  /**
+   * constructor
+   */
   constructor() {
     this.Sequelize = Sequelize;
     const mode = process.env.NODE_ENV || 'development';
@@ -27,7 +33,10 @@ class Database {
     this.db_center = centerModel.centerModel();
   }
 
-  // confirm connection with database
+  /**
+   * authenticates connection to database
+   * @returns { void }
+   */
   authenticate() {
     this.sequelize
       .authenticate()
@@ -35,7 +44,10 @@ class Database {
       .catch();
   }
 
-  // set up model associations
+  /**
+   * sets up model associations
+   * @returns { void }
+   */
   setUp() {
     this.db_user.hasMany(this.db_event, { allowNull: false });
     this.db_center.hasMany(this.db_event, { allowNull: false });
@@ -47,7 +59,10 @@ class Database {
     });
   }
 
-  // synchronize models with database
+  /**
+   * synchronize models with database
+   * @returns { void }
+   */
   sync() {
     this.sequelize
       .sync()
@@ -55,14 +70,23 @@ class Database {
       .catch();
   }
 
+  /**
+   * @returns { object } instance of database's user table
+   */
   get user() {
     return this.db_user;
   }
 
+  /**
+   * @returns { object } instance of database's center table
+   */
   get center() {
     return this.db_center;
   }
 
+  /**
+   * @returns { object } instance of database's event table
+   */
   get event() {
     return this.db_event;
   }

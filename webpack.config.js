@@ -60,11 +60,6 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin([
       {
-        from: 'client/src/images',
-        to: '../images',
-        force: true,
-      },
-      {
         from: 'client/src/index.html',
         to: '../index.html',
         force: true,

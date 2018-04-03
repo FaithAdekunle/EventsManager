@@ -8,7 +8,6 @@ import host from '../index.js';
 chai.use(chaiHttp);
 chai.should();
 
-
 describe('Tests for User API endpoint', () => {
   describe('Test for creating new user and/or admin', () => {
     it('shoud return a status 400 error response for a missing fullName field', (done) => {
@@ -183,7 +182,6 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(201);
           res.should.be.a('object');
           res.body.should.have.property('token');
-          res.body.should.have.property('isAdmin').equal(false);
           testHelper.setUserToken(res.body.token);
           done();
         });
@@ -204,7 +202,6 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(201);
           res.should.be.a('object');
           res.body.should.have.property('token');
-          res.body.should.have.property('isAdmin').equal(true);
           testHelper.setAdminToken(res.body.token);
           done();
         });
@@ -243,7 +240,6 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(200);
           res.should.be.a('object');
           res.body.should.have.property('token');
-          res.body.should.have.property('isAdmin').equal(true);
           done();
         });
     });
@@ -260,7 +256,6 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(200);
           res.should.be.a('object');
           res.body.should.have.property('token');
-          res.body.should.have.property('isAdmin').equal(false);
           done();
         });
     });

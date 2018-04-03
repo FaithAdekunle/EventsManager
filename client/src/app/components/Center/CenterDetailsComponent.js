@@ -7,6 +7,9 @@ import OtherActions from '../../actions/others';
 import CenterActions from '../../actions/centerActions';
 import EventActions from '../../actions/eventActions';
 
+/**
+ * CenterDetails component class
+ */
 class CenterDetails extends React.Component {
   static propTypes = {
     center: Proptypes.object,
@@ -16,6 +19,9 @@ class CenterDetails extends React.Component {
     match: Proptypes.object,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.submitEvent = this.submitEvent.bind(this);
@@ -23,21 +29,39 @@ class CenterDetails extends React.Component {
     this.onEventSubmitFail = this.onEventSubmitFail.bind(this);
   }
 
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
   componentDidMount() {
     CenterActions.getCenter(this.loader, this.props.match.params.id, false);
   }
 
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
   componentWillUnmount() {
     this.closeSubmitModal();
     OtherActions.updateAlertState(null);
     CenterActions.updateCenterState(null);
   }
 
+  /**
+   * executes after center has been booked successfully
+   * @param { object } response
+   * @returns { void }
+   */
   onEventSubmitSuccessful() {
     this.closeSubmitModal();
     this.props.history.push('/events');
   }
 
+  /**
+   * executes after attempt to book center fails
+   * @param { object } err
+   * @returns { void }
+   */
   onEventSubmitFail(err) {
     if ([401, 404].includes(err.response.status)) {
       localStorage.removeItem('eventsManager');
@@ -48,11 +72,20 @@ class CenterDetails extends React.Component {
       err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
   }
 
+  /**
+   * closes center booking modal
+   * @returns { void }
+   */
   closeSubmitModal() {
     const submitModal = $('#submitModal');
-    submitModal.modal('toggle');
+    submitModal.modal('hide');
   }
 
+  /**
+   * bookss center
+   * @param { object } event
+   * @returns { void }
+   */
   submitEvent(event) {
     event.preventDefault();
     this.fieldset.disabled = true;
@@ -72,6 +105,10 @@ class CenterDetails extends React.Component {
     );
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const {
       center,

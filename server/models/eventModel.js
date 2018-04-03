@@ -1,10 +1,19 @@
 // define model for event
 module.exports = class EventModel {
+/**
+ * constructor
+ * @param {object} sequelize
+ * @param {object} DataTypes
+ */
   constructor(sequelize, DataTypes) {
     this.sequelize = sequelize;
     this.DataTypes = DataTypes;
   }
 
+  /**
+   * creates model for event table in database
+ * @returns { object } event model
+ */
   eventModel() {
     const event = this.sequelize.define('event', {
       name: {

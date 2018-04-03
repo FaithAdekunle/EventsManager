@@ -25,19 +25,19 @@
       "no-restricted-syntax": "off",
       "no-case-declarations": "off",
       "no-await-in-loop": "off",
-    //   "valid-jsdoc": ["error", {
-    //     "requireReturn": true,
-    //     "requireReturnType": true,
-    //     "requireParamDescription": false,
-    //     "requireReturnDescription": true
-    //   }],
-    //   "require-jsdoc": ["error", {
-    //     "require": {
-    //         "FunctionDeclaration": true,
-    //         "MethodDefinition": true,
-    //         "ClassDeclaration": true
-    //     }
-    // }]
+      "valid-jsdoc": ["error", {
+        "requireReturn": true,
+        "requireReturnType": true,
+        "requireParamDescription": false,
+        "requireReturnDescription": true
+      }],
+      "require-jsdoc": ["error", {
+        "require": {
+            "FunctionDeclaration": true,
+            "MethodDefinition": true,
+            "ClassDeclaration": true
+        }
+    }]
     },
     "env": {
     "node": true,

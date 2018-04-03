@@ -1,10 +1,19 @@
 // define model for center
 module.exports = class CenterModel {
+/**
+ * constructor
+ * @param {object} sequelize
+ * @param {object} DataTypes
+ */
   constructor(sequelize, DataTypes) {
     this.sequelize = sequelize;
     this.DataTypes = DataTypes;
   }
 
+  /**
+   * creates model for center table in database
+ * @returns { object } center model
+ */
   centerModel() {
     const center = this.sequelize.define('center', {
       name: {

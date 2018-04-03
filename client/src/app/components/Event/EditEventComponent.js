@@ -5,6 +5,9 @@ import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/others';
 import Helpers from '../../Helpers';
 
+/**
+ * EditEvent component class
+ */
 class EditEvent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
@@ -13,6 +16,9 @@ class EditEvent extends React.Component {
     history: Proptypes.object,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.onEventEditOrAddFail = this.onEventEditOrAddFail.bind(this);
@@ -22,11 +28,21 @@ class EditEvent extends React.Component {
     this.changeDateFormat = this.changeDateFormat.bind(this);
   }
 
+  /**
+   * executes after event has been created/edited succesfully
+   * @param { object } response
+   * @returns { void }
+   */
   onEventEditOrAddSuccessful() {
     this.spinner.classList.add('hidden');
     this.nullEvent();
   }
 
+  /**
+   * executes after attempt to create/edit event fails
+   * @param { object } err
+   * @returns { void }
+   */
   onEventEditOrAddFail(err) {
     if ([401, 404].includes(err.response.status)) {
       OtherActions.removeToken();
@@ -38,6 +54,11 @@ class EditEvent extends React.Component {
       err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
   }
 
+  /**
+   * create/edit event
+   * @param { object } event
+   * @returns { void }
+   */
   submitEvent(event) {
     event.preventDefault();
     this.fieldset.disabled = true;
@@ -60,6 +81,11 @@ class EditEvent extends React.Component {
     );
   }
 
+  /**
+   * reformats date for submission to server or display on client
+   * @param { boolean } toServer
+   * @returns { void }
+   */
   changeDateFormat(toServer = true) {
     if (toServer) {
       const dateSplit = this.eventDate.value.split('-');
@@ -69,14 +95,22 @@ class EditEvent extends React.Component {
     return `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
   }
 
+  /**
+   * executes when edit modal closes or when event has been added/edited
+   * @returns { void }
+   */
   nullEvent() {
     this.form.reset();
     this.fieldset.disabled = false;
     EventActions.updateEventState(null);
     const modal = $('#editModal');
-    modal.modal('toggle');
+    modal.modal('hide');
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const {
       centersState, eventState,
@@ -97,7 +131,7 @@ class EditEvent extends React.Component {
                   <div className="modal-body">
                     <div className="form-group">
                       <label htmlFor="name" className="col-form-label">Name</label>
-                      <input ref={(input) => { this.eventName = input; }} required type="text" className="form-control" id="name" value={eventState ? eventState.name : ''} />
+                      <input ref={(input) => { this.eventName = input; }} required type="text" className="form-control" id="name" defaultValue={eventState ? eventState.name : ''} />
                     </div>
                     <div className="form-group">
                       <label htmlFor="center" className="col-form-label">Center</label>
@@ -119,13 +153,13 @@ class EditEvent extends React.Component {
                       <div className="col-5">
                         <div className="form-group">
                           <label htmlFor="days" className="col-form-label">Days</label>
-                          <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" value={eventState ? eventState.days : ''} />
+                          <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" defaultValue={eventState ? eventState.days : ''} />
                         </div>
                       </div>
                       <div className="col-7">
                         <div className="form-group">
                           <label htmlFor="date" className="col-form-label">Start Date</label>
-                          <input ref={(input) => { this.eventDate = input; }} required type="date" className="form-control" id="date" value={eventState ? this.changeDateFormat(false) : ''} />
+                          <input ref={(input) => { this.eventDate = input; }} required type="date" className="form-control" id="date" defaultValue={eventState ? this.changeDateFormat(false) : ''} />
                         </div>
                       </div>
                     </div>
@@ -150,7 +184,7 @@ class EditEvent extends React.Component {
                       <div className="col-5">
                         <div className="form-group">
                           <label htmlFor="guests" className="col-form-label">Guests</label>
-                          <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" value={eventState ? eventState.guests : ''} />
+                          <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" defaultValue={eventState ? eventState.guests : ''} />
                         </div>
                       </div>
                     </div>

@@ -6,6 +6,9 @@ import Helpers from '../../Helpers';
 import OtherActions from '../../actions/others';
 import CenterActions from '../../actions/centerActions';
 
+/**
+ * AdminHome component class
+ */
 class AdminHome extends React.Component {
   static propTypes = {
     centers: Proptypes.array,
@@ -15,6 +18,9 @@ class AdminHome extends React.Component {
     history: Proptypes.object,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.updateImages = this.updateImages.bind(this);
@@ -26,15 +32,28 @@ class AdminHome extends React.Component {
     this.facilities = {};
   }
 
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
   componentDidMount() {
     CenterActions.updateCenters(this.loader);
   }
 
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
   componentWillUnmount() {
     OtherActions.updateSelectedImages([]);
     OtherActions.updateAlertState(null);
   }
 
+  /**
+   * executes after a new center has been added succesfully
+   * @param { object } response
+   * @returns { void }
+   */
   onCenterAddSuccessful(response) {
     CenterActions.addToCentersState(response.data);
     OtherActions.updateSelectedImages([]);
@@ -44,6 +63,11 @@ class AdminHome extends React.Component {
     this.fieldset.disabled = false;
   }
 
+  /**
+   * executes after attempt to add new center fails
+   * @param { object } err
+   * @returns { void }
+   */
   onCenterAddFail(err) {
     this.fieldset.disabled = false;
     if (err.response.status === 401) {
@@ -54,6 +78,10 @@ class AdminHome extends React.Component {
     return window.alert('Looks like you\'re offline. Check internet connection.');
   }
 
+  /**
+   * updates selectedImages state property with selected images
+   * @returns { void }
+   */
   updateImages() {
     let { files } = this.images;
     if (files.length > 4) files = [files[0], files[1], files[2], files[3]];
@@ -72,10 +100,19 @@ class AdminHome extends React.Component {
     return readFiles();
   }
 
+  /**
+   * updates this.facilities
+   * @param { object } e
+   * @returns { void }
+   */
   updateFacilities(e) {
     this.facilities[e.target.value] = e.target.checked;
   }
 
+  /**
+   * creates comma separated string of selected facilities
+   * @returns { string } comma separated string of selected facilities
+   */
   computeFacilities() {
     const keyValues = Object.entries(this.facilities);
     let facilities = '';
@@ -86,6 +123,11 @@ class AdminHome extends React.Component {
     return facilities;
   }
 
+  /**
+   * adds new center
+   * @param { object } e
+   * @returns { void }
+   */
   async submitCenter(e) {
     e.preventDefault();
     this.fieldset.disabled = true;
@@ -117,6 +159,10 @@ class AdminHome extends React.Component {
     );
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const { selectedImages } = this.props;
     return (

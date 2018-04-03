@@ -1,4 +1,10 @@
+/**
+ * defines class for application state
+ */
 class AppState {
+  /**
+   * construtor
+   */
   constructor() {
     const storage = JSON.parse(localStorage.getItem('eventsManager'));
     this.token = storage ? storage.appToken : null;

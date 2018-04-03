@@ -4,8 +4,15 @@ import { dispatch } from '../Reducers';
 import OtherActions from './others';
 import CenterActions from './centerActions';
 
-
+/**
+ * EventActions component class
+ */
 class EventActions {
+  /**
+   * action to update events
+   * @param { array } events
+   * @returns { void }
+   */
   static updateEventsState(events) {
     dispatch({
       type: 'UPDATE_EVENTS_STATE',
@@ -13,6 +20,11 @@ class EventActions {
     });
   }
 
+  /**
+   * action to add to events
+   * @param { object } event
+   * @returns { void }
+   */
   static addToEventsState(event) {
     dispatch({
       type: 'ADD_TO_EVENTS_STATE',
@@ -20,6 +32,11 @@ class EventActions {
     });
   }
 
+  /**
+   * action to edit events
+   * @param { object } event
+   * @returns { void }
+   */
   static editEventsState(event) {
     dispatch({
       type: 'EDIT_EVENTS_STATE',
@@ -27,6 +44,11 @@ class EventActions {
     });
   }
 
+  /**
+   * action to delete event
+   * @param { number } id
+   * @returns { void }
+   */
   static deleteFromEventsState(id) {
     dispatch({
       type: 'DELETE_FROM_EVENTS_STATE',
@@ -34,6 +56,11 @@ class EventActions {
     });
   }
 
+  /**
+   * action to update event
+   * @param { object } event
+   * @returns { void }
+   */
   static updateEventState(event) {
     dispatch({
       type: 'UPDATE_EVENT_STATE',
@@ -41,23 +68,36 @@ class EventActions {
     });
   }
 
-  static updateEvents(token, history) {
+  /**
+   * action to fetch and events
+   * @param { string } token
+   * @param { function } onFetchEventsSuccessful
+   * @param { function } onFetchEventsFail
+   * @returns { void }
+   */
+  static updateEvents(token, onFetchEventsSuccessful, onFetchEventsFail) {
     OtherActions.updateAlertState('loading');
     return axios
       .get(`${Helpers.localHost}/events?token=${token}`)
       .then((response) => {
-        EventActions.updateEventsState(response.data);
-        OtherActions.updateAlertState(null);
+        onFetchEventsSuccessful(response);
       })
       .catch((err) => {
         if (!err.response) OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
         else {
-          OtherActions.removeToken();
-          history.push('/signin');
+          onFetchEventsFail(err);
         }
       });
   }
 
+  /**
+   * action to add new event from centers page
+   * @param { object } credentials
+   * @param { string } token
+   * @param { function } onEventSubmitSuccessful
+   * @param { function } onEventSubmitFail
+   * @returns { void }
+   */
   static addEventFromCenter(credentials, token, onEventSubmitSuccessful, onEventSubmitFail) {
     axios
       .post(`${Helpers.localHost}/events?token=${token}`, credentials)
@@ -69,6 +109,15 @@ class EventActions {
       });
   }
 
+  /**
+   * action to add new event or edit event
+   * @param { object } eventState
+   * @param { object } credentials
+   * @param { string } token
+   * @param { function } onEventEditOrAddSuccessful
+   * @param { function } onEventEditOrAddFail
+   * @returns { void }
+   */
   static addOrEditEvent(
     eventState,
     credentials,
@@ -99,6 +148,14 @@ class EventActions {
     }
   }
 
+  /**
+   * action to delete an event
+   * @param { object } eventState
+   * @param { string } token
+   * @param { function } onDeleteSuccessful
+   * @param { function } onDeleteFail
+   * @returns { void }
+   */
   static deleteEvent(eventState, token, onDeleteSuccessful, onDeleteFail) {
     axios
       .delete(`${Helpers.localHost}/events/${eventState.id}?token=${token}`)
@@ -110,6 +167,16 @@ class EventActions {
       });
   }
 
+  /**
+   * action to delete an event
+   * @param { object } center
+   * @param { number } id
+   * @param { number } index
+   * @param { string } token
+   * @param { function } onDeleteSuccessful
+   * @param { function } onDeleteFail
+   * @returns { void }
+   */
   static declineEvent(center, id, index, token) {
     return axios
       .put(`${Helpers.localHost}/events/${id}/decline?token=${token}`)

@@ -7,6 +7,9 @@ import DeleteEvent from './DeleteEventComponent';
 import OtherActions from '../../actions/others';
 import EventActions from '../../actions/eventActions';
 
+/**
+ * Events component class
+ */
 class Events extends React.Component {
   static propTypes = {
     history: Proptypes.object,
@@ -15,14 +18,60 @@ class Events extends React.Component {
     token: Proptypes.string,
   }
 
-  componentDidMount() {
-    EventActions.updateEvents(this.props.token, this.props.history);
+  /**
+   * constructor
+   */
+  constructor() {
+    super();
+    this.onFetchEventsFail = this.onFetchEventsFail.bind(this);
+    this.onFetchEventsSuccessful = this.onFetchEventsSuccessful.bind(this);
   }
 
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
+  componentDidMount() {
+    EventActions
+      .updateEvents(this.props.token, this.onFetchEventsSuccessful, this.onFetchEventsFail);
+  }
+
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
   componentWillUnmount() {
+    $('#editModal').modal('hide');
     OtherActions.updateAlertState(null);
   }
 
+  /**
+   * executes after events have fetched
+   * @param { object } response
+   * @returns { void }
+   */
+  onFetchEventsSuccessful(response) {
+    EventActions.updateEventsState(response.data);
+    OtherActions.updateAlertState(null);
+  }
+
+  /**
+   * executes after attempt to fetch events fail
+   * @param { object } err
+   * @returns { void }
+   */
+  onFetchEventsFail(err) {
+    if (!err.response) OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+    else {
+      OtherActions.removeToken();
+      this.props.history.push('/signin');
+    }
+  }
+
+  /**
+   * opens edit modal
+   * @returns { void }
+   */
   openModal() {
     const modal = $('#editModal');
     modal.modal({
@@ -32,6 +81,10 @@ class Events extends React.Component {
     });
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const spinner = (
       <i className="fa fa-spinner fa-spin" aria-hidden="true" />

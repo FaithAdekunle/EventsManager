@@ -2,7 +2,14 @@ import { createStore, combineReducers } from 'redux';
 import Helpers from './Helpers';
 import appState from './StoreComponent';
 
+/**
+ * defines class for state reducers
+ */
 class Reducers {
+  /**
+   * constructor
+   * @param {object} state
+   */
   constructor(state) {
     this.state = state;
     this.tokenReducer = this.tokenReducer.bind(this);
@@ -18,6 +25,12 @@ class Reducers {
     this.imagesReducer = this.imagesReducer.bind(this);
   }
 
+  /**
+   * reducer for user token state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { string | null } new or old token state property or null
+   */
   tokenReducer(state = this.state.token, action) {
     switch (action.type) {
       case 'UPDATE_TOKEN':
@@ -34,6 +47,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for user centersPageLimit state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { number } new or old centersPageLimit state property
+   */
   limitReducer(state = this.state.centersPageLimit, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_PAGE_LIMIT':
@@ -45,6 +64,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for pageState state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { object } new or old pageState state property
+   */
   pageReducer(state = this.state.pageState, action) {
     const newState = {
       ...state,
@@ -59,6 +84,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for eventsState state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { array } new or old eventsState state property
+   */
   eventsReducer(state = this.state.eventsState, action) {
     switch (action.type) {
       case 'UPDATE_EVENTS_STATE':
@@ -84,6 +115,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for eventState state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { object } new or old eventState state property
+   */
   eventReducer(state = this.state.eventState, action) {
     switch (action.type) {
       case 'UPDATE_EVENT_STATE':
@@ -93,6 +130,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for selectedImages state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { array } new or old selectedImages state property
+   */
   imagesReducer(state = this.state.selectedImages, action) {
     switch (action.type) {
       case 'UPDATE_SELECTED_IMAGES':
@@ -102,6 +145,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for centers state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { array } new or old centerState state property
+   */
   centersReducer(state = this.state.centersState, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_STATE':
@@ -122,6 +171,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for centerState state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { object | null } new centerState object or null
+   */
   centerReducer(state = this.state.centerState, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_STATE':
@@ -131,6 +186,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for centerSearch state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { object | null } new or old centerSearch state property
+   */
   centerSearchReducer(state = this.state.centerSearch, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_SEARCH':
@@ -140,6 +201,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for centerFilter state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { string } new or old centerFilter state property
+   */
   centerFilterReducer(state = this.state.centerFilter, action) {
     switch (action.type) {
       case 'UPDATE_CENTER_FILTER':
@@ -149,6 +216,12 @@ class Reducers {
     }
   }
 
+  /**
+   * reducer for centerFilter state property
+   * @param { object } state
+   * @param { object } action
+   * @returns { string } new or old alertState state property
+   */
   alertReducer(state = this.state.alertState, action) {
     switch (action.type) {
       case 'UPDATE_ALERT_STATE':

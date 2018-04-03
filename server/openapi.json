@@ -55,17 +55,13 @@
             "201": {
               "description": "Successful request",
               "schema": {
-                "items": {
-                  "$ref": "#/definitions/User"
-                }
+                "$ref": "#/definitions/User"
               }
             },
-            "default": {
+            "400": {
               "description": "Invalid request",
               "schema": {
-                "items": {
-                  "$ref": "#/definitions/Error"
-                }
+                "$ref": "#/definitions/Error"
               }
             }
           }
@@ -76,7 +72,7 @@
           "tags": [
             "Users"
           ],
-          "summary": "Creates a new User account",
+          "summary": "Logs in existing User account",
           "operationId": "UserController.signIn",
           "produces": [
             "application/json"
@@ -88,28 +84,24 @@
             {
               "name": "body",
               "in": "body",
-              "description": "user details used to create new user",
+              "description": "user details used to log on existing user",
               "required": true,
               "schema": {
                 "$ref": "#/definitions/UserLogin"
               }
-          }
+            }
           ],
           "responses": {
             "200": {
               "description": "Successful request",
               "schema": {
-                "items": {
-                  "$ref": "#/definitions/User"
-                }
+                "$ref": "#/definitions/User"
               }
             },
-            "default": {
+            "400": {
               "description": "Invalid request",
               "schema": {
-                "items": {
-                  "$ref": "#/definitions/Error"
-                }
+                "$ref": "#/definitions/Error"
               }
             }
           }
@@ -123,88 +115,50 @@
         "summary": "Creates a new event center",
         "operationId": "CenterController.addCenter",
         "consumes" : [
-          "multipart/form-data"
+          "application/json"
         ],
         "produces": [
           "application/json"
         ],
         "security": [
           {
-            "userSecurity": []
+            "adminSecurity": []
           }
         ],
         "parameters": [
-          { 
-            "name": "images",
-            "in": "formData",
-            "description": "Image for the center to be created.",
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Details used to create new event center",
             "required": true,
-            "type": "file"
-          },
-          { 
-            "name": "name",
-            "in": "formData",
-            "description": "name for the center to be created",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "description",
-            "in": "formData",
-            "description": "description for the center to be created",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "address",
-            "in": "formData",
-            "description": "address for the center to be created",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "facilities",
-            "in": "formData",
-            "description": "Comma separated facilities for the center to be created",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "capacity",
-            "in": "formData",
-            "description": "name for the center to be created",
-            "required": true,
-            "type": "integer"
-          },
-          { 
-            "name": "cost",
-            "in": "formData",
-            "description": "name for the center to be created",
-            "required": true,
-            "type": "integer"
-          },
-          { 
-            "name": "state",
-            "in": "formData",
-            "description": "state to be used to locate center in user search",
-            "required": false,
-            "type": "string"
+            "schema": {
+              "$ref": "#/definitions/SubmitCenter"
+            }
           }
         ],
         "responses": {
           "201": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Center"
-              }
+              "$ref": "#/definitions/Center"
             }
-          },          "default": {
+          },
+          "400": {
             "description": "Invalid request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Admin not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -218,29 +172,12 @@
         "produces": [
           "application/json"
         ],
-        "parameters": [
-          { 
-            "name": "state",
-            "in": "query",
-            "description": "filter centers by state",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Successful request",
             "schema": {
               "items": {
                 "$ref": "#/definitions/Center"
-              }
-            }
-          },
-          "default": {
-            "description": "Invalid request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
               }
             }
           }
@@ -255,96 +192,57 @@
         "summary": "Modifies an existing event center",
         "operationId": "CenterController.modifyCenter",
         "consumes" : [
-          "multipart/form-data"
+          "application/json"
         ],
         "produces": [
           "application/json"
         ],
         "security": [
           {
-            "userSecurity": []
+            "adminSecurity": []
           }
         ],
         "parameters": [
-          { 
-            "name": "images",
-            "in": "formData",
-            "description": "Image for the center to be modified.",
-            "required": true,
-            "type": "file"
-          },
-          { 
-            "name": "name",
-            "in": "formData",
-            "description": "name for the center to be modified",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "description",
-            "in": "formData",
-            "description": "description for the center to be modified",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "address",
-            "in": "formData",
-            "description": "address for the center to be modified",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "facilities",
-            "in": "formData",
-            "description": "Comma separated facilities for the center to be modified",
-            "required": true,
-            "type": "string"
-          },
-          { 
-            "name": "capacity",
-            "in": "formData",
-            "description": "name for the center to be modified",
-            "required": true,
-            "type": "integer"
-          },
-          { 
-            "name": "cost",
-            "in": "formData",
-            "description": "name for the center to be modified",
-            "required": true,
-            "type": "integer"
-          },
-          { 
-            "name": "state",
-            "in": "formData",
-            "description": "state to be used to locate center in user search",
-            "required": false,
-            "type": "string"
-          },
           { 
             "name": "id",
             "in": "path",
             "description": "id of the center to be modified",
             "required": true,
-            "type": "string"
+            "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Details used to edit existing event center",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SubmitCenter"
+            }
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Center"
-              }
+              "$ref": "#/definitions/Center"
             }
           },
-          "default": {
+          "400": {
             "description": "Invalid request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Admin not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -364,24 +262,20 @@
             "in": "path",
             "description": "id of the center to be fetched",
             "required": true,
-            "type": "string"
+            "type": "integer"
           }
         ],
         "responses": {
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Center"
-              }
+              "$ref": "#/definitions/Center"
             }
           },
-          "default": {
-            "description": "Invalid request",
+          "404": {
+            "description": "Center not found",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -395,7 +289,7 @@
         "summary": "Create new user event",
         "operationId": "EventController.createEvent",
         "consumes" :[
-          "multipart/form-data"
+          "application/json"
         ],
         "produces": [
           "application/json"
@@ -407,70 +301,44 @@
         ],
         "parameters": [
           {
-            "in": "formData",
-            "name": "name",
-            "description": "Title of the event to be created",
+            "name": "body",
+            "in": "body",
+            "description": "Details used to create new user event",
             "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "type",
-            "description": "Type of the event to be created",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "start",
-            "description": "Start date of the event to be created",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "days",
-            "description": "Number of days this event will span",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "guests",
-            "description": "Number of expected guests for this event",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "centerId",
-            "description": "id of the center to be booked",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "images",
-            "description": "An image for this event if available",
-            "required": false,
-            "type": "file"
+            "schema": {
+              "$ref": "#/definitions/SubmitEvent"
+            }
           }
         ],
         "responses": {
           "201": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Event"
-              }
+              "$ref": "#/definitions/Event"
             }
           },
-          "default": {
+          "400": {
             "description": "Invalid request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "User/Center not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Date conflict",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -479,8 +347,8 @@
         "tags": [
           "Events"
         ],
-        "summary": "Deletes existing user event",
-        "operationId": "EventController.fetchEvent",
+        "summary": "Fetches existing user events",
+        "operationId": "EventController.fetchUserEvents",
         "produces": [
           "application/json"
         ],
@@ -495,14 +363,6 @@
             "schema": {
               "items": {
                 "$ref": "#/definitions/Event"
-              }
-            }
-          },
-          "default": {
-            "description": "Invalid request",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
               }
             }
           }
@@ -520,7 +380,7 @@
           "application/json"
         ],
         "consumes": [
-          "multipart/form-data"
+          "application/json"
         ],
         "security": [
           {
@@ -536,53 +396,13 @@
             "type": "integer"
           },
           {
-            "in": "formData",
-            "name": "name",
-            "description": "Title of the event to be created",
+            "name": "body",
+            "in": "body",
+            "description": "Details used to create new user event",
             "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "type",
-            "description": "Type of the event to be created",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "start",
-            "description": "Start date of the event to be created",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "days",
-            "description": "Number of days this event will span",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "guests",
-            "description": "Number of expected guests for this event",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "centerId",
-            "description": "id of the center to be booked",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "images",
-            "description": "An image for this event if available",
-            "required": false,
-            "type": "file"
+            "schema": {
+              "$ref": "#/definitions/SubmitEvent"
+            }
           }
         ],
         "responses": {
@@ -594,12 +414,28 @@
               }
             }
           },
-          "default": {
+          "400": {
             "description": "Invalid request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "User/Center not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Date conflict",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -636,12 +472,22 @@
               }
             }
           },
-          "default": {
+          "400": {
             "description": "Invalid request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "User/Event not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -659,14 +505,14 @@
         ],
         "security": [
           {
-            "userSecurity": []
+            "adminSecurity": []
           }
         ],
         "parameters": [
           { 
             "name": "id",
             "in": "path",
-            "description": "id of the event to be modified",
+            "description": "id of the event to be declined",
             "required": true,
             "type": "integer"
           }
@@ -680,12 +526,22 @@
               }
             }
           },
-          "default": {
+          "400": {
             "description": "Invalid request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "User/Event not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -697,9 +553,38 @@
       "type": "apiKey",
       "name": "token",
       "in": "query"
+    },
+    "adminSecurity": {
+      "type": "apiKey",
+      "name": "token",
+      "in": "query"
     }
   },
   "definitions": {
+    "SubmitEvent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "centerId": {
+          "type": "integer"
+        },
+        "start": {
+          "type": "string"
+        },
+        "guests": {
+          "type": "integer"
+        },
+        "days": {
+          "type": "integer"
+        }
+      },
+      "required": ["name", "type", "centerId", "start", "days", "guests"]
+    },
     "Event": {
       "type": "object",
       "properties": {
@@ -719,24 +604,18 @@
           "type": "string"
         },
         "id": {
-          "type": "string"
+          "type": "integer"
         },
         "guests": {
           "type": "integer"
         },
         "days": {
           "type": "integer"
-        },
-        "images": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         }
       },
       "required": ["name", "type", "center", "start", "days", "guests", "id"]
     },
-    "Center": {
+    "SubmitCenter": {
       "type": "object",
       "properties": {
         "name": {
@@ -751,17 +630,44 @@
         "address": {
           "type": "string"
         },
-        "id": {
-          "type": "string"
-        },
         "cost": {
           "type": "integer"
         },
         "capacity": {
           "type": "integer"
         },
-        "state": {
+        "images": {
           "type": "string"
+        }
+      },
+      "required": ["name", "description", "address", "cost", "capacity", "facilities", "images"]
+    },
+    "Center": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "facilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "address": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "cost": {
+          "type": "integer"
+        },
+        "capacity": {
+          "type": "integer"
         },
         "images": {
           "type": "array",
@@ -775,23 +681,11 @@
     "User": {
       "type": "object",
       "properties": {
-        "fullName": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
         "token": {
           "type": "string"
-        },
-        "isAdmin": {
-          "type": "boolean"
         }
       },
-      "required": ["fullName", "email", "id", "token", "isAdmin"]
+      "required": ["token"]
     },
     "UserLogin": {
       "type": "object",
@@ -819,9 +713,6 @@
         },
         "confirmPassword": {
           "type": "string"
-        },
-        "isAdmin": {
-          "type": "boolean"
         }
       },
       "required": ["email", "password", "confirmPassword", "fullName"]

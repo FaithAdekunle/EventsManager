@@ -10,11 +10,18 @@ import Signup from './Sign/SignupComponent';
 import Admin from './Admin/AdminComponent';
 import UserEvents from './Event/UserEventsComponent';
 
+/**
+ * Main component class
+ */
 class Main extends React.Component {
   static propTypes = {
     token: PropTypes.string,
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const { token } = this.props;
     let userIsAdmin = false;

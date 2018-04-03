@@ -7,6 +7,9 @@ import OtherActions from '../../actions/others';
 import CenterActions from '../../actions/centerActions';
 import EventActions from '../../actions/eventActions';
 
+/**
+ * AdminCenter component class
+ */
 class AdminCenter extends React.Component {
   static propTypes = {
     center: Proptypes.object,
@@ -17,6 +20,9 @@ class AdminCenter extends React.Component {
     token: Proptypes.string,
   }
 
+  /**
+   * constructor
+   */
   constructor() {
     super();
     this.updateImages = this.updateImages.bind(this);
@@ -29,58 +35,106 @@ class AdminCenter extends React.Component {
     this.facilities = {};
   }
 
-
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
   componentDidMount() {
     CenterActions.getCenter(this.loader, this.props.match.params.id, true);
   }
 
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
   componentWillUnmount() {
+    $('#detailsModal').modal('hide');
     OtherActions.updateAlertState(null);
     CenterActions.updateCenterState(null);
     OtherActions.updateSelectedImages([]);
   }
 
+  /**
+   * adds 'hover-date' class to target
+   * @param { object } e
+   * @returns { void }
+   */
   onMouseEnterDate(e) {
     e.target.classList.add('hover-date');
   }
 
+  /**
+   * removess 'hover-date' class from target
+   * @param { object } e
+   * @returns { void }
+   */
   onMouseLeaveDate(e) {
     e.target.classList.remove('hover-date');
   }
 
+  /**
+   * executes after center succesfully edits
+   * @param { object } response
+   * @returns { void }
+   */
   oncenterEditSuccessful(response) {
     OtherActions.updateSelectedImages(response.data.images);
     CenterActions.updateCenterState(response.data);
-    $('#detailsModal').modal('toggle');
+    $('#detailsModal').modal('hide');
     OtherActions.updateAlertState(null);
     this.form.reset();
     this.fieldset.disabled = false;
   }
 
+  /**
+   * executes after center edit fails
+   * @param { object } err
+   * @returns { void }
+   */
   onCenterEditFailed(err) {
     this.fieldset.disabled = false;
     if (err.response.status === 401) {
       OtherActions.removeToken();
-      $('#detailsModal').modal('toggle');
+      $('#detailsModal').modal('hide');
       return this.props.history.push('/signin');
     }
     if ([404, 409].includes(err.response.status)) return window.alert(err.response.data.err);
     return window.alert('Looks like you\'re offline. Check internet connection.');
   }
 
+  /**
+   * executes when modal closes
+   * @returns { void }
+   */
   closeModal() {
     this.images.value = null;
     OtherActions.updateSelectedImages(this.props.center.images);
   }
 
+  /**
+   * updates this.facilities
+   * @param { object } e
+   * @returns { void }
+   */
   updateFacilities(e) {
     this.facilities[e.target.value] = e.target.checked;
   }
 
+  /**
+   * declines user event
+   * @param { object } event
+   * @param { number } index
+   * @param { string } token
+   * @returns { void }
+   */
   declineEvent(event, index, token) {
     EventActions.declineEvent(this.props.center, event.id, index, token);
   }
 
+  /**
+   * creates comma separated string of selected facilities
+   * @returns { string } comma separated string of selected facilities
+   */
   computeFacilities() {
     const keyValues = Object.entries(this.facilities);
     let facilities = '';
@@ -91,6 +145,10 @@ class AdminCenter extends React.Component {
     return facilities;
   }
 
+  /**
+   * updates selectedImages state property with selected images
+   * @returns { void }
+   */
   updateImages() {
     let { files } = this.images;
     if (files.length > 4) files = [files[0], files[1], files[2], files[3]];
@@ -109,6 +167,11 @@ class AdminCenter extends React.Component {
     return readFiles();
   }
 
+  /**
+   * edits center
+   * @param { object } e
+   * @returns { void }
+   */
   async submitCenter(e) {
     e.preventDefault();
     this.fieldset.disabled = true;
@@ -145,6 +208,10 @@ class AdminCenter extends React.Component {
     );
   }
 
+  /**
+   * renders component in browser
+   * @returns { component } to be rendered on the page
+   */
   render() {
     const {
       center,
