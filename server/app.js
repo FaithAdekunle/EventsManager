@@ -39,7 +39,7 @@ class App {
     app.use('/', AppRouter.Router());
     app.get('/bundle.js', (req, res) => res.sendFile('bundle.js', { root: path.resolve('./client/dist/app') }));
     app.use('/images', express.static(path.resolve('./client/src/images')));
-    app.get('*', (req, res) => res.sendFile('index.html', { root: path.resolve('./client/dist') }));
+    app.use('/api/v1', (req, res) => res.sendFile('index.html', { root: path.resolve('./client/dist') }));
     return app;
   }
 }

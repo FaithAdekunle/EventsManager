@@ -65,7 +65,9 @@ class Database {
    */
   sync() {
     this.sequelize
-      .sync()
+      .sync({
+        force: process.NODE_ENV === 'test',
+      })
       .then(() => {})
       .catch();
   }
