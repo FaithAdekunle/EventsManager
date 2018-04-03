@@ -1,6 +1,9 @@
 language: node_js
 node_js:
   - "7"
+env:
+  - TEST_DATABASE=postgres://gvazibao:VXS0MN0tXtNKDSX2k1gd-iCLVnDNSzdI@stampy.db.elephantsql.com:5432/gvazibao
+  - NODE_ENV=test
 after_success:
   - codeclimate-test-reporter < coverage/lcov.info
   - npm run coverage
