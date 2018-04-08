@@ -12,11 +12,9 @@ class AppState {
       userOnSignInPage: false,
       userOnSignUpPage: false,
     };
-    this.centersPageLimit = 15;
     this.centersState = [];
     this.centerState = null;
     this.centerSearch = [];
-    this.centerFilter = '';
     this.eventsState = [];
     this.selectedImages = [];
     this.alertState = null;

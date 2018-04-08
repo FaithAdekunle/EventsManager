@@ -13,13 +13,11 @@ class Reducers {
   constructor(state) {
     this.state = state;
     this.tokenReducer = this.tokenReducer.bind(this);
-    this.limitReducer = this.limitReducer.bind(this);
     this.pageReducer = this.pageReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
     this.centersReducer = this.centersReducer.bind(this);
     this.centerSearchReducer = this.centerSearchReducer.bind(this);
-    this.centerFilterReducer = this.centerFilterReducer.bind(this);
     this.centerReducer = this.centerReducer.bind(this);
     this.eventReducer = this.eventReducer.bind(this);
     this.imagesReducer = this.imagesReducer.bind(this);
@@ -42,23 +40,6 @@ class Reducers {
       case 'REMOVE_TOKEN':
         localStorage.removeItem('eventsManager');
         return null;
-      default:
-        return state;
-    }
-  }
-
-  /**
-   * reducer for user centersPageLimit state property
-   * @param { object } state
-   * @param { object } action
-   * @returns { number } new or old centersPageLimit state property
-   */
-  limitReducer(state = this.state.centersPageLimit, action) {
-    switch (action.type) {
-      case 'UPDATE_CENTERS_PAGE_LIMIT':
-        return state + 15;
-      case 'RESET_CENTERS_PAGE_LIMIT':
-        return 15;
       default:
         return state;
     }
@@ -154,18 +135,23 @@ class Reducers {
   centersReducer(state = this.state.centersState, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_STATE':
-        return Helpers.sortByName(action.payload);
+        return [
+          ...state,
+          ...action.payload,
+        ];
       case 'ADD_TO_CENTERS_STATE':
-        return Helpers.sortByName([
+        return [
           action.payload,
           ...state,
-        ]);
+        ];
       case 'EDIT_CENTERS_STATE':
         return [
           ...state.slice(0, action.payload.index),
           action.payload.center,
           ...state.slice(action.payload.index + 1, state.length),
         ];
+      case 'EMPTY_CENTERS_STATE':
+        return [];
       default:
         return state;
     }
@@ -205,21 +191,6 @@ class Reducers {
    * reducer for centerFilter state property
    * @param { object } state
    * @param { object } action
-   * @returns { string } new or old centerFilter state property
-   */
-  centerFilterReducer(state = this.state.centerFilter, action) {
-    switch (action.type) {
-      case 'UPDATE_CENTER_FILTER':
-        return action.payload;
-      default:
-        return state;
-    }
-  }
-
-  /**
-   * reducer for centerFilter state property
-   * @param { object } state
-   * @param { object } action
    * @returns { string } new or old alertState state property
    */
   alertReducer(state = this.state.alertState, action) {
@@ -235,13 +206,11 @@ class Reducers {
 const appStore = new Reducers(appState);
 const store = createStore(combineReducers({
   token: appStore.tokenReducer,
-  limit: appStore.limitReducer,
   pageState: appStore.pageReducer,
   eventsState: appStore.eventsReducer,
   centersState: appStore.centersReducer,
   centerState: appStore.centerReducer,
   centerSearch: appStore.centerSearchReducer,
-  centerFilter: appStore.centerFilterReducer,
   eventState: appStore.eventReducer,
   alertState: appStore.alertReducer,
   selectedImages: appStore.imagesReducer,

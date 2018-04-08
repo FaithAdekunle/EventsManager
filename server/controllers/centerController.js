@@ -184,14 +184,38 @@ export class CenterController {
  * fetches existing centers
  * @param {object} req
  * @param {object} res
- * @returns { object } object containing all centers or fetch error message
+ * @returns { object } object containing centers or fetch error message
  */
-  static fetchCenters(req, res) {
-    return database.center.findAll({
-      include: [
-        { model: database.event },
-      ],
-    })
+  static fetchAllCenters(req, res) {
+    const filter = req.query.filter || '';
+    const facility = req.query.facility || '';
+    let { offset } = req.query;
+    let { limit } = req.query;
+    let capacity = req.query.capacity || 1;
+    offset = parseInt(offset, 10);
+    limit = parseInt(limit, 10);
+    capacity = parseInt(capacity, 10);
+    const where = {
+      capacity: {
+        [Op.gte]: capacity,
+      },
+      facilities: {
+        [Op.iRegexp]: `^.*${facility}.*$`,
+      },
+      [Op.or]: {
+        name: {
+          [Op.iRegexp]: `^.*${filter}.*$`,
+        },
+        address: {
+          [Op.iRegexp]: `^.*${filter}.*$`,
+        },
+      },
+    };
+    const parameters = {};
+    parameters.where = where;
+    if (offset) parameters.offset = offset;
+    if (limit) parameters.limit = limit;
+    return database.center.findAll(parameters)
       .then((centers) => {
         centers.map((center) => {
           return jsonHandle(center);

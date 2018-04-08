@@ -16,7 +16,6 @@ class NavTab extends React.Component {
     history: Proptypes.object,
     location: Proptypes.object,
     centerSearch: Proptypes.array,
-    centers: Proptypes.array,
   }
 
   /**
@@ -28,6 +27,34 @@ class NavTab extends React.Component {
     this.signout = this.signout.bind(this);
     this.searchCenter = this.searchCenter.bind(this);
     this.searchSubmit = this.searchSubmit.bind(this);
+    this.onWindowClick = this.onWindowClick.bind(this);
+    this.onFocus = this.onFocus.bind(this);
+  }
+
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
+  componentDidMount() {
+    window.addEventListener('click', this.onWindowClick);
+  }
+
+  /**
+   * reveals search results
+   * @returns { void }
+   */
+  onFocus() {
+    if (!(this.props.location.pathname === '/centers')) this.searchList.classList.remove('hidden');
+  }
+
+  /**
+   * hides search results
+   * @param { object } e
+   * @returns { void }
+   */
+  onWindowClick(e) {
+    if ([...e.target.classList].includes('window-exclude')) return null;
+    return this.searchList.classList.add('hidden');
   }
 
   /**
@@ -54,18 +81,10 @@ class NavTab extends React.Component {
    * @returns { void }
    */
   searchCenter(e) {
+    this.searchList.classList.remove('hidden');
     const { value } = e.target;
-    OtherActions.updateCenterFilter(value);
-    if (e.keyCode === 13) {
-      OtherActions.updateCenterSearch([]);
-      this.searchBar.blur();
-      return this.navTo('/centers');
-    }
     if (!value) return OtherActions.updateCenterSearch([]);
-    const match = new RegExp(value, 'gi');
-    const matches = this.props.centers
-      .filter(center => center.address.match(match) || center.name.match(match));
-    return OtherActions.updateCenterSearch(matches);
+    return OtherActions.updateSearch(value);
   }
 
   /**
@@ -83,7 +102,7 @@ class NavTab extends React.Component {
    * @returns { void }
    */
   navToCenter(id) {
-    OtherActions.updateCenterSearch([]);
+    this.searchList.classList.add('hidden');
     this.props.history.push(`/centers/${id}`);
   }
 
@@ -142,15 +161,15 @@ class NavTab extends React.Component {
             <span className="navbar-toggler-icon" />
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit} ref={(form) => { this.searchForm = form; }}>
+            <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit}>
               <div className="search-entry">
-                <input type="text" className="form-control" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); OtherActions.resetPageLimit(); }} onFocus={this.searchCenter} ref={(input) => { this.searchBar = input; }} />
-                <ul className="list-group search-result" ref={(input) => { this.searchResult = input; }}>
+                <input type="text" className="form-control window-exclude" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); }} onFocus={this.onFocus} />
+                <ul className="list-group search-result" ref={(input) => { this.searchList = input; }} >
                   {
                     this.props.location.pathname === '/centers' ? null :
                     this.props.centerSearch.map((center) => {
                       return (
-                        <li className="list-group-item" key={center.id} onClick={() => this.navToCenter(center.id)}>
+                        <li className="list-group-item window-exclude" key={center.id} onClick={() => this.navToCenter(center.id)}>
                           {`${center.name} - ${center.address}`}
                         </li>
                       );
@@ -179,7 +198,6 @@ const mapStateToProps = (state) => {
   return {
     token: state.token,
     pageState: state.pageState,
-    centers: state.centersState,
     centerSearch: state.centerSearch,
   };
 };

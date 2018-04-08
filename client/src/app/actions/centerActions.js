@@ -45,6 +45,16 @@ class CenterActions {
   }
 
   /**
+   * action to empty centers
+   * @returns { void }
+   */
+  static emptyCentersState() {
+    dispatch({
+      type: 'EMPTY_CENTERS_STATE',
+    });
+  }
+
+  /**
    * action to update center state
    * @param { object } center
    * @returns { void }
@@ -80,7 +90,7 @@ class CenterActions {
     };
     load();
     axios
-      .get(`${Helpers.localHost}/centers/${id}`)
+      .get(`${Helpers.host}/centers/${id}`)
       .then((response) => {
         loaded = true;
         loader.style.width = '100%';
@@ -105,9 +115,15 @@ class CenterActions {
   /**
    * action to update centers state
    * @param { object } loader
+   * @param { integer} offset
+   * @param { integer } limit
+   * @param { string } filter
+   * @param { string } facility
+   * @param { integer } capacity
    * @returns { void }
    */
-  static updateCenters(loader) {
+  static updateCenters(loader, offset = 0, limit = 0, filter = '', facility = '', capacity = 0) {
+    loader.classList.add('success-background');
     let loaded = false;
     const load = (start = 0, increase = 2, interval = 50) => {
       if (!loaded && start < 70) {
@@ -123,12 +139,14 @@ class CenterActions {
     };
     load();
     axios
-      .get(`${Helpers.localHost}/centers`)
+      .get(`${Helpers.host}/centers?filter=${filter}&facility=${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}`)
       .then((response) => {
         loaded = true;
         loader.style.width = '100%';
-        CenterActions.updateCentersState(response.data);
-        setTimeout(() => { loader.classList.remove('success-background'); }, 500);
+        setTimeout(() => {
+          loader.classList.remove('success-background');
+          CenterActions.updateCentersState(response.data);
+        }, 500);
       })
       .catch(() => OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.'));
   }
@@ -143,7 +161,7 @@ class CenterActions {
    */
   static addCenter(credentials, token, onCenterAddSuccessful, onCenterAddFail) {
     return axios
-      .post(`${Helpers.localHost}/centers?token=${token}`, credentials)
+      .post(`${Helpers.host}/centers?token=${token}`, credentials)
       .then((response) => {
         onCenterAddSuccessful(response);
       })
@@ -163,7 +181,7 @@ class CenterActions {
    */
   static editCenter(credentials, token, id, onCenterEditSuccessful, onCenterEditFailed) {
     return axios
-      .put(`${Helpers.localHost}/centers/${id}?token=${token}`, credentials)
+      .put(`${Helpers.host}/centers/${id}?token=${token}`, credentials)
       .then((response) => {
         onCenterEditSuccessful(response);
       })

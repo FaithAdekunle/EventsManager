@@ -19,16 +19,16 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "nodemon ./server/dist/index.js --ignore ./client",
+    "start": "node ./server/dist/index.js --ignore ./client",
+    "start:dev": "npm run pack:dev && npm run build && node ./server/dist/index.js --ignore ./client",
     "build": "babel server -d server/dist --copy-files --ignore server/dist,server/data,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
     "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/*.test.js --require babel-core/register",
     "testClient": "mocha ./client/test/*.test.js --compilers js:babel-register --require ./client/test/setup.js",
-    "testAll": "npm run test && npm run testClient",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
-    "pack:dev": "webpack -d && webpack-dev-server --hot",
+    "pack:dev": "webpack -d",
     "pack:prod": "webpack -p"
   },
   "dependencies": {
