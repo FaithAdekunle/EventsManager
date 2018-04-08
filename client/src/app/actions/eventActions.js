@@ -78,7 +78,7 @@ class EventActions {
   static updateEvents(token, onFetchEventsSuccessful, onFetchEventsFail) {
     OtherActions.updateAlertState('loading');
     return axios
-      .get(`${Helpers.localHost}/events?token=${token}`)
+      .get(`${Helpers.host}/events?token=${token}`)
       .then((response) => {
         onFetchEventsSuccessful(response);
       })
@@ -100,7 +100,7 @@ class EventActions {
    */
   static addEventFromCenter(credentials, token, onEventSubmitSuccessful, onEventSubmitFail) {
     axios
-      .post(`${Helpers.localHost}/events?token=${token}`, credentials)
+      .post(`${Helpers.host}/events?token=${token}`, credentials)
       .then(() => {
         onEventSubmitSuccessful();
       })
@@ -127,7 +127,7 @@ class EventActions {
   ) {
     if (eventState !== null) {
       axios
-        .put(`${Helpers.localHost}/events/${eventState.id}?token=${token}`, credentials)
+        .put(`${Helpers.host}/events/${eventState.id}?token=${token}`, credentials)
         .then((response) => {
           EventActions.editEventsState(response.data);
           onEventEditOrAddSuccessful();
@@ -137,7 +137,7 @@ class EventActions {
         });
     } else {
       axios
-        .post(`${Helpers.localHost}/events?token=${token}`, credentials)
+        .post(`${Helpers.host}/events?token=${token}`, credentials)
         .then((response) => {
           EventActions.addToEventsState(response.data);
           onEventEditOrAddSuccessful();
@@ -158,7 +158,7 @@ class EventActions {
    */
   static deleteEvent(eventState, token, onDeleteSuccessful, onDeleteFail) {
     axios
-      .delete(`${Helpers.localHost}/events/${eventState.id}?token=${token}`)
+      .delete(`${Helpers.host}/events/${eventState.id}?token=${token}`)
       .then(() => {
         onDeleteSuccessful();
       })
@@ -179,7 +179,7 @@ class EventActions {
    */
   static declineEvent(center, id, index, token) {
     return axios
-      .put(`${Helpers.localHost}/events/${id}/decline?token=${token}`)
+      .put(`${Helpers.host}/events/${id}/decline?token=${token}`)
       .then(() => {
         const update = { ...center };
         center.events[index].isAccepted = false;

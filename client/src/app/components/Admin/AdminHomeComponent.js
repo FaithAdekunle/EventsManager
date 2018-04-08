@@ -47,6 +47,7 @@ class AdminHome extends React.Component {
   componentWillUnmount() {
     OtherActions.updateSelectedImages([]);
     OtherActions.updateAlertState(null);
+    CenterActions.emptyCentersState();
   }
 
   /**
@@ -178,7 +179,7 @@ class AdminHome extends React.Component {
             <div className="col-md-4">
               <ul className="list-group centers-list">
                 {
-                  this.props.centers.map((center, index) => {
+                  Helpers.sortByName(this.props.centers).map((center, index) => {
                     return (
                       <li
                         className="list-group-item"

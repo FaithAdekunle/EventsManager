@@ -30,28 +30,6 @@ class OtherActions {
   }
 
   /**
-   * action to update centers page limit
-   * @param { number } limit
-   * @returns { void }
-   */
-  static updatePageLimit() {
-    dispatch({
-      type: 'UPDATE_CENTERS_PAGE_LIMIT',
-    });
-  }
-
-  /**
-   * action to reset centers page limit
-   * @param { number } limit
-   * @returns { void }
-   */
-  static resetPageLimit() {
-    dispatch({
-      type: 'RESET_CENTERS_PAGE_LIMIT',
-    });
-  }
-
-  /**
    * action to update page state
    * @param { object } pageState
    * @returns { void }
@@ -72,18 +50,6 @@ class OtherActions {
     dispatch({
       type: 'UPDATE_CENTER_SEARCH',
       payload: result,
-    });
-  }
-
-  /**
-   * action to update center search parameter
-   * @param { string } value
-   * @returns { void }
-   */
-  static updateCenterFilter(value) {
-    dispatch({
-      type: 'UPDATE_CENTER_FILTER',
-      payload: value,
     });
   }
 
@@ -120,7 +86,7 @@ class OtherActions {
    */
   static login(credentials, onLoginSuccessful, onLoginFail) {
     axios
-      .post(`${Helpers.localHost}/users/login`, credentials)
+      .post(`${Helpers.host}/users/login`, credentials)
       .then(response => onLoginSuccessful(response))
       .catch(err => onLoginFail(err));
   }
@@ -134,13 +100,26 @@ class OtherActions {
    */
   static signup(credentials, onSignupSuccessful, onSignupFail) {
     axios
-      .post(`${Helpers.localHost}/users`, credentials)
+      .post(`${Helpers.host}/users`, credentials)
       .then((response) => {
         onSignupSuccessful(response);
       })
       .catch((err) => {
         onSignupFail(err);
       });
+  }
+
+  /**
+   * action to search centers by name/location
+   * @param { string } filter
+   * @returns { void }
+   */
+  static updateSearch(filter) {
+    axios.get(`${Helpers.host}/centers?filter=${filter}`)
+      .then((response) => {
+        OtherActions.updateCenterSearch(response.data);
+      })
+      .catch();
   }
 }
 

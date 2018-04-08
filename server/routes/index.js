@@ -94,7 +94,7 @@ module.exports = class AppRouter {
     // route handler for fetching existing center
     router.get(
       '/api/v1/centers',
-      CenterController.fetchCenters,
+      CenterController.fetchAllCenters,
     );
 
     // route handler for creating new user
