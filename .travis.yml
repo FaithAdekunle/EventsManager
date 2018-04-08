@@ -1,7 +1,6 @@
 language: node_js
 node_js:
   - "7"
-cache: false
 env:
   - TEST_DATABASE=postgres://gvazibao:VXS0MN0tXtNKDSX2k1gd-iCLVnDNSzdI@stampy.db.elephantsql.com:5432/gvazibao
   - NODE_ENV=test
