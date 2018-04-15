@@ -179,7 +179,6 @@ describe('Tests for User API endpoint', () => {
           email: testHelper.userEmail,
         })
         .end((err, res) => {
-          console.log(err, res.body);
           res.should.have.status(201);
           res.should.be.a('object');
           res.body.should.have.property('token');
