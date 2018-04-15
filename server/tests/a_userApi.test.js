@@ -22,7 +22,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.body.should.be.a('object');
-          res.body.should.have.property('err').to.include('fullName field missing');
+          res.body.should.have.property('error').equal('fullName must be 1 - 30 characters');
           done();
         });
     });
@@ -40,7 +40,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.body.should.be.a('object');
-          res.body.should.have.property('err').to.include('fullName must be between 1 and 100 characters long');
+          res.body.should.have.property('error').to.equal('fullName must be 1 - 30 characters');
           done();
         });
     });
@@ -58,7 +58,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('fullName must be between 1 and 100 characters long');
+          res.body.should.have.property('error').equal('fullName must be 1 - 30 characters');
           done();
         });
     });
@@ -75,7 +75,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('password field missing');
+          res.body.should.have.property('error').to.equal('password must be 8 - 100 characters');
           done();
         });
     });
@@ -93,7 +93,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('password must be between 8 and 100 characters long');
+          res.body.should.have.property('error').to.equal('password must be 8 - 100 characters');
           done();
         });
     });
@@ -110,7 +110,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('confirmPassword field missing');
+          res.body.should.have.property('error').to.equal('missing password confirm');
           done();
         });
     });
@@ -127,7 +127,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('email field missing');
+          res.body.should.have.property('error').to.equal('invalid email');
           done();
         });
     });
@@ -145,7 +145,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('invalid email');
+          res.body.should.have.property('error').to.equal('invalid email');
           done();
         });
     });
@@ -163,7 +163,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').to.include('password and confirmPassword fields are not equal');
+          res.body.should.have.property('error').to.equal('password and confirmPassword fields are not equal');
           done();
         });
     });
@@ -182,32 +182,11 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(201);
           res.should.be.a('object');
           res.body.should.have.property('token');
-          testHelper.setUserToken(res.body.token);
           done();
         });
     });
 
-    it('shoud return a status 201 success response for creating an admin', (done) => {
-      chai
-        .request(host)
-        .post('/api/v1/users')
-        .send({
-          fullName: 'dslbhabsdhsbkajd',
-          password: testHelper.adminPassword,
-          confirmPassword: testHelper.adminPassword,
-          email: testHelper.adminEmail,
-          isAdmin: true,
-        })
-        .end((err, res) => {
-          res.should.have.status(201);
-          res.should.be.a('object');
-          res.body.should.have.property('token');
-          testHelper.setAdminToken(res.body.token);
-          done();
-        });
-    });
-
-    it('shoud return a status 400 error response for creating a user with an already existing email', (done) => {
+    it('shoud return a status 409 error response for creating a user with an already existing email', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
@@ -219,9 +198,9 @@ describe('Tests for User API endpoint', () => {
           phoneNumber: '08101592531',
         })
         .end((err, res) => {
-          res.should.have.status(400);
+          res.should.have.status(409);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('a user already exits with this email');
+          res.body.should.have.property('error').equal('a user already exits with this email');
           done();
         });
     });
@@ -240,6 +219,7 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(200);
           res.should.be.a('object');
           res.body.should.have.property('token');
+          testHelper.setAdminToken(res.body.token);
           done();
         });
     });
@@ -256,6 +236,7 @@ describe('Tests for User API endpoint', () => {
           res.should.have.status(200);
           res.should.be.a('object');
           res.body.should.have.property('token');
+          testHelper.setUserToken(res.body.token);
           done();
         });
     });
@@ -271,7 +252,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('email and password combination invalid');
+          res.body.should.have.property('error').equal('email and password combination invalid');
           done();
         });
     });
@@ -287,7 +268,7 @@ describe('Tests for User API endpoint', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('err').equal('email and password combination invalid');
+          res.body.should.have.property('error').equal('email and password combination invalid');
           done();
         });
     });

@@ -19,7 +19,6 @@ module.exports = class CenterModel {
       name: {
         type: this.DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       description: {
         type: this.DataTypes.TEXT,

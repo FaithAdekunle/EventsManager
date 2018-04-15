@@ -13,7 +13,6 @@ class Reducers {
   constructor(state) {
     this.state = state;
     this.tokenReducer = this.tokenReducer.bind(this);
-    this.pageReducer = this.pageReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
     this.centersReducer = this.centersReducer.bind(this);
@@ -40,26 +39,6 @@ class Reducers {
       case 'REMOVE_TOKEN':
         localStorage.removeItem('eventsManager');
         return null;
-      default:
-        return state;
-    }
-  }
-
-  /**
-   * reducer for pageState state property
-   * @param { object } state
-   * @param { object } action
-   * @returns { object } new or old pageState state property
-   */
-  pageReducer(state = this.state.pageState, action) {
-    const newState = {
-      ...state,
-      ...action.payload,
-    };
-    switch (action.type) {
-      case 'UPDATE_PAGE_STATE':
-        if (newState.userOnSignInPage && newState.userOnSignUpPage) return state;
-        return newState;
       default:
         return state;
     }
@@ -206,7 +185,6 @@ class Reducers {
 const appStore = new Reducers(appState);
 const store = createStore(combineReducers({
   token: appStore.tokenReducer,
-  pageState: appStore.pageReducer,
   eventsState: appStore.eventsReducer,
   centersState: appStore.centersReducer,
   centerState: appStore.centerReducer,

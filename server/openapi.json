@@ -24,7 +24,7 @@
     }
   ],
   "schemes": [
-    "https"
+    "https", "http"
   ],
   "paths": {
      "/users": {
@@ -171,6 +171,43 @@
         "operationId": "CenterController.fetchCenters",
         "produces": [
           "application/json"
+        ],
+        "parameters":[
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "fetched centers will have this in their names or addresses",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "facility",
+            "in": "query",
+            "description": "fetched centers will have this in their list of facilities",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "capacity",
+            "in": "query",
+            "description": "fetched centers can contain this or more gursts",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset the fetched centers by this value",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "only centers within this limit will be fetched",
+            "required": false,
+            "type": "integer"
+          }
         ],
         "responses": {
           "200": {
@@ -588,32 +625,41 @@
     "Event": {
       "type": "object",
       "properties": {
-        "name": {
+        "status": {
           "type": "string"
         },
-        "type": {
-          "type": "string"
-        },
-        "center": {
-          "type": "string"
-        },
-        "start": {
-          "type": "string"
-        },
-        "end": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer"
-        },
-        "guests": {
-          "type": "integer"
-        },
-        "days": {
-          "type": "integer"
+        "event": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "center": {
+              "type": "string"
+            },
+            "start": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "guests": {
+              "type": "integer"
+            },
+            "days": {
+              "type": "integer"
+            }
+          },
+          "required": ["name", "type", "center", "start", "days", "guests", "id"]
         }
       },
-      "required": ["name", "type", "center", "start", "days", "guests", "id"]
+      "required": ["status", "event"]
     },
     "SubmitCenter": {
       "type": "object",
@@ -645,47 +691,59 @@
     "Center": {
       "type": "object",
       "properties": {
-        "name": {
+        "status": {
           "type": "string"
         },
-        "description": {
-          "type": "string"
-        },
-        "facilities": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "address": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer"
-        },
-        "cost": {
-          "type": "integer"
-        },
-        "capacity": {
-          "type": "integer"
-        },
-        "images": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "center": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "facilities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "address": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "cost": {
+              "type": "integer"
+            },
+            "capacity": {
+              "type": "integer"
+            },
+            "images": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["name", "description", "address", "cost", "capacity", "facilities", "id", "images"]
         }
       },
-      "required": ["name", "description", "address", "cost", "capacity", "facilities", "id", "images"]
+      "required": ["status", "center"]
     },
     "User": {
       "type": "object",
       "properties": {
+        "status": {
+          "type": "string"
+        },
         "token": {
           "type": "string"
         }
       },
-      "required": ["token"]
+      "required": ["status", "token"]
     },
     "UserLogin": {
       "type": "object",
@@ -720,12 +778,15 @@
     "Error": {
       "type": "object",
       "properties": {
-        "err": {
+        "status": {
+          "type": "string"
+        },
+        "error": {
           "type": "string"
         }
       },
       "required": [
-        "err"
+        "status", "error"
       ]
     },
     "Success": {

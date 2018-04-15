@@ -24,6 +24,10 @@ class CenterDetails extends React.Component {
    */
   constructor() {
     super();
+    this.loaded = false;
+    this.beforeCenterLoad = this.beforeCenterLoad.bind(this);
+    this.load = this.load.bind(this);
+    this.onCenterLoadSuccessful = this.onCenterLoadSuccessful.bind(this);
     this.submitEvent = this.submitEvent.bind(this);
     this.onEventSubmitSuccessful = this.onEventSubmitSuccessful.bind(this);
     this.onEventSubmitFail = this.onEventSubmitFail.bind(this);
@@ -34,7 +38,11 @@ class CenterDetails extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    CenterActions.getCenter(this.loader, this.props.match.params.id, false);
+    CenterActions.getCenter(
+      this.props.match.params.id,
+      this.beforeCenterLoad,
+      this.onCenterLoadSuccessful,
+    );
   }
 
   /**
@@ -59,26 +67,34 @@ class CenterDetails extends React.Component {
 
   /**
    * executes after attempt to book center fails
-   * @param { object } err
+   * @param { object } response
    * @returns { void }
    */
-  onEventSubmitFail(err) {
-    if ([401, 404].includes(err.response.status)) {
+  onEventSubmitFail(response) {
+    if (!response) {
+      this.fieldset.disabled = false;
+      return alert('Looks like you\'re offline. Check internet connection.');
+    }
+    if ([401, 404].includes(response.status)) {
       localStorage.removeItem('eventsManager');
       return this.props.history.push('/signin');
     }
     this.fieldset.disabled = false;
-    return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
-      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
+    return window.alert(Array.isArray(response.data.error) ?
+      response.data.error[0] : response.data.error);
   }
 
   /**
-   * closes center booking modal
+   * executes after centers have been fetched
+   * @param { object } loader
    * @returns { void }
    */
-  closeSubmitModal() {
-    const submitModal = $('#submitModal');
-    submitModal.modal('hide');
+  onCenterLoadSuccessful() {
+    this.loaded = true;
+    this.loader.style.width = '100%';
+    setTimeout(() => {
+      this.loader.classList.remove('success-background');
+    }, 500);
   }
 
   /**
@@ -97,12 +113,52 @@ class CenterDetails extends React.Component {
       start: Helpers.changeDateFormat(this.eventDate.value),
       centerId: this.props.center.id,
     };
-    EventActions.addEventFromCenter(
+    EventActions.addEvent(
       credentials,
       this.props.token,
       this.onEventSubmitSuccessful,
       this.onEventSubmitFail,
     );
+  }
+
+  /**
+   * closes center booking modal
+   * @returns { void }
+   */
+  closeSubmitModal() {
+    const submitModal = $('#submitModal');
+    submitModal.modal('hide');
+  }
+
+  /**
+   * excecutes before fetching centers
+   * @param { object } loader
+   * @returns { void }
+   */
+  beforeCenterLoad() {
+    this.loaded = false;
+    this.loader.classList.add('success-background');
+    this.load();
+  }
+
+  /**
+   * displays loader bar
+   * @param { integer } start
+   * @param { integer } increase
+   * @param { integer } interval
+   * @returns { void }
+   */
+  load(start = 0, increase = 2, interval = 50) {
+    if (!this.loaded && start < 70) {
+      start += increase;
+      this.loader.style.width = `${start}%`;
+      if (start === 50) {
+        interval = 1000;
+      }
+      setTimeout(() => {
+        this.load(start, increase, interval);
+      }, interval);
+    }
   }
 
   /**
@@ -245,7 +301,7 @@ class CenterDetails extends React.Component {
                                 <div className="col-5">
                                   <div className="form-group">
                                     <label htmlFor="days" className="col-form-label">Days</label>
-                                    <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" />
+                                    <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" min="1" max="2147483647" />
                                   </div>
                                 </div>
                                 <div className="col-7">
@@ -275,7 +331,7 @@ class CenterDetails extends React.Component {
                                 <div className="col-5">
                                   <div className="form-group">
                                     <label htmlFor="guests" className="col-form-label">Guests</label>
-                                    <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" />
+                                    <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" min="0" max={center.capacity} />
                                   </div>
                                 </div>
                               </div>

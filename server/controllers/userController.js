@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import database from '../db';
+import Help from './helpers';
 
 dotenv.config({ path: '.env' });
 
@@ -14,23 +15,21 @@ module.exports = class userController {
   static userValidations() {
     return [
       body('fullName')
-        .exists().withMessage('fullName field missing')
+        .exists()
         .trim()
         .isLength({ min: 1, max: 100 })
-        .withMessage('fullName must be between 1 and 100 characters long'),
+        .withMessage('fullName must be 1 - 30 characters'),
       body('password')
-        .exists().withMessage('password field missing')
-        .trim()
+        .exists()
         .isLength({ min: 8, max: 100 })
-        .withMessage('password must be between 8 and 100 characters long'),
+        .withMessage('password must be 8 - 100 characters'),
       body('confirmPassword')
-        .exists().withMessage('confirmPassword field missing')
-        .trim(),
+        .exists()
+        .withMessage('missing password confirm'),
       body('email')
-        .exists().withMessage('email field missing')
+        .exists()
         .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('email must be between 1 and 100 characters long')
+        .isLength({ min: 1, max: 50 })
         .isEmail()
         .withMessage('invalid email')
         .normalizeEmail({ all_lowercase: true }),
@@ -44,18 +43,12 @@ module.exports = class userController {
   static signInValidations() {
     return [
       body('email')
-        .exists().withMessage('email field missing')
-        .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('email must be between 1 and 100 characters long')
-        .isEmail()
+        .exists()
         .withMessage('invalid email')
         .normalizeEmail({ all_lowercase: true }),
       body('password')
-        .exists().withMessage('password field missing')
-        .trim()
-        .isLength({ min: 8, max: 100 })
-        .withMessage('password must be between 8 and 100 characters long'),
+        .exists()
+        .withMessage('invalid password'),
     ];
   }
 
@@ -67,16 +60,17 @@ module.exports = class userController {
  * @returns {object | function} next() if validations pass or sends error object otherwise
  */
   static checkFailedValidations(req, res, next) {
-    const response = [];
-    if (req.body.confirmPassword
-      && req.body.password !== req.body.confirmPassword) response.push('password and confirmPassword fields are not equal');
     if (validationResult(req).isEmpty()) {
-      if (response.length > 0) return res.status(400).json({ err: response });
       return next();
     }
+    let response = [];
     const errors = validationResult(req).array();
-    errors.map(error => response.push(error.msg));
-    return res.status(400).json({ err: response });
+    errors.map((error) => {
+      if (error.msg !== 'Invalid value') response.push(error.msg);
+      return null;
+    });
+    if (response.length === 1) [response] = response;
+    return res.status(400).json(Help.getResponse(response));
   }
 
   /**
@@ -87,8 +81,11 @@ module.exports = class userController {
    * @returns { fucntion } next()
    */
   static hashPassword(req, res, next) {
+    if (req.body.password !== req.body.confirmPassword) {
+      return res.status(400).json(Help.getResponse('password and confirmPassword fields are not equal'));
+    }
     const saltRounds = 10;
-    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+    return bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
       req.body.password = hash;
       return next();
     });
@@ -132,7 +129,7 @@ module.exports = class userController {
  */
   static sanitizeId(req, res, next) {
     req.params.id = parseInt(req.params.id, 10);
-    if (!Number.isInteger(req.params.id)) return res.status(400).json({ err: 'invalid id parameter' });
+    if (!Number.isInteger(req.params.id)) return res.status(400).json(Help.getResponse('invalid id parameter'));
     return next();
   }
 
@@ -145,22 +142,22 @@ module.exports = class userController {
  */
   static verifyUserToken(req, res, next) {
     const { token } = req.query;
-    if (!token) return res.status(400).json({ err: 'missing token' });
+    if (!token) return res.status(400).json(Help.getResponse('missing token'));
     try {
       const payload = jwt.verify(token, process.env.SECRET);
-      if (Date.now() >= payload.expires) return res.status(401).json({ err: 'token has expired' });
+      if (Date.now() >= payload.expires) return res.status(401).json(Help.getResponse('token has expired'));
       return database.user.findOne({
         where: {
           id: payload.id,
         },
       })
         .then((user) => {
-          if (!user) return res.status(404).json({ err: 'user not found' });
+          if (!user) return res.status(404).json(Help.getResponse('user not found'));
           req.body.userId = user.id;
           return next();
         });
     } catch (err) {
-      return res.status(401).json({ err: 'authentication failed' });
+      return res.status(401).json(Help.getResponse('authentication failed'));
     }
   }
 
@@ -173,12 +170,10 @@ module.exports = class userController {
  */
   static verifyAdmin(req, res, next) {
     const { token } = req.query;
-    if (!token) {
-      return res.status(401).json({ err: 'no token found' });
-    }
+    if (!token) return res.status(400).json(Help.getResponse('missing token'));
     try {
       const payload = jwt.verify(token, process.env.SECRET);
-      if (Date.now() >= payload.expires) return res.status(401).json({ err: 'token has expired' });
+      if (Date.now() >= payload.expires) return res.status(401).json(Help.getResponse('token has expired'));
       return database.user.findOne({
         where: {
           id: payload.id,
@@ -186,14 +181,14 @@ module.exports = class userController {
       })
         .then((user) => {
           if (!user) {
-            return res.status(404).json({ err: 'admin not found' });
+            return res.status(404).json(Help.getResponse('admin not found'));
           }
-          if (!user.isAdmin) return res.status(401).json({ err: 'unauthorized token' });
+          if (!user.isAdmin) return res.status(401).json(Help.getResponse('unauthorized token'));
           req.body.updatedBy = payload.id;
           return next();
         });
     } catch (err) {
-      return res.status(401).json({ err: 'authentication failed' });
+      return res.status(401).json(Help.getResponse('authentication failed'));
     }
   }
 
@@ -204,14 +199,33 @@ module.exports = class userController {
  * @returns { object } object containing created user's token or sends error message
  */
   static signUp(req, res) {
-    database.user.create(req.body)
-      .then((createdUser) => {
-        const user = {
-          token: userController.generateToken(createdUser),
+    database.user.findOne({
+      where: {
+        email: req.body.email,
+      },
+    })
+      .then((user) => {
+        if (user) return res.status(409).json(Help.getResponse('a user already exits with this email'));
+        const newUser = {
+          fullName: req.body.fullName,
+          email: req.body.email,
+          password: req.body.password,
+          isAdmin: false,
         };
-        return res.status(201).json(user);
+        return database.user.create(newUser)
+          .then((createdUser) => {
+            const token = userController.generateToken(createdUser);
+            console.log(token);
+            return res.status(201).json(Help.getResponse(token, 'token', true));
+          })
+          .catch((err) => {
+            // console.log(err);
+            // res.status(500).json(Help.getResponse('Internal server error'));
+          });
       })
-      .catch(err => res.status(400).json({ err: err.errors[0].none || 'a user already exits with this email' }));
+      .catch((err) => {
+        res.status(500).json(Help.getResponse('Internal server error'));
+      });
   }
 
   /**
@@ -228,14 +242,12 @@ module.exports = class userController {
     })
       .then((user) => {
         if (!user) {
-          return res.status(400).json({ err: 'email and password combination invalid' });
+          return res.status(400).json(Help.getResponse('email and password combination invalid'));
         }
         return bcrypt.compare(req.body.password, user.password, (error, response) => {
-          if (!response) return res.status(400).json({ err: 'email and password combination invalid' });
-          const userDone = {
-            token: userController.generateToken(user),
-          };
-          return res.json(userDone);
+          if (!response) return res.status(400).json(Help.getResponse('email and password combination invalid'));
+          const token = userController.generateToken(user);
+          return res.json(Help.getResponse(token, 'token', true));
         });
       });
   }

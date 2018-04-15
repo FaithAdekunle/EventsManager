@@ -68,44 +68,26 @@ class CenterActions {
 
   /**
    * action to update center state
-   * @param { object } loader
    * @param { number } id
+   * @param { func } beforeCenterLoad
+   * @param { func } onCenterLoadSuccessful
    * @param { boolean } admin
    * @returns { void }
    */
-  static getCenter(loader, id, admin) {
+  static getCenter(id, beforeCenterLoad, onCenterLoadSuccessful, admin = false) {
     CenterActions.updateCenterState(null);
-    let loaded = false;
-    const load = (start = 0, increase = 2, interval = 50) => {
-      if (!loaded && start < 70) {
-        start += increase;
-        loader.style.width = `${start}%`;
-        if (start === 50) {
-          interval = 1000;
-        }
-        setTimeout(() => {
-          load(start, increase, interval);
-        }, interval);
-      }
-    };
-    load();
+    beforeCenterLoad();
     axios
       .get(`${Helpers.host}/centers/${id}`)
       .then((response) => {
-        loaded = true;
-        loader.style.width = '100%';
-        CenterActions.updateCenterState(response.data);
-        if (admin) OtherActions.updateSelectedImages(response.data.images);
-        setTimeout(() => { loader.classList.remove('success-background'); }, 500);
+        onCenterLoadSuccessful();
+        CenterActions.updateCenterState(response.data.center);
+        if (admin) OtherActions.updateSelectedImages(response.data.center.images);
       })
-      .catch((err) => {
-        if (err.response) {
-          loaded = true;
-          loader.style.width = '100%';
-          OtherActions.updateAlertState(err.response.data.err);
-          setTimeout(() => {
-            loader.classList.remove('success-background');
-          }, 500);
+      .catch(({ response }) => {
+        if (response) {
+          onCenterLoadSuccessful();
+          OtherActions.updateAlertState(response.data.error);
         } else {
           OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
         }
@@ -115,6 +97,9 @@ class CenterActions {
   /**
    * action to update centers state
    * @param { object } loader
+   * @param { func } beforeLoad
+   * @param { func } onLoadSuccessful
+   * @param { func } onLoadFail
    * @param { integer} offset
    * @param { integer } limit
    * @param { string } filter
@@ -122,33 +107,35 @@ class CenterActions {
    * @param { integer } capacity
    * @returns { void }
    */
-  static updateCenters(loader, offset = 0, limit = 0, filter = '', facility = '', capacity = 0) {
-    loader.classList.add('success-background');
-    let loaded = false;
-    const load = (start = 0, increase = 2, interval = 50) => {
-      if (!loaded && start < 70) {
-        start += increase;
-        loader.style.width = `${start}%`;
-        if (start === 50) {
-          interval = 1000;
-        }
-        setTimeout(() => {
-          load(start, increase, interval);
-        }, interval);
-      }
-    };
-    load();
+  static updateCenters(
+    loader,
+    beforeLoad,
+    onLoadSuccessful,
+    onLoadFail,
+    offset = 0,
+    limit = 0,
+    filter = '',
+    facility = '',
+    capacity = 1,
+  ) {
+    OtherActions.updateAlertState(null);
+    beforeLoad(loader);
     axios
       .get(`${Helpers.host}/centers?filter=${filter}&facility=${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}`)
       .then((response) => {
-        loaded = true;
-        loader.style.width = '100%';
+        onLoadSuccessful(loader);
         setTimeout(() => {
-          loader.classList.remove('success-background');
-          CenterActions.updateCentersState(response.data);
+          CenterActions.updateCentersState(response.data.centers);
         }, 500);
       })
-      .catch(() => OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.'));
+      .catch(({ response }) => {
+        onLoadFail();
+        if (response) {
+          onLoadSuccessful(loader);
+          OtherActions.updateAlertState(response.data.error);
+        }
+        OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+      });
   }
 
   /**
@@ -163,10 +150,10 @@ class CenterActions {
     return axios
       .post(`${Helpers.host}/centers?token=${token}`, credentials)
       .then((response) => {
-        onCenterAddSuccessful(response);
+        onCenterAddSuccessful(response.data.center);
       })
-      .catch((err) => {
-        onCenterAddFail(err);
+      .catch(({ response }) => {
+        onCenterAddFail(response);
       });
   }
 
@@ -183,10 +170,10 @@ class CenterActions {
     return axios
       .put(`${Helpers.host}/centers/${id}?token=${token}`, credentials)
       .then((response) => {
-        onCenterEditSuccessful(response);
+        onCenterEditSuccessful(response.data.center);
       })
-      .catch((err) => {
-        onCenterEditFailed(err);
+      .catch(({ response }) => {
+        onCenterEditFailed(response);
       });
   }
 }

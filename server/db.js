@@ -51,6 +51,7 @@ class Database {
   setUp() {
     this.db_user.hasMany(this.db_event, { allowNull: false });
     this.db_center.hasMany(this.db_event, { allowNull: false });
+    this.db_event.belongsTo(this.db_center);
     this.db_user.hasMany(this.db_center, {
       foreignKey: {
         name: 'createdBy',

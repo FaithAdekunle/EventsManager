@@ -2,13 +2,12 @@
  * defines a Helpers class
  */
 class Helpers {
-  static NODE_ENV = process.env.NODE_ENV || 'development';
-  static host = Helpers.NODE_ENV === 'development' ?
-    'http://localhost:7777/api/v1' : 'https://andela-events-manager.herokuapp.com/api/v1';
+  static host = 'http://localhost:7777/api/v1'
+  // static host = 'https://andela-events-manager.herokuapp.com/api/v1';
 
-  static cloudinaryPreset = process.env.CLOUDINARY_PRESET;
+  static cloudinaryPreset = 'axgrmj0a';
 
-  static cloudinaryUrl = process.env.CLOUDINARY_URL;
+  static cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload';
 
   static centerTypes = [
     'Anniversary',

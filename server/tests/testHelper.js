@@ -7,9 +7,9 @@ class TestHelper {
     this.centerId = undefined;
     this.eventId = undefined;
     this.userEmail = `${uuidv4()}@gmail.com`;
-    this.adminEmail = `${uuidv4()}@gmail.com`;
+    this.adminEmail = 'admin_test@admin.com';
     this.userPassword = uuidv4();
-    this.adminPassword = uuidv4();
+    this.adminPassword = 'adminpassword';
     this.centerName = uuidv4();
     this.anotherCenterName = uuidv4();
     this.randomCenterName = uuidv4();

@@ -12,7 +12,6 @@ import OtherActions from './../actions/others';
 class NavTab extends React.Component {
   static propTypes = {
     token: Proptypes.string,
-    pageState: Proptypes.object,
     history: Proptypes.object,
     location: Proptypes.object,
     centerSearch: Proptypes.array,
@@ -54,7 +53,8 @@ class NavTab extends React.Component {
    */
   onWindowClick(e) {
     if ([...e.target.classList].includes('window-exclude')) return null;
-    return this.searchList.classList.add('hidden');
+    if (this.searchList) return this.searchList.classList.add('hidden');
+    return null;
   }
 
   /**
@@ -111,7 +111,7 @@ class NavTab extends React.Component {
    * @returns { component } to be rendered on the page
    */
   render() {
-    const { pageState, token } = this.props;
+    const { location, token } = this.props;
     // const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
     let user = null;
     try {
@@ -150,8 +150,8 @@ class NavTab extends React.Component {
           </li>);
       }
     } else {
-      if (!pageState.userOnSignInPage) firstLink = (<li className="nav-item"><a className="nav-link text-white navTo" onClick={() => this.navTo('/signin')}>Sign in</a></li>);
-      if (!pageState.userOnSignUpPage) secondLink = (<li className="nav-item"><a className="nav-link text-white navTo"onClick={() => this.navTo('/signup')}>Sign up</a></li>);
+      if (location.pathname !== '/signin') firstLink = (<li className="nav-item"><a className="nav-link text-white navTo" onClick={() => this.navTo('/signin')}>Sign in</a></li>);
+      if (location.pathname !== '/signup') secondLink = (<li className="nav-item"><a className="nav-link text-white navTo"onClick={() => this.navTo('/signup')}>Sign up</a></li>);
     }
     return (
       <React.Fragment>
@@ -161,23 +161,25 @@ class NavTab extends React.Component {
             <span className="navbar-toggler-icon" />
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit}>
-              <div className="search-entry">
-                <input type="text" className="form-control window-exclude" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); }} onFocus={this.onFocus} />
-                <ul className="list-group search-result" ref={(input) => { this.searchList = input; }} >
-                  {
-                    this.props.location.pathname === '/centers' ? null :
-                    this.props.centerSearch.map((center) => {
-                      return (
-                        <li className="list-group-item window-exclude" key={center.id} onClick={() => this.navToCenter(center.id)}>
-                          {`${center.name} - ${center.address}`}
-                        </li>
-                      );
-                    })
-                  }
-                </ul>
-              </div>
-            </form>
+            {
+              this.props.location.pathname === '/centers' ? null :
+              <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit}>
+                <div className="search-entry">
+                  <input type="text" className="form-control window-exclude" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); }} onFocus={this.onFocus} />
+                  <ul className="list-group search-result" ref={(input) => { this.searchList = input; }} >
+                    {
+                      this.props.centerSearch.map((center) => {
+                        return (
+                          <li className="list-group-item window-exclude" key={center.id} onClick={() => this.navToCenter(center.id)}>
+                            {`${center.name} - ${center.address}`}
+                          </li>
+                        );
+                      })
+                    }
+                  </ul>
+                </div>
+              </form>
+            }
             <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
               <li className="nav-item">
                 <a className="nav-link text-white navTo" onClick={() => this.navTo('/centers')}>Centers</a>
@@ -197,7 +199,6 @@ class NavTab extends React.Component {
 const mapStateToProps = (state) => {
   return {
     token: state.token,
-    pageState: state.pageState,
     centerSearch: state.centerSearch,
   };
 };

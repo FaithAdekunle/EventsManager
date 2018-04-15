@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import database from '../db';
+import Help from './helpers';
 
 dotenv.config({ path: '.env' });
 
@@ -25,34 +26,34 @@ module.exports = class EventController {
     return [
       body('name')
         .exists()
-        .withMessage('missing event name field')
         .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('event name must be between 1 and 100 characters long'),
+        .isLength({ min: 1, max: 30 })
+        .withMessage('name must be 1 - 30 characters'),
       body('type')
         .exists()
-        .withMessage('missing event type field')
         .trim()
         .isLength({ min: 1, max: 20 })
-        .withMessage('event type must be between 1 and 20 characters long'),
-      body('centerId')
-        .exists()
-        .withMessage('missing center id field'),
-      body('guests')
-        .exists()
-        .withMessage('missing guests field'),
-      body('days')
-        .exists()
-        .withMessage('missing days field'),
+        .withMessage('type must be between 1 - 20 characters'),
       body('start')
-        .exists()
-        .withMessage('missing event start date field')
-        .trim()
-        .isLength({ min: 1, max: 10 })
-        .withMessage('event start date must be between 1 and 10 characters long'),
-      sanitize('days').toInt(),
-      sanitize('guests').toInt(),
+        .custom((value) => {
+          if (!moment(value, 'DD-MM-YYYY').isValid()) {
+            throw new Error('Invalid start date. Use format DD/MM/YYYY.');
+          }
+          if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error('Passed dates can not be booked');
+        }),
       sanitize('centerId').toInt(),
+      body('centerId')
+        .custom((value) => {
+          if (!Number.isInteger(value) || Math.sign(value) === -1) {
+            throw new Error('invalid centerId value');
+          }
+        }),
+      sanitize('guests').toInt(),
+      body('guests')
+        .custom(value => Help.sanitizeInteger(value, 'guests')),
+      sanitize('days').toInt(),
+      body('days')
+        .custom(value => Help.sanitizeInteger(value, 'days')),
     ];
   }
 
@@ -66,9 +67,14 @@ module.exports = class EventController {
   static checkFailedValidations(req, res, next) {
     if (validationResult(req).isEmpty()) return next();
     const errors = validationResult(req).array();
-    const response = [];
-    errors.map(error => response.push(error.msg));
-    return res.status(400).json({ err: response });
+    let response = [];
+    errors.map((error) => {
+      if (error.msg !== 'Invalid value') response.push(error.msg);
+      return null;
+    });
+    if (response.length === 0) return next();
+    if (response.length === 1) [response] = response;
+    return res.status(400).json(Help.getResponse(response));
   }
 
   /**
@@ -79,30 +85,9 @@ module.exports = class EventController {
  * @returns {object | function} next() if validations pass or sends error object otherwise
  */
   static checkAndSanitizeDateFields(req, res, next) {
-    if (!moment(req.body.start, 'DD-MM-YYYY').isValid()) return res.status(400).json({ err: 'Invalid date. Use format DD/MM/YYYY for date' });
-    if (!(moment(req.body.start, 'DD-MM-YYYY').isAfter(moment()))) return res.status(400).json({ err: 'Pevious dates can not be booked' });
     req.body.start = moment(req.body.start, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
     req.body.end = moment(req.body.start, 'DD-MM-YYYY').add(req.body.days - 1, 'days').format('DD MM YYYY').split(' ')
       .join('/');
-    return next();
-  }
-
-  /**
-   * checks that days and guest fields are valid
- * @param {object} req
- * @param {object} res
- * @param {function} next
- * @returns { object | function } next() if validations pass or sends error object otherwise
- */
-  static checkDaysAndGuestsFields(req, res, next) {
-    if (!Number.isInteger(req.body.days)
-      || !Number.isInteger(req.body.guests)
-      || !Number.isInteger(req.body.centerId)
-      || [-1, 0, -0].includes(Math.sign(req.body.days))
-      || Math.sign(req.body.centerId) === -1
-      || [-1, 0, -0].includes(Math.sign(req.body.guests))) {
-      return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for centerId, guests and days fields' });
-    }
     return next();
   }
 
@@ -115,10 +100,10 @@ module.exports = class EventController {
   static createEvent(req, res) {
     database.event.create(req.body)
       .then((createdEvent) => {
-        res.status(201).json(createdEvent);
+        res.status(201).json(Help.getResponse(createdEvent, 'event', true));
       })
       .catch(() => {
-        res.status(500).json({ err: 'Internal server error' });
+        res.status(500).json(Help.getResponse('Internal server error'));
       });
   }
 
@@ -136,7 +121,7 @@ module.exports = class EventController {
       },
     })
       .then((rows) => {
-        if (rows[0] === 0) return res.status(404).json({ err: 'event not found' });
+        if (rows[0] === 0) return res.status(404).json(Help.getResponse('event not found'));
         return database.event.findOne({
           where: {
             id: req.params.id,
@@ -144,11 +129,11 @@ module.exports = class EventController {
           },
         })
           .then((updatedEvent) => {
-            res.json(updatedEvent);
+            res.json(Help.getResponse(updatedEvent, 'event', true));
           })
-          .catch(() => res.status(500).json({ err: 'Internal server error' }));
+          .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500).json({ err: 'Internal server error' }));
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 
   /**
@@ -165,7 +150,7 @@ module.exports = class EventController {
       },
     })
       .then((event) => {
-        if (!event) return res.status(404).json({ err: 'event not found' });
+        if (!event) return res.status(404).json(Help.getResponse('event not found'));
         return database.event.destroy({
           where: {
             id: req.params.id,
@@ -173,11 +158,11 @@ module.exports = class EventController {
           },
         })
           .then(() => {
-            return res.json({ status: 'success' });
+            return res.json(Help.getResponse(req.params.id, 'deteted', true));
           })
-          .catch(() => res.status(500).json({ err: 'Internal server error' }));
+          .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500).json({ err: 'Internal server error' }));
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 
   /**
@@ -191,11 +176,15 @@ module.exports = class EventController {
       where: {
         userId: req.body.userId,
       },
+      include: [{
+        model: database.center,
+        attributes: ['name', 'id', 'capacity'],
+      }],
     })
       .then((events) => {
-        return res.json(events);
+        return res.json(Help.getResponse(events, 'events', true));
       })
-      .catch(() => res.status(500).json({ err: 'Internal server error' }));
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 
   /**
@@ -212,10 +201,10 @@ module.exports = class EventController {
       },
     })
       .then((rows) => {
-        if (rows[0] === 0) return res.status(404).json({ err: 'event not found' });
+        if (rows[0] === 0) return res.status(404).json(Help.getResponse('event not found'));
         return next();
       })
-      .catch(() => res.status(500).json({ err: 'Internal server error' }));
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 
   /**
@@ -245,17 +234,14 @@ module.exports = class EventController {
                     <p>Appropriate refunds will be made. Do bare with us please.</p>
                     <p>Thanks. Admin.</p>`,
             };
-            return transporter.sendMail(mailOptions, (error, info) => {
-              if (error) return res.status(404).json({ err: 'event declined, error occured sending mail to user' });
-              return res.json({
-                status: 'success',
-                msg: `event declined successful and user notified in mail ${info.messageId}`,
-              });
+            return transporter.sendMail(mailOptions, (error) => {
+              if (error) return res.status(404).json(Help.getResponse('event declined, error occured sending mail to user'));
+              return res.json(Help.getResponse(req.params.id, 'declined', true));
             });
           })
-          .catch(() => res.status(500).json({ err: 'internal server error' }));
+          .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500).json({ err: 'Internal server error' }));
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 };
 

@@ -87,8 +87,13 @@ class OtherActions {
   static login(credentials, onLoginSuccessful, onLoginFail) {
     axios
       .post(`${Helpers.host}/users/login`, credentials)
-      .then(response => onLoginSuccessful(response))
-      .catch(err => onLoginFail(err));
+      .then((response) => {
+        OtherActions.updateToken(response.data.token);
+        onLoginSuccessful();
+      })
+      .catch(({ response }) => {
+        onLoginFail(response);
+      });
   }
 
   /**
@@ -102,10 +107,11 @@ class OtherActions {
     axios
       .post(`${Helpers.host}/users`, credentials)
       .then((response) => {
-        onSignupSuccessful(response);
+        OtherActions.updateToken(response.data.token);
+        onSignupSuccessful();
       })
-      .catch((err) => {
-        onSignupFail(err);
+      .catch(({ response }) => {
+        onSignupFail(response);
       });
   }
 
@@ -117,7 +123,7 @@ class OtherActions {
   static updateSearch(filter) {
     axios.get(`${Helpers.host}/centers?filter=${filter}`)
       .then((response) => {
-        OtherActions.updateCenterSearch(response.data);
+        OtherActions.updateCenterSearch(response.data.centers);
       })
       .catch();
   }

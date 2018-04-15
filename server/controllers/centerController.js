@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import { Op } from 'sequelize';
 import database from '../db';
+import Help from './helpers';
 
 export const jsonHandle = (obj, parse = true) => {
   if (parse) {
@@ -26,42 +27,35 @@ export class CenterController {
     return [
       body('name')
         .exists()
-        .withMessage('missing center name field')
         .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('center name must be between 1 and 100 characters long'),
+        .isLength({ min: 1, max: 50 })
+        .withMessage('name must be 1 - 50 characters'),
       body('description')
         .exists()
-        .withMessage('missing center description field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty center description not allowed'),
+        .isLength({ min: 1, max: 1200 })
+        .withMessage('description must be 1 - 1200 characters'),
       body('facilities')
         .exists()
-        .withMessage('missing center facilities field')
         .trim()
-        .isLength({ min: 1, max: 300 })
-        .withMessage('center facilities must be between 1 and 300 characters long'),
+        .isLength({ min: 1, max: 150 })
+        .withMessage('facilities must be 1 - 150 characters'),
       body('address')
         .exists()
-        .withMessage('missing center address field')
         .trim()
-        .isLength({ min: 1, max: 100 })
-        .withMessage('center address must be between 1 and 100 characters long'),
-      body('capacity')
-        .exists()
-        .withMessage('missing center capacity field'),
-      body('cost')
-        .exists()
-        .withMessage('missing center cost field'),
+        .isLength({ min: 1, max: 50 })
+        .withMessage('address must be 1 - 50 characters'),
       body('images')
         .exists()
-        .withMessage('missing images field')
         .trim()
-        .isLength({ min: 1 })
-        .withMessage('empty images field'),
-      sanitize('capacity').toInt(),
+        .isLength({ min: 1, max: 500 })
+        .withMessage('image(s) invalid'),
       sanitize('cost').toInt(),
+      body('cost')
+        .custom(value => Help.sanitizeInteger(value, 'cost')),
+      sanitize('capacity').toInt(),
+      body('capacity')
+        .custom(value => Help.sanitizeInteger(value, 'capacity')),
     ];
   }
 
@@ -73,13 +67,17 @@ export class CenterController {
  * @returns {object | function} next() if validations pass or sends error object otherwise
  */
   static checkFailedValidations(req, res, next) {
-    const response = [];
-    if (validationResult(req).isEmpty()) {
+    let response = [];
+    const errors = validationResult(req).array();
+    errors.map((error) => {
+      if (error.msg !== 'Invalid value') response.push(error.msg);
+      return null;
+    });
+    if (response.length === 0) {
       return next();
     }
-    const errors = validationResult(req).array();
-    errors.map(error => response.push(error.msg));
-    return res.status(400).json({ err: response });
+    if (response.length === 1) [response] = response;
+    return res.status(400).json(Help.getResponse(response));
   }
 
   /**
@@ -92,27 +90,13 @@ export class CenterController {
   static splitFacilitiesAndImages(req, res, next) {
     const facilities = [];
     const images = [];
-    req.body.facilities.split(',').map(facility => facilities.push(facility.trim()));
-    req.body.images.split(',').map(image => images.push(image.trim()));
+    req.body.facilities.split('###:###:###').map(facility => facilities.push(facility.trim()));
+    req.body.images.split('###:###:###').map((image, index) => {
+      if (index <= 3) images.push(image.trim());
+      return null;
+    });
     req.body.facilities = facilities;
     req.body.images = images;
-    return next();
-  }
-
-  /**
-   * checks that cost and capacity fields are valid
- * @param {object} req
- * @param {object} res
- * @param {function} next
- * @returns { object | function } next() if validations pass or sends error object otherwise
- */
-  static checkCostAndCapacityFields(req, res, next) {
-    if (!Number.isInteger(req.body.cost)
-      || !Number.isInteger(req.body.capacity)
-      || [-1, 0, -0].includes(Math.sign(req.body.cost))
-      || [-1, 0, -0].includes(Math.sign(req.body.capacity))) {
-      return res.status(400).json({ err: 'Invalid details. Only positive integers allowed for cost and capacity fields' });
-    }
     return next();
   }
 
@@ -125,14 +109,30 @@ export class CenterController {
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
     jsonHandle(req.body, false);
-    database.center.create(req.body)
-      .then((createdCenter) => {
-        jsonHandle(createdCenter);
-        res.status(201).json(createdCenter);
+    database.center.findOne({
+      where: {
+        [Op.and]: {
+          name: {
+            [Op.iRegexp]: `^${req.body.name}$`,
+          },
+          address: {
+            [Op.iRegexp]: `^${req.body.address}$`,
+          },
+        },
+      },
+    })
+      .then((existingCenter) => {
+        if (existingCenter) return res.status(400).json(Help.getResponse('center name already exists in center address'));
+        return database.center.create(req.body)
+          .then((center) => {
+            jsonHandle(center);
+            res.status(201).json(Help.getResponse(center, 'center', true));
+          })
+          .catch(() => {
+            res.status(500).json(Help.getResponse('Internal server error'));
+          });
       })
-      .catch(() => {
-        res.status(400).json({ err: 'center name already exists' });
-      });
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 
   /**
@@ -144,7 +144,12 @@ export class CenterController {
   static modifyCenter(req, res) {
     database.center.findOne({
       where: {
-        name: req.body.name,
+        [Op.and]: {
+          name: req.body.name,
+          address: {
+            [Op.iRegexp]: `^${req.body.address}$`,
+          },
+        },
         id: {
           [Op.ne]: req.params.id,
         },
@@ -159,7 +164,7 @@ export class CenterController {
             },
           })
             .then((rows) => {
-              if (rows[0] === 0) return res.status(404).json({ err: 'center not found' });
+              if (rows[0] === 0) return res.status(404).json(Help.getResponse('center not found'));
               return database.center.findOne({
                 where: {
                   id: req.params.id,
@@ -170,14 +175,14 @@ export class CenterController {
               })
                 .then((updatedCenter) => {
                   jsonHandle(updatedCenter);
-                  return res.json(updatedCenter);
+                  return res.json(Help.getResponse(updatedCenter, 'center', true));
                 });
             })
-            .catch(() => res.status(500).json({ err: 'Internal server error' }));
+            .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
         }
-        return res.status(409).json({ err: 'center name already exists' });
+        return res.status(409).json(Help.getResponse('center name already exists in center address'));
       })
-      .catch(() => res.status(500).json({ err: 'Internal server error' }));
+      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
 
   /**
@@ -220,12 +225,12 @@ export class CenterController {
         centers.map((center) => {
           return jsonHandle(center);
         });
-        return res.json(centers);
+        return res.json(Help.getResponse(centers, 'centers', true));
       });
   }
 
   /**
- * fetches existing events
+ * fetches existing center
  * @param {object} req
  * @param {object} res
  * @returns { object } fetched center or fetch error message
@@ -240,9 +245,9 @@ export class CenterController {
       }],
     })
       .then((center) => {
-        if (!center) return res.status(404).json({ err: 'center not found' });
+        if (!center) return res.status(404).json(Help.getResponse('center not found'));
         jsonHandle(center);
-        return res.send(center);
+        return res.json(Help.getResponse(center, 'center', true));
       });
   }
 
@@ -263,7 +268,9 @@ export class CenterController {
       }],
     })
       .then((center) => {
-        if (!center) return res.status(404).json({ err: 'center not found' });
+        if (!center) return res.status(404).json(Help.getResponse('center not found'));
+        if (req.body.guests > center.capacity) return res.status(409).json(Help.getResponse('guests too large for this center'));
+        let errorFound = false;
         center.events.map((event) => {
           if (event.id === req.params.id) return null;
           const { start, end } = event;
@@ -271,10 +278,11 @@ export class CenterController {
            || moment(req.body.end, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
            || moment(start, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')
            || moment(end, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')) {
-            return res.status(409).json({ err: 'dates have been booked' });
+            errorFound = true;
           }
           return null;
         });
+        if (errorFound) return res.status(409).json(Help.getResponse('dates have been booked'));
         return next();
       });
   }

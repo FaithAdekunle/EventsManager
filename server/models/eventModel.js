@@ -40,10 +40,6 @@ module.exports = class EventModel {
         type: this.DataTypes.INTEGER,
         allowNull: false,
       },
-      images: {
-        type: this.DataTypes.STRING,
-        allowNull: true,
-      },
       isAccepted: {
         type: this.DataTypes.BOOLEAN,
         allowNull: false,
