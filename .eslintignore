@@ -2,3 +2,4 @@ node_modules
 template
 client/dist
 server/dist
+server/tests

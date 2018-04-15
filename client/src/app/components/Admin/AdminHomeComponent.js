@@ -23,12 +23,16 @@ class AdminHome extends React.Component {
    */
   constructor() {
     super();
+    this.loaded = false;
     this.updateImages = this.updateImages.bind(this);
     this.submitCenter = this.submitCenter.bind(this);
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
     this.onCenterAddSuccessful = this.onCenterAddSuccessful.bind(this);
     this.onCenterAddFail = this.onCenterAddFail.bind(this);
+    this.beforeLoad = this.beforeLoad.bind(this);
+    this.load = this.load.bind(this);
+    this.onLoadSuccessful = this.onLoadSuccessful.bind(this);
     this.facilities = {};
   }
 
@@ -37,7 +41,12 @@ class AdminHome extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    CenterActions.updateCenters(this.loader);
+    CenterActions.updateCenters(
+      this.loader,
+      this.beforeLoad,
+      this.onLoadSuccessful,
+      this.onLoadFail,
+    );
   }
 
   /**
@@ -51,12 +60,33 @@ class AdminHome extends React.Component {
   }
 
   /**
-   * executes after a new center has been added succesfully
-   * @param { object } response
+   * executes upon failed centers fetch
    * @returns { void }
    */
-  onCenterAddSuccessful(response) {
-    CenterActions.addToCentersState(response.data);
+  onLoadFail() {
+    return null;
+  }
+
+  /**
+   * executes after centers have been fetched
+   * @param { object } loader
+   * @returns { void }
+   */
+  onLoadSuccessful(loader) {
+    this.loaded = true;
+    loader.style.width = '100%';
+    setTimeout(() => {
+      loader.classList.remove('success-background');
+    }, 500);
+  }
+
+  /**
+   * executes after a new center has been added succesfully
+   * @param { object } center
+   * @returns { void }
+   */
+  onCenterAddSuccessful(center) {
+    CenterActions.addToCentersState(center);
     OtherActions.updateSelectedImages([]);
     OtherActions.updateAlertState(null);
     this.form.reset();
@@ -66,17 +96,51 @@ class AdminHome extends React.Component {
 
   /**
    * executes after attempt to add new center fails
-   * @param { object } err
+   * @param { object } response
    * @returns { void }
    */
-  onCenterAddFail(err) {
+  onCenterAddFail(response) {
     this.fieldset.disabled = false;
-    if (err.response.status === 401) {
+    if (!response) {
+      return OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+    }
+    if (response.status === 401) {
       OtherActions.removeToken();
       return this.props.history.push('/signin');
     }
-    if ([404, 409].includes(err.response.status)) return window.alert(err.response.data.err);
-    return window.alert('Looks like you\'re offline. Check internet connection.');
+    return OtherActions.updateAlertState(response.data.error);
+  }
+
+  /**
+   * excecutes before fetching centers
+   * @param { object } loader
+   * @returns { void }
+   */
+  beforeLoad(loader) {
+    this.loaded = false;
+    loader.classList.add('success-background');
+    this.load(loader);
+  }
+
+  /**
+   * displays loader bar
+   * @param { object } loader
+   * @param { integer } start
+   * @param { integer } increase
+   * @param { integer } interval
+   * @returns { void }
+   */
+  load(loader, start = 0, increase = 2, interval = 50) {
+    if (!this.loaded && start < 70) {
+      start += increase;
+      loader.style.width = `${start}%`;
+      if (start === 50) {
+        interval = 1000;
+      }
+      setTimeout(() => {
+        this.load(loader, start, increase, interval);
+      }, interval);
+    }
   }
 
   /**
@@ -131,6 +195,8 @@ class AdminHome extends React.Component {
    */
   async submitCenter(e) {
     e.preventDefault();
+    const facilities = this.computeFacilities();
+    if (!facilities) return OtherActions.updateAlertState('select one or more facilities');
     this.fieldset.disabled = true;
     const { files } = this.images;
     let images = '';
@@ -140,19 +206,19 @@ class AdminHome extends React.Component {
         formData.append('upload_preset', Helpers.cloudinaryPreset);
         formData.append('file', files[i]);
         const response = await axios.post(Helpers.cloudinaryUrl, formData);
-        images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
+        images += `${images.length > 0 ? '###:###:###' : ''}${response.data.url}`;
       }
     }
     const credentials = {
       name: this.centerName.value,
       address: this.centerAddress.value,
       description: this.centerDescription.value,
-      facilities: this.computeFacilities(),
       capacity: this.centerCapacity.value,
       cost: this.centerCost.value,
+      facilities,
       images,
     };
-    CenterActions.addCenter(
+    return CenterActions.addCenter(
       credentials,
       this.props.token,
       this.onCenterAddSuccessful,
@@ -176,26 +242,6 @@ class AdminHome extends React.Component {
             </div>
           </div>
           <div className={`row ${this.props.centers ? '' : 'hidden'}`}>
-            <div className="col-md-4">
-              <ul className="list-group centers-list">
-                {
-                  Helpers.sortByName(this.props.centers).map((center, index) => {
-                    return (
-                      <li
-                        className="list-group-item"
-                        key={center.id}
-                        onClick={() => this.props.history.push({
-                        pathname: `admin/center/${center.id}`,
-                        state: { index },
-                      })}
-                      >
-                        {center ? center.name : ''}
-                      </li>
-                    );
-                  })
-                }
-              </ul>
-            </div>
             <div className="col-md-8">
               <div className="row">
                 <div className="col-lg-10 offset-lg-1">
@@ -235,13 +281,13 @@ class AdminHome extends React.Component {
                             <div className="col-6">
                               <div className="form-group row">
                                 <div className="col-md-6"><label htmlFor="capacity" className="col-form-label">Capacity</label></div>
-                                <div className="col-md-6"><input ref={(input) => { this.centerCapacity = input; }} type="number" className="form-control" id="capacity" required /></div>
+                                <div className="col-md-6"><input ref={(input) => { this.centerCapacity = input; }} type="number" className="form-control" id="capacity" min="1" max="2147483647" required /></div>
                               </div>
                             </div>
                             <div className="col-6">
                               <div className="form-group row">
                                 <div className="col-md-3"><label htmlFor="cost" className="col-form-label">Cost</label></div>
-                                <div className="col-md-9"><input ref={(input) => { this.centerCost = input; }} type="number" className="form-control" id="cost" required /></div>
+                                <div className="col-md-9"><input ref={(input) => { this.centerCost = input; }} type="number" className="form-control" id="cost" min="1" max="2147483647" required /></div>
                               </div>
                             </div>
                           </div>
@@ -279,6 +325,26 @@ class AdminHome extends React.Component {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="col-md-4">
+              <ul className="list-group centers-list">
+                {
+                  Helpers.sortByName(this.props.centers).map((center, index) => {
+                    return (
+                      <li
+                        className="list-group-item"
+                        key={center.id}
+                        onClick={() => this.props.history.push({
+                        pathname: `admin/center/${center.id}`,
+                        state: { index },
+                      })}
+                      >
+                        {center ? center.name : ''}
+                      </li>
+                    );
+                  })
+                }
+              </ul>
             </div>
           </div>
         </div>

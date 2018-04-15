@@ -71,21 +71,21 @@ class EventActions {
   /**
    * action to fetch and events
    * @param { string } token
-   * @param { function } onFetchEventsSuccessful
    * @param { function } onFetchEventsFail
    * @returns { void }
    */
-  static updateEvents(token, onFetchEventsSuccessful, onFetchEventsFail) {
+  static updateEvents(token, onFetchEventsFail) {
     OtherActions.updateAlertState('loading');
     return axios
       .get(`${Helpers.host}/events?token=${token}`)
       .then((response) => {
-        onFetchEventsSuccessful(response);
+        OtherActions.updateAlertState(null);
+        EventActions.updateEventsState(response.data.events);
       })
       .catch((err) => {
         if (!err.response) OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
         else {
-          onFetchEventsFail(err);
+          onFetchEventsFail(err.response);
         }
       });
   }
@@ -98,54 +98,42 @@ class EventActions {
    * @param { function } onEventSubmitFail
    * @returns { void }
    */
-  static addEventFromCenter(credentials, token, onEventSubmitSuccessful, onEventSubmitFail) {
+  static addEvent(credentials, token, onEventSubmitSuccessful, onEventSubmitFail) {
     axios
       .post(`${Helpers.host}/events?token=${token}`, credentials)
       .then(() => {
         onEventSubmitSuccessful();
       })
       .catch((err) => {
-        onEventSubmitFail(err);
+        onEventSubmitFail(err.response);
       });
   }
 
   /**
    * action to add new event or edit event
-   * @param { object } eventState
+   * @param { integer } id
    * @param { object } credentials
    * @param { string } token
-   * @param { function } onEventEditOrAddSuccessful
-   * @param { function } onEventEditOrAddFail
+   * @param { function } onEventEditSuccessful
+   * @param { function } onEventEditFail
    * @returns { void }
    */
-  static addOrEditEvent(
-    eventState,
+  static editEvent(
+    id,
     credentials,
     token,
-    onEventEditOrAddSuccessful,
-    onEventEditOrAddFail,
+    onEventEditSuccessful,
+    onEventEditFail,
   ) {
-    if (eventState !== null) {
-      axios
-        .put(`${Helpers.host}/events/${eventState.id}?token=${token}`, credentials)
-        .then((response) => {
-          EventActions.editEventsState(response.data);
-          onEventEditOrAddSuccessful();
-        })
-        .catch((err) => {
-          onEventEditOrAddFail(err);
-        });
-    } else {
-      axios
-        .post(`${Helpers.host}/events?token=${token}`, credentials)
-        .then((response) => {
-          EventActions.addToEventsState(response.data);
-          onEventEditOrAddSuccessful();
-        })
-        .catch((err) => {
-          onEventEditOrAddFail(err);
-        });
-    }
+    axios
+      .put(`${Helpers.host}/events/${id}?token=${token}`, credentials)
+      .then((response) => {
+        EventActions.editEventsState(response.data);
+        onEventEditSuccessful();
+      })
+      .catch(({ response }) => {
+        onEventEditFail(response);
+      });
   }
 
   /**
@@ -162,8 +150,8 @@ class EventActions {
       .then(() => {
         onDeleteSuccessful();
       })
-      .catch((err) => {
-        onDeleteFail(err);
+      .catch(({ response }) => {
+        onDeleteFail(response);
       });
   }
 

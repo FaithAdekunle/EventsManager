@@ -24,7 +24,6 @@ class Events extends React.Component {
   constructor() {
     super();
     this.onFetchEventsFail = this.onFetchEventsFail.bind(this);
-    this.onFetchEventsSuccessful = this.onFetchEventsSuccessful.bind(this);
   }
 
   /**
@@ -33,7 +32,7 @@ class Events extends React.Component {
    */
   componentDidMount() {
     EventActions
-      .updateEvents(this.props.token, this.onFetchEventsSuccessful, this.onFetchEventsFail);
+      .updateEvents(this.props.token, this.onFetchEventsFail);
   }
 
   /**
@@ -42,30 +41,21 @@ class Events extends React.Component {
    */
   componentWillUnmount() {
     $('#editModal').modal('hide');
-    OtherActions.updateAlertState(null);
-  }
-
-  /**
-   * executes after events have fetched
-   * @param { object } response
-   * @returns { void }
-   */
-  onFetchEventsSuccessful(response) {
-    EventActions.updateEventsState(response.data);
+    $('#deleteModal').modal('hide');
     OtherActions.updateAlertState(null);
   }
 
   /**
    * executes after attempt to fetch events fail
-   * @param { object } err
+   * @param { object } response
    * @returns { void }
    */
-  onFetchEventsFail(err) {
-    if (!err.response) OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
-    else {
-      OtherActions.removeToken();
-      this.props.history.push('/signin');
+  onFetchEventsFail(response) {
+    if ([401, 404].includes(response.status)) {
+      localStorage.removeItem('eventsManager');
+      return this.props.history.push('/signin');
     }
+    return OtherActions.updateAlertState(response.data.error);
   }
 
   /**
@@ -95,19 +85,18 @@ class Events extends React.Component {
           <div className="col-lg-10 offset-lg-1">
             <div className="row my-events">
               <div className="col-8">
-                <h5>My Events | {this.props.alertState === 'loading' ? spinner : this.props.eventsState.length}</h5>
-              </div>
-              <div className="col-4">
-                <button className="btn btn-block btn-outline-primary" onClick={this.openModal}>Add Event</button>
+                <h5>My Events | {this.props.alertState === 'loading' ? spinner : this.props.alertState !== null ? '?' :
+                this.props.eventsState.length}
+                </h5>
               </div>
             </div>
-            <div className={this.props.alertState === 'Looks like you\'re offline. Check internet connection.' ? '' : 'hidden'}>
+            <div className={this.props.alertState && this.props.alertState !== 'loading' ? '' : 'hidden'}>
               <div className="alert alert-info" role="alert">
                 <strong>{this.props.alertState}</strong>
               </div>
             </div>
-            <div className={`${this.props.eventsState.length === 0 && this.props.alertState !== 'loading' ? '' : 'hidden'}`}>
-              <h5>You have no registered events yet. Click add event above.</h5>
+            <div className={`${this.props.eventsState.length === 0 && this.props.alertState === null ? '' : 'hidden'}`}>
+              <h5>You have no registered events yet. Visit <a className="navTo redirect-to" onClick={() => this.props.history.push('/centers')}>centers</a> page.</h5>
             </div>
             <div className="row">
               {this.props.eventsState.map((event) => {

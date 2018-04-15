@@ -25,17 +25,6 @@ class SignUp extends React.Component {
   }
 
   /**
-   * executes after component mounts
-   * @returns { void }
-   */
-  componentDidMount() {
-    OtherActions.updatePageState({
-      userOnSignInPage: false,
-      userOnSignUpPage: true,
-    });
-  }
-
-  /**
    * executes before component unmounts
    * @returns { void }
    */
@@ -52,21 +41,21 @@ class SignUp extends React.Component {
    * @param { object } response
    * @returns { void }
    */
-  onSignupSuccessful(response) {
-    OtherActions.updateToken(response.data.token);
+  onSignupSuccessful() {
     this.props.history.push('/events');
   }
 
   /**
    * executes after failed login attempt
-   * @param { object } err
+   * @param { object } response
    * @returns { void }
    */
-  onSignupFail(err) {
+  onSignupFail(response) {
     this.changeFormState(false);
-    OtherActions.updateAlertState(err.response ? (Array.isArray(err.response.data.err) ?
-      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
-    setTimeout(() => OtherActions.updateAlertState(null), 10000);
+    if (!response) return OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+    OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+      response.data.error[0] : response.data.error);
+    return setTimeout(() => OtherActions.updateAlertState(null), 10000);
   }
 
   /**
@@ -96,11 +85,7 @@ class SignUp extends React.Component {
    * @returns { void }
    */
   changeFormState(disabled = true) {
-    this.submit.disabled = disabled;
-    this.email.disabled = disabled;
-    this.password.disabled = disabled;
-    this.fullname.disabled = disabled;
-    this.passwordconfirm.disabled = disabled;
+    this.fieldset.disabled = disabled;
     if (disabled) return this.spinner.classList.remove('hidden');
     return this.spinner.classList.add('hidden');
   }
@@ -128,56 +113,58 @@ class SignUp extends React.Component {
                   <h2>Sign up to register your events.<i className="fa fa-spinner fa-spin hidden" ref={(input) => { this.spinner = input; }} aria-hidden="true" /></h2>
                 </div>
                 <div className="card-body">
-                  <form onSubmit={this.onSubmit}>
-                    <div className="form-group">
-                      <label htmlFor="fullname" className="col-form-label">Fullname</label>
-                      <input
-                        required
-                        type="text"
-                        className="form-control"
-                        id="fullname"
-                        ref={(input) => { this.fullname = input; }}
-                      />
-                      <label htmlFor="email" className="col-form-label">Email address</label>
-                      <input
-                        required
-                        type="email"
-                        className="form-control"
-                        id="email"
-                        ref={(input) => { this.email = input; }}
-                      />
-                      <label htmlFor="password" className="col-form-label">Password</label>
-                      <input
-                        required
-                        type="password"
-                        className="form-control"
-                        id="password"
-                        minLength="8"
-                        maxLength="20"
-                        ref={(input) => { this.password = input; }}
-                      />
-                      <label htmlFor="passwordconfirm" className="col-form-label">Confirm Password</label>
-                      <input
-                        required
-                        type="password"
-                        className="form-control"
-                        id="passwordconfirm"
-                        minLength="8"
-                        maxLength="20"
-                        ref={(input) => { this.passwordconfirm = input; }}
-                      />
-                      <input
-                        type="submit"
-                        className="btn btn-block btn-outline-primary submit-button"
-                        defaultValue="Sign up"
-                        ref={(input) => { this.submit = input; }}
-                      />
-                    </div>
-                  </form>
+                  <fieldset ref={(input) => { this.fieldset = input; }}>
+                    <form onSubmit={this.onSubmit}>
+                      <div className="form-group">
+                        <label htmlFor="fullname" className="col-form-label">Fullname</label>
+                        <input
+                          required
+                          type="text"
+                          className="form-control"
+                          id="fullname"
+                          ref={(input) => { this.fullname = input; }}
+                        />
+                        <label htmlFor="email" className="col-form-label">Email address</label>
+                        <input
+                          required
+                          type="email"
+                          className="form-control"
+                          id="email"
+                          ref={(input) => { this.email = input; }}
+                        />
+                        <label htmlFor="password" className="col-form-label">Password</label>
+                        <input
+                          required
+                          type="password"
+                          className="form-control"
+                          id="password"
+                          minLength="8"
+                          maxLength="20"
+                          ref={(input) => { this.password = input; }}
+                        />
+                        <label htmlFor="passwordconfirm" className="col-form-label">Confirm Password</label>
+                        <input
+                          required
+                          type="password"
+                          className="form-control"
+                          id="passwordconfirm"
+                          minLength="8"
+                          maxLength="20"
+                          ref={(input) => { this.passwordconfirm = input; }}
+                        />
+                        <input
+                          type="submit"
+                          className="btn btn-block btn-outline-primary submit-button"
+                          defaultValue="Sign up"
+                          ref={(input) => { this.submit = input; }}
+                        />
+                      </div>
+                    </form>
+                  </fieldset>
                 </div>
               </div>
               <div className="redirect">
-                <a className="navTo" onClick={this.navToSignin}>Already have an account? Sign in here.</a>
+                <a className="navTo redirect-to" onClick={this.navToSignin}>Already have an account? Sign in here.</a>
               </div>
             </div>
             <div className="col-md-2 col-lg-3">

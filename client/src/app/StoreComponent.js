@@ -8,10 +8,6 @@ class AppState {
   constructor() {
     const storage = JSON.parse(localStorage.getItem('eventsManager'));
     this.token = storage ? storage.appToken : null;
-    this.pageState = {
-      userOnSignInPage: false,
-      userOnSignUpPage: false,
-    };
     this.centersState = [];
     this.centerState = null;
     this.centerSearch = [];

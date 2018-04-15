@@ -25,6 +25,7 @@ class AdminCenter extends React.Component {
    */
   constructor() {
     super();
+    this.loaded = false;
     this.updateImages = this.updateImages.bind(this);
     this.submitCenter = this.submitCenter.bind(this);
     this.oncenterEditSuccessful = this.oncenterEditSuccessful.bind(this);
@@ -32,6 +33,9 @@ class AdminCenter extends React.Component {
     this.computeFacilities = this.computeFacilities.bind(this);
     this.updateFacilities = this.updateFacilities.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.load = this.load.bind(this);
+    this.beforeCenterLoad = this.beforeCenterLoad.bind(this);
+    this.onCenterLoadSuccessful = this.onCenterLoadSuccessful.bind(this);
     this.facilities = {};
   }
 
@@ -40,7 +44,12 @@ class AdminCenter extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    CenterActions.getCenter(this.loader, this.props.match.params.id, true);
+    CenterActions.getCenter(
+      this.props.match.params.id,
+      this.beforeCenterLoad,
+      this.onCenterLoadSuccessful,
+      true,
+    );
   }
 
   /**
@@ -74,12 +83,12 @@ class AdminCenter extends React.Component {
 
   /**
    * executes after center succesfully edits
-   * @param { object } response
+   * @param { object } center
    * @returns { void }
    */
-  oncenterEditSuccessful(response) {
-    OtherActions.updateSelectedImages(response.data.images);
-    CenterActions.updateCenterState(response.data);
+  oncenterEditSuccessful(center) {
+    OtherActions.updateSelectedImages(center.images);
+    CenterActions.updateCenterState(center);
     $('#detailsModal').modal('hide');
     OtherActions.updateAlertState(null);
     this.form.reset();
@@ -88,18 +97,33 @@ class AdminCenter extends React.Component {
 
   /**
    * executes after center edit fails
-   * @param { object } err
+   * @param { object } response
    * @returns { void }
    */
-  onCenterEditFailed(err) {
+  onCenterEditFailed(response) {
     this.fieldset.disabled = false;
-    if (err.response.status === 401) {
+    if (!response) {
+      return window.alert('Looks like you\'re offline. Check internet connection.');
+    }
+    if (response.status === 401) {
       OtherActions.removeToken();
       $('#detailsModal').modal('hide');
       return this.props.history.push('/signin');
     }
-    if ([404, 409].includes(err.response.status)) return window.alert(err.response.data.err);
-    return window.alert('Looks like you\'re offline. Check internet connection.');
+    return window.alert(response.data.error);
+  }
+
+  /**
+   * executes after centers have been fetched
+   * @param { object } loader
+   * @returns { void }
+   */
+  onCenterLoadSuccessful() {
+    this.loaded = true;
+    this.loader.style.width = '100%';
+    setTimeout(() => {
+      this.loader.classList.remove('success-background');
+    }, 500);
   }
 
   /**
@@ -109,6 +133,37 @@ class AdminCenter extends React.Component {
   closeModal() {
     this.images.value = null;
     OtherActions.updateSelectedImages(this.props.center.images);
+  }
+
+  /**
+   * excecutes before fetching centers
+   * @param { object } loader
+   * @returns { void }
+   */
+  beforeCenterLoad() {
+    this.loaded = false;
+    this.loader.classList.add('success-background');
+    this.load();
+  }
+
+  /**
+   * displays loader bar
+   * @param { integer } start
+   * @param { integer } increase
+   * @param { integer } interval
+   * @returns { void }
+   */
+  load(start = 0, increase = 2, interval = 50) {
+    if (!this.loaded && start < 70) {
+      start += increase;
+      this.loader.style.width = `${start}%`;
+      if (start === 50) {
+        interval = 1000;
+      }
+      setTimeout(() => {
+        this.load(start, increase, interval);
+      }, interval);
+    }
   }
 
   /**
@@ -139,7 +194,7 @@ class AdminCenter extends React.Component {
     const keyValues = Object.entries(this.facilities);
     let facilities = '';
     keyValues.map((keyValue) => {
-      if (keyValue[1]) facilities += `${facilities.length > 0 ? ', ' : ''}${keyValue[0]}`;
+      if (keyValue[1]) facilities += `${facilities.length > 0 ? '###:###:###' : ''}${keyValue[0]}`;
       return null;
     });
     return facilities;
@@ -184,11 +239,11 @@ class AdminCenter extends React.Component {
           formData.append('upload_preset', Helpers.cloudinaryPreset);
           formData.append('file', files[i]);
           const response = await axios.post(Helpers.cloudinaryUrl, formData);
-          images += `${images.length > 0 ? ', ' : ''}${response.data.url}`;
+          images += `${images.length > 0 ? '###:###:###' : ''}${response.data.url}`;
         }
       }
     } else {
-      images = this.props.center.images.join(',');
+      images = this.props.center.images.join('###:###:###');
     }
     const credentials = {
       name: this.centerName.value,
@@ -362,13 +417,13 @@ class AdminCenter extends React.Component {
                                   <div className="col-6">
                                     <div className="form-group row">
                                       <div className="col-md-6"><label htmlFor="capacity" className="col-form-label">Capacity</label></div>
-                                      <div className="col-md-6"><input ref={(input) => { this.centerCapacity = input; }} type="number" className="form-control" id="capacity" defaultValue={center.capacity} required /></div>
+                                      <div className="col-md-6"><input ref={(input) => { this.centerCapacity = input; }} type="number" className="form-control" id="capacity" defaultValue={center.capacity} min="1" max="2147483647" required /></div>
                                     </div>
                                   </div>
                                   <div className="col-6">
                                     <div className="form-group row">
                                       <div className="col-md-3"><label htmlFor="cost" className="col-form-label">Cost</label></div>
-                                      <div className="col-md-9"><input ref={(input) => { this.centerCost = input; }} type="number" className="form-control" id="cost" defaultValue={center.cost} required /></div>
+                                      <div className="col-md-9"><input ref={(input) => { this.centerCost = input; }} type="number" className="form-control" id="cost" defaultValue={center.cost} min="0" max="2147483647" required /></div>
                                     </div>
                                   </div>
                                 </div>

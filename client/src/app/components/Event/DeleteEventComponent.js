@@ -22,6 +22,7 @@ class DeleteEvent extends React.Component {
     this.deleteEvent = this.deleteEvent.bind(this);
     this.nullEvent = this.nullEvent.bind(this);
     this.onDeleteSuccesful = this.onDeleteSuccesful.bind(this);
+    this.onDeleteFail = this.onDeleteFail.bind(this);
   }
 
   /**
@@ -31,7 +32,6 @@ class DeleteEvent extends React.Component {
    */
   onDeleteSuccesful() {
     EventActions.deleteFromEventsState(this.props.eventState);
-    EventActions.updateEventState(null);
     this.confirm.classList.remove('hidden');
     this.deleting.classList.add('hidden');
     this.nullEvent();
@@ -39,17 +39,21 @@ class DeleteEvent extends React.Component {
 
   /**
    * executes after attempt to delete event fails
-   * @param { object } err
+   * @param { object } response
    * @returns { void }
    */
-  onDeleteFail(err) {
-    if ([401, 404].includes(err.response.status)) {
+  onDeleteFail(response) {
+    if (!response) {
+      alert('Looks like you\'re offline. Check internet connection.');
+      return this.nullEvent();
+    }
+    if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();
       this.nullEvent();
       return this.props.history.push('/signin');
     }
-    return window.alert(err.response ? (Array.isArray(err.response.data.err) ?
-      err.response.data.err[0] : err.response.data.err) : 'Looks like you\'re offline. Check internet connection.');
+    window.alert(response.data.error);
+    return this.nullEvent();
   }
 
   /**
