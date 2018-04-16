@@ -2,8 +2,7 @@
  * defines a Helpers class
  */
 class Helpers {
-  static host = 'http://localhost:7777/api/v1'
-  // static host = 'https://andela-events-manager.herokuapp.com/api/v1';
+  static host = 'https://andela-events-manager.herokuapp.com/api/v1';
 
   static cloudinaryPreset = 'axgrmj0a';
 
