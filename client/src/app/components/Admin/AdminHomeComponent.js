@@ -182,7 +182,7 @@ class AdminHome extends React.Component {
     const keyValues = Object.entries(this.facilities);
     let facilities = '';
     keyValues.map((keyValue) => {
-      if (keyValue[1]) facilities += `${facilities.length > 0 ? ', ' : ''}${keyValue[0]}`;
+      if (keyValue[1]) facilities += `${facilities.length > 0 ? '###:###:###' : ''}${keyValue[0]}`;
       return null;
     });
     return facilities;
