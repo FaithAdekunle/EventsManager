@@ -353,7 +353,7 @@ class AdminCenter extends React.Component {
                     </div>
                     <div className="col-lg-6">
                       <div className="text-primary text-center">Booked Dates</div>
-                      <table className="table table-bordered">
+                      <table className="table table-bordered booked-dates">
                         <tbody>
                           {
                             center.events.map((event, index) => {

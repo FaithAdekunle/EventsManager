@@ -38,8 +38,8 @@ export class CenterController {
       body('facilities')
         .exists()
         .trim()
-        .isLength({ min: 1, max: 150 })
-        .withMessage('facilities must be 1 - 150 characters'),
+        .isLength({ min: 1, max: 300 })
+        .withMessage('facilities must be 1 - 300 characters'),
       body('address')
         .exists()
         .trim()

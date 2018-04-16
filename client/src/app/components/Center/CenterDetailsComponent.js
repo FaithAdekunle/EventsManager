@@ -258,7 +258,7 @@ class CenterDetails extends React.Component {
                     </div>
                     <div className="col-md-4 col-6">
                       <div className="text-primary text-center">Booked dates</div>
-                      <ul className="list-group">
+                      <ul className="list-group booked-dates">
                         <li className={`text-center list-group-item ${center.events.length === 0 ? '' : 'hidden'}`}>no booked dates</li>
                         {
                           Helpers.sortByDate(center.events).map((event) => {
