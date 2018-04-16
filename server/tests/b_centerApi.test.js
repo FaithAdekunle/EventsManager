@@ -106,7 +106,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('facilities must be 1 - 150 characters');
+          res.body.should.have.property('error').to.equal('facilities must be 1 - 300 characters');
           done();
         });
     });
@@ -127,7 +127,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('facilities must be 1 - 150 characters');
+          res.body.should.have.property('error').to.equal('facilities must be 1 - 300 characters');
           done();
         });
     });
