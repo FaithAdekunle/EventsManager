@@ -26,11 +26,15 @@ class Helpers {
     'Stage',
     'Power Supply',
     'Air Condition',
+    'Cold Room',
+    'kitchenette',
     'Lighting',
     'Parking Space',
+    'Security',
     'Dressing Room',
     'Sound System',
     'Projector',
+    'Rest Room',
   ];
 
   /**
