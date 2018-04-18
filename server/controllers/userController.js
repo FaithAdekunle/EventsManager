@@ -128,14 +128,18 @@ module.exports = class userController {
  * valid or sends error reaponse otherwise
  */
   static sanitizeParams(req, res, next) {
-    if (req.params.id) {
-      req.params.id = parseInt(req.params.id, 10);
-      if (!Number.isInteger(req.params.id)) return res.status(400).json(Help.getResponse('invalid id parameter'));
-    }
-    if (req.params.centerId) {
-      req.params.centerId = parseInt(req.params.centerId, 10);
-      if (!Number.isInteger(req.params.centerId)) return res.status(400).json(Help.getResponse('invalid centerId parameter'));
-    }
+    let sanitized = true;
+    let msg = '';
+    ['id', 'centerId'].map((param) => {
+      if (req.params[param]) {
+        req.params[param] = parseInt(req.params[param], 10);
+        if (!Number.isInteger(req.params[param])) {
+          sanitized = false;
+          msg = `invalid ${param} parameter`
+        }
+      }
+    })
+    if (sanitized === false) return res.status(400).json(Help.getResponse(msg));
     return next();
   }
 

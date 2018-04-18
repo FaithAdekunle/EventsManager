@@ -18,6 +18,19 @@ const transporter = nodemailer.createTransport({
 });
 
 module.exports = class EventController {
+  /**
+  * provides validation for incoming start and end dates
+  * @param { integer } value
+  * @param { string } field
+  * @returns { void }
+  */
+  static validateDateField(value, field) {
+    if (!moment(value, 'DD-MM-YYYY').isValid()) {
+      throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
+    }
+    if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error(`${field} date is past`);
+  }
+
 /**
  * provides validation for incoming request body for creating/editing event
  * @returns { array } an array of functions to parse request
@@ -36,17 +49,11 @@ module.exports = class EventController {
         .withMessage('type must be between 1 - 20 characters'),
       body('start')
         .custom((value) => {
-          if (!moment(value, 'DD-MM-YYYY').isValid()) {
-            throw new Error('Invalid start date. Use format DD/MM/YYYY.');
-          }
-          if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error('Start date is past');
+          EventController.validateDateField(value, 'start');
         }),
       body('end')
         .custom((value) => {
-          if (!moment(value, 'DD-MM-YYYY').isValid()) {
-            throw new Error('Invalid end date. Use format DD/MM/YYYY.');
-          }
-          if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error('End date is past');
+          EventController.validateDateField(value, 'end');
         }),
       sanitize('centerId').toInt(),
       body('centerId')
@@ -92,8 +99,9 @@ module.exports = class EventController {
     if ((moment(req.body.start, 'DD-MM-YYYY').isAfter(moment(req.body.end, 'DD-MM-YYYY')))) {
       return res.status(400).json(Help.getResponse('start date cannot be ahead of end date'))
     }
-    req.body.start = moment(req.body.start, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
-    req.body.end = moment(req.body.end, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
+    ['start', 'end'].map((date) => {
+      req.body[date] = moment(req.body[date], 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
+    })
     return next();
   }
 

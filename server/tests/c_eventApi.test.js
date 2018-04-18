@@ -199,7 +199,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('End date is past');
+          res.body.should.have.property('error').to.equal('end date is past');
           done();
         });
     });
@@ -219,7 +219,7 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('Start date is past');
+          res.body.should.have.property('error').equal('start date is past');
           done();
         });
     });
