@@ -18,6 +18,19 @@ const transporter = nodemailer.createTransport({
 });
 
 module.exports = class EventController {
+  /**
+  * provides validation for incoming start and end dates
+  * @param { integer } value
+  * @param { string } field
+  * @returns { void }
+  */
+  static validateDateField(value, field) {
+    if (!moment(value, 'DD-MM-YYYY').isValid()) {
+      throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
+    }
+    if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error(`${field} date is past`);
+  }
+
 /**
  * provides validation for incoming request body for creating/editing event
  * @returns { array } an array of functions to parse request
@@ -36,10 +49,11 @@ module.exports = class EventController {
         .withMessage('type must be between 1 - 20 characters'),
       body('start')
         .custom((value) => {
-          if (!moment(value, 'DD-MM-YYYY').isValid()) {
-            throw new Error('Invalid start date. Use format DD/MM/YYYY.');
-          }
-          if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error('Passed dates can not be booked');
+          EventController.validateDateField(value, 'start');
+        }),
+      body('end')
+        .custom((value) => {
+          EventController.validateDateField(value, 'end');
         }),
       sanitize('centerId').toInt(),
       body('centerId')
@@ -51,9 +65,6 @@ module.exports = class EventController {
       sanitize('guests').toInt(),
       body('guests')
         .custom(value => Help.sanitizeInteger(value, 'guests')),
-      sanitize('days').toInt(),
-      body('days')
-        .custom(value => Help.sanitizeInteger(value, 'days')),
     ];
   }
 
@@ -85,9 +96,12 @@ module.exports = class EventController {
  * @returns {object | function} next() if validations pass or sends error object otherwise
  */
   static checkAndSanitizeDateFields(req, res, next) {
-    req.body.start = moment(req.body.start, 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
-    req.body.end = moment(req.body.start, 'DD-MM-YYYY').add(req.body.days - 1, 'days').format('DD MM YYYY').split(' ')
-      .join('/');
+    if ((moment(req.body.start, 'DD-MM-YYYY').isAfter(moment(req.body.end, 'DD-MM-YYYY')))) {
+      return res.status(400).json(Help.getResponse('start date cannot be ahead of end date'))
+    }
+    ['start', 'end'].map((date) => {
+      req.body[date] = moment(req.body[date], 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
+    })
     return next();
   }
 
@@ -127,6 +141,10 @@ module.exports = class EventController {
             id: req.params.id,
             userId: req.body.userId,
           },
+          include: [{
+            model: database.center,
+            attributes: ['name', 'capacity'],
+          }],
         })
           .then((updatedEvent) => {
             res.json(Help.getResponse(updatedEvent, 'event', true));
@@ -166,6 +184,29 @@ module.exports = class EventController {
   }
 
   /**
+ * filters events based on query properties
+ * @param {object} events
+ * @param {object} res
+ * @returns { object } object containing all user's event or fetch error message
+ */
+  static filterEvents(events, req) {
+    const limit = parseInt(req.query.limit, 10);
+    const offset = parseInt(req.query.offset, 10);
+    const { upcoming } = req.query;
+    let upcomingEvents = null;
+    if (upcoming === 'true') {
+      upcomingEvents = events.filter((event) => {
+        return moment(event.end, 'DD-MM-YYYY').isSameOrAfter(moment());
+      })
+    } else {
+      upcomingEvents = events;
+    }
+    if (offset) upcomingEvents = upcomingEvents.slice(offset);
+    if (limit) upcomingEvents = upcomingEvents.slice(0, limit);
+    return upcomingEvents;
+  }
+
+  /**
  * fetches existing events
  * @param {object} req
  * @param {object} res
@@ -178,14 +219,49 @@ module.exports = class EventController {
       },
       include: [{
         model: database.center,
-        attributes: ['name', 'id', 'capacity'],
+        attributes: ['name', 'capacity'],
       }],
     })
       .then((events) => {
-        return res.json(Help.getResponse(events, 'events', true));
+        return res.json(
+          Help.getResponse(EventController.filterEvents(events, req),
+          'events',
+          true,
+        ));
       })
       .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
   }
+
+  /**
+ * fetches existing events
+ * @param {object} req
+ * @param {object} res
+ * @returns { object } object containing all user's event or fetch error message
+ */
+static fetchCenterEvents(req, res) {
+  database.center.findOne({
+    where: {
+      id: req.params.centerId,
+    }
+  })
+    .then((center) => {
+      if (!center) return res.status(404).json(Help.getResponse('center not found'));
+      database.event.findAll({
+        where: {
+          centerId: req.params.centerId,
+        }
+      })
+        .then((events) => {
+          return res.json(
+            Help.getResponse(EventController.filterEvents(events, req),
+            'events',
+            true,
+          ));
+        })
+        .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+    })
+    .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+}
 
   /**
  * declines existing event

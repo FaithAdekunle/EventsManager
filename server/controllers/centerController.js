@@ -168,10 +168,7 @@ export class CenterController {
               return database.center.findOne({
                 where: {
                   id: req.params.id,
-                },
-                include: [
-                  { model: database.event },
-                ],
+                }
               })
                 .then((updatedCenter) => {
                   jsonHandle(updatedCenter);
@@ -239,10 +236,7 @@ export class CenterController {
     database.center.findOne({
       where: {
         id: req.params.id,
-      },
-      include: [{
-        model: database.event,
-      }],
+      }
     })
       .then((center) => {
         if (!center) return res.status(404).json(Help.getResponse('center not found'));

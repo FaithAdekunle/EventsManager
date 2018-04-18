@@ -17,7 +17,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2019',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -37,7 +37,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2019',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -56,7 +56,7 @@ describe('Tests for events api', () => {
           name: 'test event 123',
           start: '20/12/2018',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -76,7 +76,7 @@ describe('Tests for events api', () => {
           type: '         ',
           start: '20/12/2018',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -96,7 +96,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2018',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
         })
         .end((err, res) => {
           res.should.have.status(400);
@@ -115,7 +115,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2018',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: -2,
         })
         .end((err, res) => {
@@ -134,7 +134,7 @@ describe('Tests for events api', () => {
           name: 'test event 123',
           type: 'test type 123',
           start: '20/12/2018',
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -154,7 +154,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2018',
           guests: 0,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -165,7 +165,7 @@ describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 400 error response for missing days field', (done) => {
+    it('should return a status 400 error response for missing end field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
@@ -179,12 +179,12 @@ describe('Tests for events api', () => {
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('days must be a positive integer');
+          res.body.should.have.property('error').to.equal('Invalid end date. Use format DD/MM/YYYY.');
           done();
         });
     });
 
-    it('should return a status 400 error response for invalid days field', (done) => {
+    it('should return a status 400 error response for past end date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
@@ -193,38 +193,18 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2018',
           guests: 20,
-          days: 'days',
+          end: '21/12/2017',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('days must be a positive integer');
+          res.body.should.have.property('error').to.equal('end date is past');
           done();
         });
     });
 
-    it('should return a status 400 error response for too large days field', (done) => {
-      chai
-        .request(host)
-        .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 20,
-          days: 2147483648,
-          centerId: testHelper.centerId,
-        })
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('days too large');
-          done();
-        });
-    });
-
-    it('should return a status 400 success response for booking a passed date', (done) => {
+    it('should return a status 400 success response for booking a past start date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
@@ -233,18 +213,18 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2016',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('Passed dates can not be booked');
+          res.body.should.have.property('error').equal('start date is past');
           done();
         });
     });
 
-    it('should return a status 400 success response for booking invalid date', (done) => {
+    it('should return a status 400 success response for booking invalid start date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
@@ -253,13 +233,33 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '70/22/2018',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
           res.body.should.have.property('error').equal('Invalid start date. Use format DD/MM/YYYY.');
+          done();
+        });
+    });
+
+    it('should return a status 400 success response for start date ahead of end date', (done) => {
+      chai
+        .request(host)
+        .post('/api/v1/events')
+        .send({
+          name: 'test event 123',
+          type: 'test type 123',
+          start: '20/12/2018',
+          guests: 20,
+          end: '19/12/2018',
+          centerId: testHelper.centerId,
+        })
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.a('object');
+          res.body.should.have.property('error').equal('start date cannot be ahead of end date');
           done();
         });
     });
@@ -273,7 +273,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2019',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -293,7 +293,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2019',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -313,13 +313,13 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2019',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
-          res.body.event.should.have.property('end').equal('21/12/2019');
+          res.body.should.have.property('event');
           testHelper.setEventId(res.body.event.id);
           done();
         });
@@ -334,13 +334,13 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '30/12/2019',
           guests: 20,
-          days: 2,
+          end: '31/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
-          res.body.event.should.have.property('end').equal('31/12/2019');
+          res.body.should.have.property('event');
           done();
         });
     });
@@ -360,6 +360,44 @@ describe('Tests for events api', () => {
     });
   });
 
+  describe('GET api/v1/:centerId/events', () => {
+    it('should return a status 404 error response for fetching events for a non existing center', (done) => {
+      chai
+        .request(host)
+        .get('/api/v1/0/events')
+        .end((err, res) => {
+          res.should.have.status(404);
+          res.should.be.a('object');
+          res.body.error.should.equal('center not found');
+          done();
+        });
+    })
+
+    it('should return a status 404 error response for fetching events for an invalid centerId', (done) => {
+      chai
+        .request(host)
+        .get('/api/v1/centerId/events')
+        .end((err, res) => {
+          res.should.have.status(400);
+          res.should.be.a('object');
+          res.body.error.should.equal('invalid centerId parameter');
+          done();
+        });
+    })
+
+    it('should return a status 201 success response for fetching events for a center', (done) => {
+      chai
+        .request(host)
+        .get(`/api/v1/${testHelper.centerId}/events`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.a('object');
+          res.body.status.should.equal('success');
+          done();
+        });
+    })
+  })
+
   describe('PUT api/v1/events/:id', () => {
     it('should return a status 200 success response for valid put request', (done) => {
       chai
@@ -370,7 +408,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '20/12/2019',
           guests: 20,
-          days: 2,
+          end: '21/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
@@ -390,11 +428,10 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '10/12/2019',
           guests: 20,
-          days: 2,
+          end: '11/12/2019',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
-          console.log(res.body);
           res.should.have.status(404);
           res.should.be.a('object');
           res.body.should.have.property('error').equal('event not found');
@@ -411,11 +448,10 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '30/12/2019',
           guests: 20,
-          days: 8,
+          end: '01/01/2020',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
-          console.log(res.body);
           res.should.have.status(409);
           res.should.be.a('object');
           res.body.should.have.property('error').equal('dates have been booked');
@@ -432,11 +468,10 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '30/12/2019',
           guests: 600,
-          days: 8,
+          end: '01/01/2020',
           centerId: testHelper.centerId,
         })
         .end((err, res) => {
-          console.log(res.body);
           res.should.have.status(409);
           res.should.be.a('object');
           res.body.should.have.property('error').equal('guests too large for this center');
@@ -453,7 +488,7 @@ describe('Tests for events api', () => {
           type: 'test type 123',
           start: '19/12/2019',
           guests: 20,
-          days: 8,
+          end: '21/12/2019',
           centerId: 0,
         })
         .end((err, res) => {

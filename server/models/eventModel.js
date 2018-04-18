@@ -36,10 +36,6 @@ module.exports = class EventModel {
         type: this.DataTypes.INTEGER,
         allowNull: false,
       },
-      days: {
-        type: this.DataTypes.INTEGER,
-        allowNull: false,
-      },
       isAccepted: {
         type: this.DataTypes.BOOLEAN,
         allowNull: false,
