@@ -26,7 +26,7 @@ module.exports = class AppRouter {
     // route handler for modifying existing event
     router.put(
       '/api/v1/events/:id',
-      UserController.sanitizeId,
+      UserController.sanitizeParams,
       EventController.eventValidations(),
       EventController.checkFailedValidations,
       EventController.checkAndSanitizeDateFields,
@@ -42,10 +42,16 @@ module.exports = class AppRouter {
       EventController.fetchUserEvents,
     );
 
+    router.get(
+      '/api/v1/:centerId/events',
+      UserController.sanitizeParams,
+      EventController.fetchCenterEvents,
+    );
+
     // route handler for declining existing event
     router.put(
       '/api/v1/events/:id/decline',
-      UserController.sanitizeId,
+      UserController.sanitizeParams,
       UserController.verifyAdmin,
       EventController.declineUserEvent,
       EventController.sendMail,
@@ -54,7 +60,7 @@ module.exports = class AppRouter {
     // route handler for deleting existing event
     router.delete(
       '/api/v1/events/:id',
-      UserController.sanitizeId,
+      UserController.sanitizeParams,
       UserController.verifyUserToken,
       EventController.deleteEvent,
     );
@@ -72,7 +78,7 @@ module.exports = class AppRouter {
     // route handler for modifying existing center
     router.put(
       '/api/v1/centers/:id',
-      UserController.sanitizeId,
+      UserController.sanitizeParams,
       CenterController.centerValidations(),
       CenterController.checkFailedValidations,
       CenterController.splitFacilitiesAndImages,
@@ -83,7 +89,7 @@ module.exports = class AppRouter {
     // route handler for fetchinging all existing centers
     router.get(
       '/api/v1/centers/:id',
-      UserController.sanitizeId,
+      UserController.sanitizeParams,
       CenterController.fetchCenter,
     );
 

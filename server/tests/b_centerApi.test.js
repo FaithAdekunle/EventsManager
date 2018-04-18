@@ -417,7 +417,7 @@ describe('Tests for Centers API', () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
-          res.body.center.should.have.any.keys(['events']);
+          res.body.should.have.property('center');
           done();
         });
     });

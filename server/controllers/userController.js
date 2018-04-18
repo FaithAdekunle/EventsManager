@@ -127,9 +127,15 @@ module.exports = class userController {
  * @returns { function | object } next() if id parameter in url is
  * valid or sends error reaponse otherwise
  */
-  static sanitizeId(req, res, next) {
-    req.params.id = parseInt(req.params.id, 10);
-    if (!Number.isInteger(req.params.id)) return res.status(400).json(Help.getResponse('invalid id parameter'));
+  static sanitizeParams(req, res, next) {
+    if (req.params.id) {
+      req.params.id = parseInt(req.params.id, 10);
+      if (!Number.isInteger(req.params.id)) return res.status(400).json(Help.getResponse('invalid id parameter'));
+    }
+    if (req.params.centerId) {
+      req.params.centerId = parseInt(req.params.centerId, 10);
+      if (!Number.isInteger(req.params.centerId)) return res.status(400).json(Help.getResponse('invalid centerId parameter'));
+    }
     return next();
   }
 
@@ -215,15 +221,13 @@ module.exports = class userController {
         return database.user.create(newUser)
           .then((createdUser) => {
             const token = userController.generateToken(createdUser);
-            console.log(token);
             return res.status(201).json(Help.getResponse(token, 'token', true));
           })
-          .catch((err) => {
-            // console.log(err);
-            // res.status(500).json(Help.getResponse('Internal server error'));
+          .catch(() => {
+            res.status(500).json(Help.getResponse('Internal server error'));
           });
       })
-      .catch((err) => {
+      .catch(() => {
         res.status(500).json(Help.getResponse('Internal server error'));
       });
   }
