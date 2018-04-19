@@ -1,40 +1,40 @@
 {
-    "extends": "airbnb",
-    "parser": "babel-eslint",
-    "rules": {
-			"no-param-reassign": "off",
-			"no-case-declarations": "off",
-			"jsx-a11y/label-has-for": [0],
-			"jsx-a11y/anchor-is-valid": "off",
-			"jsx-a11y/click-events-have-key-events": "off",
-			"jsx-a11y/no-noninteractive-element-interactions": "off",
-			"jsx-a11y/no-static-element-interactions": "off",
-			"react/require-default-props": "off",
-			"react/forbid-prop-types": "off",
-			"no-alert": "off",
-			"max-len": [1, 80, 4],
-			"valid-jsdoc": ["error", {
-				"requireReturn": true,
-				"requireReturnType": true,
-				"requireParamDescription": false,
-				"requireReturnDescription": true
-			}],
-			"require-jsdoc": ["error", {
-				"require": {
-					"FunctionDeclaration": true,
-					"MethodDefinition": true,
-					"ClassDeclaration": true
-				}
-			}]
-    },
-    "env": {
-    "node": true,
-    "mocha": true,
-    "es6": true,
-    "browser": true,
-    "jquery": true
-    },
-    "settings": {
-        "import/resolver": "node"
-    }
+	"extends": "airbnb",
+	"parser": "babel-eslint",
+	"rules": {
+		"no-param-reassign": "off",
+		"no-case-declarations": "off",
+		"jsx-a11y/label-has-for": [0],
+		"jsx-a11y/anchor-is-valid": "off",
+		"jsx-a11y/click-events-have-key-events": "off",
+		"jsx-a11y/no-noninteractive-element-interactions": "off",
+		"jsx-a11y/no-static-element-interactions": "off",
+		"react/require-default-props": "off",
+		"react/forbid-prop-types": "off",
+		"no-alert": "off",
+		"max-len": [1, 80, 4],
+		"valid-jsdoc": ["error", {
+			"requireReturn": true,
+			"requireReturnType": true,
+			"requireParamDescription": false,
+			"requireReturnDescription": true
+		}],
+		"require-jsdoc": ["error", {
+			"require": {
+				"FunctionDeclaration": true,
+				"MethodDefinition": true,
+				"ClassDeclaration": true
+			}
+		}]
+	},
+	"env": {
+	"node": true,
+	"mocha": true,
+	"es6": true,
+	"browser": true,
+	"jquery": true
+	},
+	"settings": {
+			"import/resolver": "node"
+	}
 }
