@@ -1,7 +1,8 @@
 import express from 'express';
 import EventController from '../controllers/eventController';
-import { CenterController } from '../controllers/centerController';
+import CenterController from '../controllers/centerController';
 import UserController from '../controllers/userController';
+import Middlewares from '../middlewares';
 
 
 const router = express.Router();
@@ -18,41 +19,41 @@ module.exports = class AppRouter {
       EventController.eventValidations(),
       EventController.checkFailedValidations,
       EventController.checkAndSanitizeDateFields,
-      UserController.verifyUserToken,
-      CenterController.checkAvailability,
+      Middlewares.verifyUserToken,
+      Middlewares.checkAvailability,
       EventController.createEvent,
     );
 
     // route handler for modifying existing event
     router.put(
       '/api/v1/events/:id',
-      UserController.sanitizeParams,
+      Middlewares.sanitizeParams,
       EventController.eventValidations(),
       EventController.checkFailedValidations,
       EventController.checkAndSanitizeDateFields,
-      UserController.verifyUserToken,
-      CenterController.checkAvailability,
+      Middlewares.verifyUserToken,
+      Middlewares.checkAvailability,
       EventController.modifyEvent,
     );
 
     // route handler for deleting existing event
     router.get(
       '/api/v1/events',
-      UserController.verifyUserToken,
+      Middlewares.verifyUserToken,
       EventController.fetchUserEvents,
     );
 
     router.get(
       '/api/v1/:centerId/events',
-      UserController.sanitizeParams,
+      Middlewares.sanitizeParams,
       EventController.fetchCenterEvents,
     );
 
     // route handler for declining existing event
     router.put(
       '/api/v1/events/:id/decline',
-      UserController.sanitizeParams,
-      UserController.verifyAdmin,
+      Middlewares.sanitizeParams,
+      Middlewares.verifyAdmin,
       EventController.declineUserEvent,
       EventController.sendMail,
     );
@@ -60,8 +61,8 @@ module.exports = class AppRouter {
     // route handler for deleting existing event
     router.delete(
       '/api/v1/events/:id',
-      UserController.sanitizeParams,
-      UserController.verifyUserToken,
+      Middlewares.sanitizeParams,
+      Middlewares.verifyUserToken,
       EventController.deleteEvent,
     );
 
@@ -71,25 +72,25 @@ module.exports = class AppRouter {
       CenterController.centerValidations(),
       CenterController.checkFailedValidations,
       CenterController.splitFacilitiesAndImages,
-      UserController.verifyAdmin,
+      Middlewares.verifyAdmin,
       CenterController.addCenter,
     );
 
     // route handler for modifying existing center
     router.put(
       '/api/v1/centers/:id',
-      UserController.sanitizeParams,
+      Middlewares.sanitizeParams,
       CenterController.centerValidations(),
       CenterController.checkFailedValidations,
       CenterController.splitFacilitiesAndImages,
-      UserController.verifyAdmin,
+      Middlewares.verifyAdmin,
       CenterController.modifyCenter,
     );
 
     // route handler for fetchinging all existing centers
     router.get(
       '/api/v1/centers/:id',
-      UserController.sanitizeParams,
+      Middlewares.sanitizeParams,
       CenterController.fetchCenter,
     );
 

@@ -1,7 +1,7 @@
 /**
  * defines class for application state
  */
-class AppState {
+class StoreComponent {
   /**
    * construtor
    */
@@ -18,4 +18,4 @@ class AppState {
   }
 }
 
-module.exports = new AppState();
+module.exports = new StoreComponent();

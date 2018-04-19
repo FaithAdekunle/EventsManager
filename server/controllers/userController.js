@@ -2,8 +2,8 @@ import { body, validationResult } from 'express-validator/check';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import database from '../db';
-import Help from './helpers';
+import db from '../db';
+import Helpers from '../helpers';
 
 dotenv.config({ path: '.env' });
 
@@ -57,7 +57,7 @@ module.exports = class userController {
  * @param {object} req
  * @param {object} res
  * @param {function} next
- * @returns {object | function} next() if validations pass or sends error object otherwise
+ * @returns {object | function} next()
  */
   static checkFailedValidations(req, res, next) {
     if (validationResult(req).isEmpty()) {
@@ -70,7 +70,7 @@ module.exports = class userController {
       return null;
     });
     if (response.length === 1) [response] = response;
-    return res.status(400).json(Help.getResponse(response));
+    return res.status(400).json(Helpers.getResponse(response));
   }
 
   /**
@@ -82,7 +82,10 @@ module.exports = class userController {
    */
   static hashPassword(req, res, next) {
     if (req.body.password !== req.body.confirmPassword) {
-      return res.status(400).json(Help.getResponse('password and confirmPassword fields are not equal'));
+      return res
+        .status(400)
+        .json(Helpers
+          .getResponse('password and confirmPassword fields are not equal'));
     }
     const saltRounds = 10;
     return bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
@@ -120,119 +123,42 @@ module.exports = class userController {
   }
 
   /**
- * ensures incoming id in url is valid
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { function | object } next() if id parameter in url is
- * valid or sends error reaponse otherwise
- */
-  static sanitizeParams(req, res, next) {
-    let sanitized = true;
-    let msg = '';
-    ['id', 'centerId'].map((param) => {
-      if (req.params[param]) {
-        req.params[param] = parseInt(req.params[param], 10);
-        if (!Number.isInteger(req.params[param])) {
-          sanitized = false;
-          msg = `invalid ${param} parameter`
-        }
-      }
-    })
-    if (sanitized === false) return res.status(400).json(Help.getResponse(msg));
-    return next();
-  }
-
-  /**
  * verifies user token
  * @param {object} req
  * @param {object} res
- * @param {object} next
- * @returns { function | object } next() if token is valid or sends err object otherwise
- */
-  static verifyUserToken(req, res, next) {
-    const { token } = req.query;
-    if (!token) return res.status(400).json(Help.getResponse('missing token'));
-    try {
-      const payload = jwt.verify(token, process.env.SECRET);
-      if (Date.now() >= payload.expires) return res.status(401).json(Help.getResponse('token has expired'));
-      return database.user.findOne({
-        where: {
-          id: payload.id,
-        },
-      })
-        .then((user) => {
-          if (!user) return res.status(404).json(Help.getResponse('user not found'));
-          req.body.userId = user.id;
-          return next();
-        });
-    } catch (err) {
-      return res.status(401).json(Help.getResponse('authentication failed'));
-    }
-  }
-
-  /**
- * verifies admin token
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { function | object } next() if token is valid or sends err object otherwise
- */
-  static verifyAdmin(req, res, next) {
-    const { token } = req.query;
-    if (!token) return res.status(400).json(Help.getResponse('missing token'));
-    try {
-      const payload = jwt.verify(token, process.env.SECRET);
-      if (Date.now() >= payload.expires) return res.status(401).json(Help.getResponse('token has expired'));
-      return database.user.findOne({
-        where: {
-          id: payload.id,
-        },
-      })
-        .then((user) => {
-          if (!user) {
-            return res.status(404).json(Help.getResponse('admin not found'));
-          }
-          if (!user.isAdmin) return res.status(401).json(Help.getResponse('unauthorized token'));
-          req.body.updatedBy = payload.id;
-          return next();
-        });
-    } catch (err) {
-      return res.status(401).json(Help.getResponse('authentication failed'));
-    }
-  }
-
-  /**
- * verifies user token
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing created user's token or sends error message
+ * @returns { object } object containing token or error message
  */
   static signUp(req, res) {
-    database.user.findOne({
+    db.user.findOne({
       where: {
         email: req.body.email,
       },
     })
       .then((user) => {
-        if (user) return res.status(409).json(Help.getResponse('a user already exits with this email'));
+        if (user) {
+          return res
+            .status(409)
+            .json(Helpers
+              .getResponse('a user already exits with this email'));
+        }
         const newUser = {
           fullName: req.body.fullName,
           email: req.body.email,
           password: req.body.password,
           isAdmin: false,
         };
-        return database.user.create(newUser)
+        return db.user.create(newUser)
           .then((createdUser) => {
             const token = userController.generateToken(createdUser);
-            return res.status(201).json(Help.getResponse(token, 'token', true));
+            return res.status(201)
+              .json(Helpers.getResponse(token, 'token', true));
           })
           .catch(() => {
-            res.status(500).json(Help.getResponse('Internal server error'));
+            res.status(500).json(Helpers.getResponse('Internal server error'));
           });
       })
       .catch(() => {
-        res.status(500).json(Help.getResponse('Internal server error'));
+        res.status(500).json(Helpers.getResponse('Internal server error'));
       });
   }
 
@@ -240,23 +166,32 @@ module.exports = class userController {
  * verifies user token
  * @param {object} req
  * @param {object} res
- * @returns { object } object containing signed in user's token or sends error message
+ * @returns { object } object containing token or error message
  */
   static signIn(req, res) {
-    database.user.findOne({
+    db.user.findOne({
       where: {
         email: req.body.email,
       },
     })
       .then((user) => {
         if (!user) {
-          return res.status(400).json(Help.getResponse('email and password combination invalid'));
+          return res
+            .status(400)
+            .json(Helpers
+              .getResponse('email and password combination invalid'));
         }
-        return bcrypt.compare(req.body.password, user.password, (error, response) => {
-          if (!response) return res.status(400).json(Help.getResponse('email and password combination invalid'));
-          const token = userController.generateToken(user);
-          return res.json(Help.getResponse(token, 'token', true));
-        });
+        return bcrypt
+          .compare(req.body.password, user.password, (error, response) => {
+            if (!response) {
+              return res
+                .status(400)
+                .json(Helpers
+                  .getResponse('email and password combination invalid'));
+            }
+            const token = userController.generateToken(user);
+            return res.json(Helpers.getResponse(token, 'token', true));
+          });
       });
   }
 };

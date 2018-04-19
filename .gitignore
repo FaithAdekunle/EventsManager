@@ -4,4 +4,5 @@ server/dist
 server/.DS_Store
 /coverage
 .env
+.vscode
 package-lock.json

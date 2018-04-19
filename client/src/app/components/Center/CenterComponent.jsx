@@ -38,7 +38,8 @@ class Center extends React.Component {
           className="center-name"
           ref={(input) => { this.centerName = input; }}
           onClick={this.navToCenter}
-        ><strong>{center.name}</strong>
+        >
+          <strong>{center.name}</strong>
         </span>
         <div className="card center-card">
           <img
@@ -50,14 +51,21 @@ class Center extends React.Component {
           />
           <div className="center-preview">
             <div className="name-and-location">
-              <span className="center-detail"><i className="fa fa-map-marker" aria-hidden="true" /><strong> {center.address}</strong></span>
-              <span className="center-detail"><strong> {center.capacity} guests</strong></span>
+              <span className="center-detail">
+                <i className="fa fa-map-marker" aria-hidden="true" />
+                <strong> {center.address}</strong>
+              </span>
+              <span className="center-detail">
+                <strong> {center.capacity} guests</strong>
+              </span>
             </div>
-            {center.facilities.map((facility) => {
-              return (
-                <span className="badge badge-primary badge-pill" key={facility}>{facility}</span>
-              );
-            })}
+            {
+              center.facilities.map(facility => (
+                <span className="badge badge-primary badge-pill" key={facility}>
+                  {facility}
+                </span>
+              ))
+            }
           </div>
         </div>
       </React.Fragment>

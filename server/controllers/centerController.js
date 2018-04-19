@@ -1,24 +1,10 @@
-import moment from 'moment';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import { Op } from 'sequelize';
-import database from '../db';
-import Help from './helpers';
+import db from '../db';
+import Helpers from '../helpers';
 
-export const jsonHandle = (obj, parse = true) => {
-  if (parse) {
-    if (obj.images) obj.images = JSON.parse(obj.images);
-    if (obj.facilities) obj.facilities = JSON.parse(obj.facilities);
-  } else {
-    if (obj.images) obj.images = JSON.stringify(obj.images);
-    if (obj.facilities) obj.facilities = JSON.stringify(obj.facilities);
-  }
-};
-
-/** CenterController class defines static
-    methods to be used in handling /centers
-    routes */
-export class CenterController {
+module.exports = class CenterController {
 /**
  * provides validation for incoming request body for creating/editing centers
  * @returns { array } an array of functions to parse request
@@ -52,10 +38,10 @@ export class CenterController {
         .withMessage('image(s) invalid'),
       sanitize('cost').toInt(),
       body('cost')
-        .custom(value => Help.sanitizeInteger(value, 'cost')),
+        .custom(value => Helpers.sanitizeInteger(value, 'cost')),
       sanitize('capacity').toInt(),
       body('capacity')
-        .custom(value => Help.sanitizeInteger(value, 'capacity')),
+        .custom(value => Helpers.sanitizeInteger(value, 'capacity')),
     ];
   }
 
@@ -64,7 +50,7 @@ export class CenterController {
  * @param {object} req
  * @param {object} res
  * @param {function} next
- * @returns {object | function} next() if validations pass or sends error object otherwise
+ * @returns {object | function} next()
  */
   static checkFailedValidations(req, res, next) {
     let response = [];
@@ -77,8 +63,18 @@ export class CenterController {
       return next();
     }
     if (response.length === 1) [response] = response;
-    return res.status(400).json(Help.getResponse(response));
+    return res.status(400).json(Helpers.getResponse(response));
   }
+
+  static jsonHandle = (obj, parse = true) => {
+    if (parse) {
+      if (obj.images) obj.images = JSON.parse(obj.images);
+      if (obj.facilities) obj.facilities = JSON.parse(obj.facilities);
+    } else {
+      if (obj.images) obj.images = JSON.stringify(obj.images);
+      if (obj.facilities) obj.facilities = JSON.stringify(obj.facilities);
+    }
+  };
 
   /**
    * splits center facilities into an array
@@ -90,7 +86,8 @@ export class CenterController {
   static splitFacilitiesAndImages(req, res, next) {
     const facilities = [];
     const images = [];
-    req.body.facilities.split('###:###:###').map(facility => facilities.push(facility.trim()));
+    req.body.facilities.split('###:###:###')
+      .map(facility => facilities.push(facility.trim()));
     req.body.images.split('###:###:###').map((image, index) => {
       if (index <= 3) images.push(image.trim());
       return null;
@@ -108,8 +105,8 @@ export class CenterController {
  */
   static addCenter(req, res) {
     req.body.createdBy = req.body.updatedBy;
-    jsonHandle(req.body, false);
-    database.center.findOne({
+    CenterController.jsonHandle(req.body, false);
+    db.center.findOne({
       where: {
         [Op.and]: {
           name: {
@@ -122,17 +119,22 @@ export class CenterController {
       },
     })
       .then((existingCenter) => {
-        if (existingCenter) return res.status(400).json(Help.getResponse('center name already exists in center address'));
-        return database.center.create(req.body)
+        if (existingCenter) {
+          return res.status(400)
+            .json(Helpers
+              .getResponse('center name already exists in center address'));
+        }
+        return db.center.create(req.body)
           .then((center) => {
-            jsonHandle(center);
-            res.status(201).json(Help.getResponse(center, 'center', true));
+            CenterController.jsonHandle(center);
+            res.status(201).json(Helpers.getResponse(center, 'center', true));
           })
           .catch(() => {
-            res.status(500).json(Help.getResponse('Internal server error'));
+            res.status(500).json(Helpers.getResponse('Internal server error'));
           });
       })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 
   /**
@@ -142,7 +144,7 @@ export class CenterController {
  * @returns { object } object containing modified center or sends error message
  */
   static modifyCenter(req, res) {
-    database.center.findOne({
+    db.center.findOne({
       where: {
         [Op.and]: {
           name: req.body.name,
@@ -157,29 +159,37 @@ export class CenterController {
     })
       .then((centerCheck) => {
         if (!centerCheck) {
-          jsonHandle(req.body, false);
-          return database.center.update(req.body, {
+          CenterController.jsonHandle(req.body, false);
+          return db.center.update(req.body, {
             where: {
               id: req.params.id,
             },
           })
             .then((rows) => {
-              if (rows[0] === 0) return res.status(404).json(Help.getResponse('center not found'));
-              return database.center.findOne({
+              if (rows[0] === 0) {
+                return res.status(404)
+                  .json(Helpers.getResponse('center not found'));
+              }
+              return db.center.findOne({
                 where: {
                   id: req.params.id,
-                }
+                },
               })
                 .then((updatedCenter) => {
-                  jsonHandle(updatedCenter);
-                  return res.json(Help.getResponse(updatedCenter, 'center', true));
+                  CenterController.jsonHandle(updatedCenter);
+                  return res.json(Helpers
+                    .getResponse(updatedCenter, 'center', true));
                 });
             })
-            .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+            .catch(() => res.status(500)
+              .json(Helpers.getResponse('Internal server error')));
         }
-        return res.status(409).json(Help.getResponse('center name already exists in center address'));
+        return res.status(409)
+          .json(Helpers
+            .getResponse('center name already exists in center address'));
       })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 
   /**
@@ -217,12 +227,10 @@ export class CenterController {
     parameters.where = where;
     if (offset) parameters.offset = offset;
     if (limit) parameters.limit = limit;
-    return database.center.findAll(parameters)
+    return db.center.findAll(parameters)
       .then((centers) => {
-        centers.map((center) => {
-          return jsonHandle(center);
-        });
-        return res.json(Help.getResponse(centers, 'centers', true));
+        centers.map(center => CenterController.jsonHandle(center));
+        return res.json(Helpers.getResponse(centers, 'centers', true));
       });
   }
 
@@ -233,52 +241,18 @@ export class CenterController {
  * @returns { object } fetched center or fetch error message
  */
   static fetchCenter(req, res) {
-    database.center.findOne({
+    db.center.findOne({
       where: {
         id: req.params.id,
-      }
-    })
-      .then((center) => {
-        if (!center) return res.status(404).json(Help.getResponse('center not found'));
-        jsonHandle(center);
-        return res.json(Help.getResponse(center, 'center', true));
-      });
-  }
-
-  /**
- * checks if a center is available to be booked and if there is any booking date conflict
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { object | function } next() or object containing error message
- */
-  static checkAvailability(req, res, next) {
-    database.center.findOne({
-      where: {
-        id: req.body.centerId,
       },
-      include: [{
-        model: database.event,
-      }],
     })
       .then((center) => {
-        if (!center) return res.status(404).json(Help.getResponse('center not found'));
-        if (req.body.guests > center.capacity) return res.status(409).json(Help.getResponse('guests too large for this center'));
-        let errorFound = false;
-        center.events.map((event) => {
-          if (event.id === req.params.id) return null;
-          const { start, end } = event;
-          if (moment(req.body.start, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
-           || moment(req.body.end, 'DD-MM-YYYY').isBetween(moment(start, 'DD-MM-YYYY'), moment(end, 'DD-MM-YYYY'), null, '[]')
-           || moment(start, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')
-           || moment(end, 'DD-MM-YYYY').isBetween(moment(req.body.start, 'DD-MM-YYYY'), moment(req.body.end, 'DD-MM-YYYY'), null, '[]')) {
-            errorFound = true;
-          }
-          return null;
-        });
-        if (errorFound) return res.status(409).json(Help.getResponse('dates have been booked'));
-        return next();
+        if (!center) {
+          return res.status(404).json(Helpers.getResponse('center not found'));
+        }
+        CenterController.jsonHandle(center);
+        return res.json(Helpers.getResponse(center, 'center', true));
       });
   }
-}
+};
 
