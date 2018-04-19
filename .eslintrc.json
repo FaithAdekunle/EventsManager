@@ -35,6 +35,6 @@
 	"jquery": true
 	},
 	"settings": {
-			"import/resolver": "node"
+		"import/resolver": "node"
 	}
 }
