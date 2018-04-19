@@ -45,7 +45,9 @@ class EditEvent extends React.Component {
   onEventEditFail(response) {
     this.fieldset.disabled = false;
     this.spinner.classList.add('hidden');
-    if (!response) return alert('Looks like you\'re offline. Check internet connection.');
+    if (!response) {
+      return alert('Looks like you\'re offline. Check internet connection.');
+    }
     if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();
       return this.props.history.push('/signin');
@@ -114,68 +116,146 @@ class EditEvent extends React.Component {
     const { eventState } = this.props;
     if (eventState) {
       return (
-        <div className="modal fade" id="editModal" tabIndex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+        <div
+          className="modal fade"
+          id="editModal"
+          tabIndex="-1"
+          role="dialog"
+          aria-labelledby="title"
+          aria-hidden="true"
+        >
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div>
                 <div className="modal-header">
-                  <h5 className="modal-title" id="title">Edit Event<i className="fa fa-spinner fa-spin hidden" ref={(input) => { this.spinner = input; }} aria-hidden="true" /></h5>
-                  <button className="close" type="button" aria-label="Close" onClick={this.nullEvent}>
+                  <h5 className="modal-title" id="title">
+                    Edit Event
+                    <i
+                      className="fa fa-spinner fa-spin hidden"
+                      ref={(input) => { this.spinner = input; }}
+                      aria-hidden="true"
+                    />
+                  </h5>
+                  <button
+                    className="close"
+                    type="button"
+                    aria-label="Close"
+                    onClick={this.nullEvent}
+                  >
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <fieldset ref={(input) => { this.fieldset = input; }}>
-                  <form ref={(input) => { this.form = input; }} onSubmit={this.submitEvent}>
+                  <form
+                    ref={(input) => { this.form = input; }}
+                    onSubmit={this.submitEvent}
+                  >
                     <div className="modal-body">
                       <div className="form-group">
-                        <label htmlFor="name" className="col-form-label">Name</label>
-                        <input ref={(input) => { this.eventName = input; }} required type="text" className="form-control" id="name" defaultValue={eventState.name} />
+                        <label htmlFor="name" className="col-form-label">
+                          Name
+                        </label>
+                        <input
+                          ref={(input) => { this.eventName = input; }}
+                          required
+                          type="text"
+                          className="form-control"
+                          id="name"
+                          defaultValue={eventState.name}
+                        />
                       </div>
                       <div className="form-group">
-                        <label htmlFor="center" className="col-form-label">Center</label>
-                        <input id="center" required type="text" defaultValue={eventState.center.name} className="form-control form-control" />
+                        <label htmlFor="center" className="col-form-label">
+                          Center
+                        </label>
+                        <input
+                          id="center"
+                          required
+                          type="text"
+                          defaultValue={eventState.center.name}
+                          className="form-control form-control"
+                        />
                       </div>
                       <div className="row">
                         <div className="col-5">
                           <div className="form-group">
-                            <label htmlFor="days" className="col-form-label">Days</label>
-                            <input ref={(input) => { this.eventDays = input; }} required type="number" className="form-control" id="days" defaultValue={eventState.days} min="1" max="2147483647" />
+                            <label htmlFor="days" className="col-form-label">
+                              Days
+                            </label>
+                            <input
+                              ref={(input) => { this.eventDays = input; }}
+                              required
+                              type="number"
+                              className="form-control"
+                              id="days"
+                              defaultValue={eventState.days}
+                              min="1"
+                              max="2147483647"
+                            />
                           </div>
                         </div>
                         <div className="col-7">
                           <div className="form-group">
-                            <label htmlFor="date" className="col-form-label">Start Date</label>
-                            <input ref={(input) => { this.eventDate = input; }} required type="date" className="form-control" id="date" defaultValue={this.changeDateFormat(false)} />
+                            <label htmlFor="date" className="col-form-label">
+                              Start Date
+                            </label>
+                            <input
+                              ref={(input) => { this.eventDate = input; }}
+                              required
+                              type="date"
+                              className="form-control"
+                              id="date"
+                              defaultValue={this.changeDateFormat(false)}
+                            />
                           </div>
                         </div>
                       </div>
                       <div className="row last-row">
                         <div className="col-7">
                           <div className="form-group">
-                            <label htmlFor="type" className="col-form-label">Event type</label>
-                            <select ref={(input) => { this.eventType = input; }} required id="type" className="custom-select form-control">
-                              {Helpers.centerTypes.map((type) => {
-                                return (
-                                  <option
-                                    key={type}
-                                    value={type}
-                                    selected={type === eventState.type}
-                                  >{type}
-                                  </option>
-                                );
-                              })}
+                            <label htmlFor="type" className="col-form-label">
+                              Event type
+                            </label>
+                            <select
+                              ref={(input) => { this.eventType = input; }}
+                              required
+                              id="type"
+                              className="custom-select form-control"
+                            >
+                              {Helpers.centerTypes.map(type => (
+                                <option
+                                  key={type}
+                                  value={type}
+                                  selected={type === eventState.type}
+                                >
+                                  {type}
+                                </option>
+                                ))}
                             </select>
                           </div>
                         </div>
                         <div className="col-5">
                           <div className="form-group">
-                            <label htmlFor="guests" className="col-form-label">Guests</label>
-                            <input ref={(input) => { this.eventGuests = input; }} required type="number" className="form-control" id="guests" defaultValue={eventState.guests} min="0" max={eventState.center.capacity} />
+                            <label htmlFor="guests" className="col-form-label">
+                              Guests
+                            </label>
+                            <input
+                              ref={(input) => { this.eventGuests = input; }}
+                              required
+                              type="number"
+                              className="form-control"
+                              id="guests"
+                              defaultValue={eventState.guests}
+                              min="0"
+                              max={eventState.center.capacity}
+                            />
                           </div>
                         </div>
                       </div>
                       <div className="modal-footer">
-                        <button type="submit" className="btn btn-primary">Save changes</button>
+                        <button type="submit" className="btn btn-primary">
+                          Save changes
+                        </button>
                       </div>
                     </div>
                   </form>
@@ -190,11 +270,9 @@ class EditEvent extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    token: state.token,
-    eventState: state.eventState,
-  };
-};
+const mapStateToProps = state => ({
+  token: state.token,
+  eventState: state.eventState,
+});
 
 export default connect(mapStateToProps)(EditEvent);

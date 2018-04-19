@@ -7,7 +7,7 @@ class Helpers {
  * @param { any } data
  * @param { string } dataName
  * @param { boolean } success
- * @returns { object } next() if validations pass or sends error object otherwise
+ * @returns { object } next()
  */
   static getResponse(data, dataName = 'error', success = false) {
     const response = {

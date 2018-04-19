@@ -83,8 +83,11 @@ class EventActions {
         EventActions.updateEventsState(response.data.events);
       })
       .catch((err) => {
-        if (!err.response) OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
-        else {
+        if (!err.response) {
+          OtherActions
+            .updateAlertState(`Looks like you're offline. 
+            Check internet connection.`);
+        } else {
           onFetchEventsFail(err.response);
         }
       });
@@ -98,7 +101,12 @@ class EventActions {
    * @param { function } onEventSubmitFail
    * @returns { void }
    */
-  static addEvent(credentials, token, onEventSubmitSuccessful, onEventSubmitFail) {
+  static addEvent(
+    credentials,
+    token,
+    onEventSubmitSuccessful,
+    onEventSubmitFail,
+  ) {
     axios
       .post(`${Helpers.host}/events?token=${token}`, credentials)
       .then(() => {

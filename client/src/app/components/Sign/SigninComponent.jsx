@@ -52,7 +52,11 @@ class SignIn extends React.Component {
    */
   onUserLoginFail(response) {
     this.changeFormState(false);
-    if (!response) return OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+    if (!response) {
+      return OtherActions
+        .updateAlertState(`Looks like you're offline. 
+        Check internet connection.`);
+    }
     OtherActions.updateAlertState(Array.isArray(response.data.error) ?
       response.data.error[0] : response.data.error);
     return setTimeout(() => OtherActions.updateAlertState(null), 10000);
@@ -70,7 +74,8 @@ class SignIn extends React.Component {
       email: this.email.value,
       password: this.password.value,
     };
-    OtherActions.login(credentials, this.onUserLoginSuccessful, this.onUserLoginFail);
+    OtherActions
+      .login(credentials, this.onUserLoginSuccessful, this.onUserLoginFail);
   }
 
   /**
@@ -104,13 +109,22 @@ class SignIn extends React.Component {
             <div className="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
               <div className="card">
                 <div className="card-header">
-                  <h2>Sign in to manage your events and more <i className="fa fa-spinner fa-spin hidden" ref={(input) => { this.spinner = input; }} aria-hidden="true" /></h2>
+                  <h2>
+                    Sign in to manage your events and more
+                    <i
+                      className="fa fa-spinner fa-spin hidden"
+                      ref={(input) => { this.spinner = input; }}
+                      aria-hidden="true"
+                    />
+                  </h2>
                 </div>
                 <div className="card-body">
                   <fieldset ref={(input) => { this.fieldset = input; }}>
                     <form onSubmit={this.onSubmit}>
                       <div className="form-group">
-                        <label htmlFor="email" className="col-form-label">Email address</label>
+                        <label htmlFor="email" className="col-form-label">
+                          Email address
+                        </label>
                         <input
                           required
                           type="email"
@@ -118,7 +132,9 @@ class SignIn extends React.Component {
                           id="email"
                           ref={(input) => { this.email = input; }}
                         />
-                        <label htmlFor="password" className="col-form-label">Password</label>
+                        <label htmlFor="password" className="col-form-label">
+                          Password
+                        </label>
                         <input
                           required
                           type="password"
@@ -130,7 +146,8 @@ class SignIn extends React.Component {
                         />
                         <input
                           type="submit"
-                          className="btn btn-block btn-outline-primary submit-button"
+                          className="btn btn-block btn-outline-primary
+                          submit-button"
                           defaultValue="Sign in"
                           ref={(input) => { this.submit = input; }}
                         />
@@ -140,11 +157,16 @@ class SignIn extends React.Component {
                 </div>
               </div>
               <div className="redirect">
-                <a className="navTo redirect-to" onClick={this.navToSignup}>New here? Sign up for a new account.</a>
+                <a className="navTo redirect-to" onClick={this.navToSignup}>
+                  New here? Sign up for a new account.
+                </a>
               </div>
             </div>
             <div className="col-md-2 col-lg-3">
-              <div className={`alert alert-danger ${!this.props.alertState ? 'hidden' : ''}`}>
+              <div
+                className={`alert alert-danger 
+                ${!this.props.alertState ? 'hidden' : ''}`}
+              >
                 {this.props.alertState}
               </div>
             </div>
@@ -155,10 +177,6 @@ class SignIn extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    alertState: state.alertState,
-  };
-};
+const mapStateToProps = state => ({ alertState: state.alertState });
 
 export default connect(mapStateToProps)(SignIn);

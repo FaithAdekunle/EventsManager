@@ -1,7 +1,7 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import Center from './CenterComponent';
+import Center from './CenterComponent.jsx';
 import OtherActions from '../../actions/others';
 import CenterActions from '../../actions/centerActions';
 
@@ -170,7 +170,10 @@ class Centers extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <div className="centers-loader" ref={(input) => { this.mainLoader = input; }} />
+        <div
+          className="centers-loader"
+          ref={(input) => { this.mainLoader = input; }}
+        />
         <div className="centers-container">
           {
             this.props.alert ? (
@@ -226,29 +229,31 @@ class Centers extends React.Component {
             this.props.centers.length > 0 ? (
               <div className="row">
                 {
-                  this.props.centers.map((center) => {
-                    return (
-                      <div className="col-md-6 col-lg-4 single-center" key={center.id}>
-                        <Center center={center} history={this.props.history} />
-                      </div>
-                    );
-                  })
+                  this.props.centers.map(center => (
+                    <div
+                      className="col-md-6 col-lg-4 single-center"
+                      key={center.id}
+                    >
+                      <Center center={center} history={this.props.history} />
+                    </div>
+                    ))
               }
               </div>
             ) : ''
           }
-          <div className="centers-loader" ref={(input) => { this.subLoader = input; }} />
+          <div
+            className="centers-loader"
+            ref={(input) => { this.subLoader = input; }}
+          />
         </div>
       </React.Fragment>
     );
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    centers: state.centersState,
-    alert: state.alertState,
-  };
-};
+const mapStateToProps = state => ({
+  centers: state.centersState,
+  alert: state.alertState,
+});
 
 export default connect(mapStateToProps)(Centers);

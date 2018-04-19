@@ -6,7 +6,10 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import '../style/index.sass';
-import App from './components/AppComponent';
+import App from './components/AppComponent.jsx';
 import store from './Reducers';
 
-render(<Provider store={store}><App /></Provider>, window.document.getElementById('container'));
+render(
+  <Provider store={store}><App /></Provider>,
+  window.document.getElementById('container'),
+);

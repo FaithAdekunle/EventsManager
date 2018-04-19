@@ -18,6 +18,15 @@ class NavTab extends React.Component {
   }
 
   /**
+   * prevents default form submit
+   * @param { object } e
+   * @returns { void }
+   */
+  static searchSubmit(e) {
+    e.preventDefault();
+  }
+
+  /**
    * constructor
    */
   constructor() {
@@ -25,7 +34,6 @@ class NavTab extends React.Component {
     this.navTo = this.navTo.bind(this);
     this.signout = this.signout.bind(this);
     this.searchCenter = this.searchCenter.bind(this);
-    this.searchSubmit = this.searchSubmit.bind(this);
     this.onWindowClick = this.onWindowClick.bind(this);
     this.onFocus = this.onFocus.bind(this);
   }
@@ -43,7 +51,9 @@ class NavTab extends React.Component {
    * @returns { void }
    */
   onFocus() {
-    if (!(this.props.location.pathname === '/centers')) this.searchList.classList.remove('hidden');
+    if (!(this.props.location.pathname === '/centers')) {
+      this.searchList.classList.remove('hidden');
+    }
   }
 
   /**
@@ -88,15 +98,6 @@ class NavTab extends React.Component {
   }
 
   /**
-   * prevents default form submit
-   * @param { object } e
-   * @returns { void }
-   */
-  searchSubmit(e) {
-    e.preventDefault();
-  }
-
-  /**
    * navigates to center details page
    * @param { number } id
    * @returns { void }
@@ -131,50 +132,129 @@ class NavTab extends React.Component {
         fourthLink = (
           <React.Fragment>
             <li className="nav-item">
-              <a className="nav-link navTo text-white" onClick={() => this.navTo('/admin')}>Admin</a>
+              <a
+                className="nav-link navTo text-white"
+                onClick={() => this.navTo('/admin')}
+              >
+                Admin
+              </a>
             </li>
             <li className="nav-item pull-right">
-              <a className="nav-link navTo text-white" onClick={this.signout} >Sign out</a>
+              <a
+                className="nav-link navTo text-white"
+                onClick={this.signout}
+              >
+                Sign out
+              </a>
             </li>
           </React.Fragment>
         );
       } else {
         thirdLink = (
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle text-white navTo" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{Helpers.getFirstName(fullName)}</a>
+            <a
+              className="nav-link dropdown-toggle text-white navTo"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {Helpers.getFirstName(fullName)}
+            </a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a className="dropdown-item navTo" onClick={() => this.navTo('/events')}>My Events</a>
+              <a
+                className="dropdown-item navTo"
+                onClick={() => this.navTo('/events')}
+              >
+                My Events
+              </a>
               <div className="dropdown-divider" />
-              <a className="dropdown-item navTo" onClick={this.signout}>Sign out</a>
+              <a className="dropdown-item navTo" onClick={this.signout}>
+                Sign out
+              </a>
             </div>
           </li>);
       }
     } else {
-      if (location.pathname !== '/signin') firstLink = (<li className="nav-item"><a className="nav-link text-white navTo" onClick={() => this.navTo('/signin')}>Sign in</a></li>);
-      if (location.pathname !== '/signup') secondLink = (<li className="nav-item"><a className="nav-link text-white navTo"onClick={() => this.navTo('/signup')}>Sign up</a></li>);
+      if (location.pathname !== '/signin') {
+        firstLink = (
+          <li className="nav-item">
+            <a
+              className="nav-link text-white navTo"
+              onClick={() => this.navTo('/signin')}
+            >
+              Sign in
+            </a>
+          </li>
+        );
+      }
+      if (location.pathname !== '/signup') {
+        secondLink = (
+          <li className="nav-item">
+            <a
+              className="nav-link text-white navTo"
+              onClick={() => this.navTo('/signup')}
+            >
+              Sign up
+            </a>
+          </li>
+        );
+      }
     }
     return (
       <React.Fragment>
-        <nav className="navbar navbar-fixed-top navbar-expand-lg navbar-light bg-dark">
-          <a className="navbar-brand text-white mr-auto navTo" onClick={() => this.navTo('/home')}>EventsManager</a>
-          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <nav
+          className="navbar navbar-fixed-top navbar-expand-lg
+           navbar-light bg-dark"
+        >
+          <a
+            className="navbar-brand text-white mr-auto navTo"
+            onClick={() => this.navTo('/home')}
+          >
+            EventsManager
+          </a>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
             <span className="navbar-toggler-icon" />
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             {
               this.props.location.pathname === '/centers' ? null :
-              <form className="form-inline ml-auto my-lg-0" onSubmit={this.searchSubmit}>
+              <form
+                className="form-inline ml-auto my-lg-0"
+                onSubmit={NavTab.searchSubmit}
+              >
                 <div className="search-entry">
-                  <input type="text" className="form-control window-exclude" placeholder="search centers" aria-describedby="navbar-search" onKeyUp={(e) => { this.searchCenter(e); }} onFocus={this.onFocus} />
-                  <ul className="list-group search-result" ref={(input) => { this.searchList = input; }} >
+                  <input
+                    type="text"
+                    className="form-control window-exclude"
+                    placeholder="search centers"
+                    aria-describedby="navbar-search"
+                    onKeyUp={(e) => { this.searchCenter(e); }}
+                    onFocus={this.onFocus}
+                  />
+                  <ul
+                    className="list-group search-result"
+                    ref={(input) => { this.searchList = input; }}
+                  >
                     {
-                      this.props.centerSearch.map((center) => {
-                        return (
-                          <li className="list-group-item window-exclude" key={center.id} onClick={() => this.navToCenter(center.id)}>
-                            {`${center.name} - ${center.address}`}
-                          </li>
-                        );
-                      })
+                      this.props.centerSearch.map(center => (
+                        <li
+                          className="list-group-item window-exclude"
+                          key={center.id}
+                          onClick={() => this.navToCenter(center.id)}
+                        >
+                          {`${center.name} - ${center.address}`}
+                        </li>
+                      ))
                     }
                   </ul>
                 </div>
@@ -182,7 +262,12 @@ class NavTab extends React.Component {
             }
             <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
               <li className="nav-item">
-                <a className="nav-link text-white navTo" onClick={() => this.navTo('/centers')}>Centers</a>
+                <a
+                  className="nav-link text-white navTo"
+                  onClick={() => this.navTo('/centers')}
+                >
+                  Centers
+                </a>
               </li>
               {firstLink}
               {secondLink}
@@ -196,11 +281,9 @@ class NavTab extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    token: state.token,
-    centerSearch: state.centerSearch,
-  };
-};
+const mapStateToProps = state => ({
+  token: state.token,
+  centerSearch: state.centerSearch,
+});
 
 export default withRouter(connect(mapStateToProps)(NavTab));

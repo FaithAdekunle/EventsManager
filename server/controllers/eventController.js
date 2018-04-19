@@ -3,21 +3,20 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { body, validationResult } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
-import database from '../db';
-import Help from './helpers';
+import db from '../db';
+import Helpers from '../helpers';
 
 dotenv.config({ path: '.env' });
 
-// set up transporter for nodemailer
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASSWORD,
-  },
-});
-
 module.exports = class EventController {
+  static transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD,
+    },
+  });
+
   /**
   * provides validation for incoming start and end dates
   * @param { integer } value
@@ -28,10 +27,11 @@ module.exports = class EventController {
     if (!moment(value, 'DD-MM-YYYY').isValid()) {
       throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
     }
-    if (!(moment(value, 'DD-MM-YYYY').isAfter(moment()))) throw new Error(`${field} date is past`);
+    if (!(moment(value, 'DD-MM-YYYY')
+      .isAfter(moment()))) throw new Error(`${field} date is past`);
   }
 
-/**
+  /**
  * provides validation for incoming request body for creating/editing event
  * @returns { array } an array of functions to parse request
  */
@@ -64,7 +64,7 @@ module.exports = class EventController {
         }),
       sanitize('guests').toInt(),
       body('guests')
-        .custom(value => Help.sanitizeInteger(value, 'guests')),
+        .custom(value => Helpers.sanitizeInteger(value, 'guests')),
     ];
   }
 
@@ -73,7 +73,7 @@ module.exports = class EventController {
  * @param {object} req
  * @param {object} res
  * @param {function} next
- * @returns {object | function} next() if validations pass or sends error object otherwise
+ * @returns {object | function} next()
  */
   static checkFailedValidations(req, res, next) {
     if (validationResult(req).isEmpty()) return next();
@@ -85,7 +85,7 @@ module.exports = class EventController {
     });
     if (response.length === 0) return next();
     if (response.length === 1) [response] = response;
-    return res.status(400).json(Help.getResponse(response));
+    return res.status(400).json(Helpers.getResponse(response));
   }
 
   /**
@@ -93,15 +93,19 @@ module.exports = class EventController {
  * @param {object} req
  * @param {object} res
  * @param {function} next
- * @returns {object | function} next() if validations pass or sends error object otherwise
+ * @returns {object | function} next()
  */
   static checkAndSanitizeDateFields(req, res, next) {
-    if ((moment(req.body.start, 'DD-MM-YYYY').isAfter(moment(req.body.end, 'DD-MM-YYYY')))) {
-      return res.status(400).json(Help.getResponse('start date cannot be ahead of end date'))
+    if ((moment(req.body.start, 'DD-MM-YYYY')
+      .isAfter(moment(req.body.end, 'DD-MM-YYYY')))) {
+      return res.status(400).json(Helpers
+        .getResponse('start date cannot be ahead of end date'));
     }
     ['start', 'end'].map((date) => {
-      req.body[date] = moment(req.body[date], 'DD-MM-YYYY').format('DD MM YYYY').split(' ').join('/');
-    })
+      req.body[date] = moment(req.body[date], 'DD-MM-YYYY')
+        .format('DD MM YYYY').split(' ').join('/');
+      return null;
+    });
     return next();
   }
 
@@ -112,12 +116,12 @@ module.exports = class EventController {
  * @returns { object } object containing created event or sends error message
  */
   static createEvent(req, res) {
-    database.event.create(req.body)
+    db.event.create(req.body)
       .then((createdEvent) => {
-        res.status(201).json(Help.getResponse(createdEvent, 'event', true));
+        res.status(201).json(Helpers.getResponse(createdEvent, 'event', true));
       })
       .catch(() => {
-        res.status(500).json(Help.getResponse('Internal server error'));
+        res.status(500).json(Helpers.getResponse('Internal server error'));
       });
   }
 
@@ -128,30 +132,34 @@ module.exports = class EventController {
  * @returns { object } object containing modified event or sends error message
  */
   static modifyEvent(req, res) {
-    database.event.update(req.body, {
+    db.event.update(req.body, {
       where: {
         id: req.params.id,
         userId: req.body.userId,
       },
     })
       .then((rows) => {
-        if (rows[0] === 0) return res.status(404).json(Help.getResponse('event not found'));
-        return database.event.findOne({
+        if (rows[0] === 0) {
+          return res.status(404).json(Helpers.getResponse('event not found'));
+        }
+        return db.event.findOne({
           where: {
             id: req.params.id,
             userId: req.body.userId,
           },
           include: [{
-            model: database.center,
+            model: db.center,
             attributes: ['name', 'capacity'],
           }],
         })
           .then((updatedEvent) => {
-            res.json(Help.getResponse(updatedEvent, 'event', true));
+            res.json(Helpers.getResponse(updatedEvent, 'event', true));
           })
-          .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+          .catch(() => res.status(500)
+            .json(Helpers.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 
   /**
@@ -161,32 +169,35 @@ module.exports = class EventController {
  * @returns { object } object containing delete success message or error message
  */
   static deleteEvent(req, res) {
-    database.event.findOne({
+    db.event.findOne({
       where: {
         id: req.params.id,
         userId: req.body.userId,
       },
     })
       .then((event) => {
-        if (!event) return res.status(404).json(Help.getResponse('event not found'));
-        return database.event.destroy({
+        if (!event) {
+          return res.status(404).json(Helpers.getResponse('event not found'));
+        }
+        return db.event.destroy({
           where: {
             id: req.params.id,
             userId: req.body.userId,
           },
         })
-          .then(() => {
-            return res.json(Help.getResponse(req.params.id, 'deteted', true));
-          })
-          .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+          .then(() => res.json(Helpers
+            .getResponse(req.params.id, 'deteted', true)))
+          .catch(() => res.status(500)
+            .json(Helpers.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 
   /**
  * filters events based on query properties
  * @param {object} events
- * @param {object} res
+ * @param {object} req
  * @returns { object } object containing all user's event or fetch error message
  */
   static filterEvents(events, req) {
@@ -195,9 +206,9 @@ module.exports = class EventController {
     const { upcoming } = req.query;
     let upcomingEvents = null;
     if (upcoming === 'true') {
-      upcomingEvents = events.filter((event) => {
-        return moment(event.end, 'DD-MM-YYYY').isSameOrAfter(moment());
-      })
+      upcomingEvents = events
+        .filter(event => moment(event.end, 'DD-MM-YYYY')
+          .isSameOrAfter(moment()));
     } else {
       upcomingEvents = events;
     }
@@ -213,23 +224,22 @@ module.exports = class EventController {
  * @returns { object } object containing all user's event or fetch error message
  */
   static fetchUserEvents(req, res) {
-    database.event.findAll({
+    db.event.findAll({
       where: {
         userId: req.body.userId,
       },
       include: [{
-        model: database.center,
+        model: db.center,
         attributes: ['name', 'capacity'],
       }],
     })
-      .then((events) => {
-        return res.json(
-          Help.getResponse(EventController.filterEvents(events, req),
-          'events',
-          true,
-        ));
-      })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .then(events => res.json(Helpers.getResponse(
+        EventController.filterEvents(events, req),
+        'events',
+        true,
+      )))
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 
   /**
@@ -238,30 +248,32 @@ module.exports = class EventController {
  * @param {object} res
  * @returns { object } object containing all user's event or fetch error message
  */
-static fetchCenterEvents(req, res) {
-  database.center.findOne({
-    where: {
-      id: req.params.centerId,
-    }
-  })
-    .then((center) => {
-      if (!center) return res.status(404).json(Help.getResponse('center not found'));
-      database.event.findAll({
-        where: {
-          centerId: req.params.centerId,
+  static fetchCenterEvents(req, res) {
+    db.center.findOne({
+      where: {
+        id: req.params.centerId,
+      },
+    })
+      .then((center) => {
+        if (!center) {
+          return res.status(404).json(Helpers.getResponse('center not found'));
         }
-      })
-        .then((events) => {
-          return res.json(
-            Help.getResponse(EventController.filterEvents(events, req),
+        return db.event.findAll({
+          where: {
+            centerId: req.params.centerId,
+          },
+        })
+          .then(events => res.json(Helpers.getResponse(
+            EventController.filterEvents(events, req),
             'events',
             true,
-          ));
-        })
-        .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
-    })
-    .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
-}
+          )))
+          .catch(() => res.status(500)
+            .json(Helpers.getResponse('Internal server error')));
+      })
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
+  }
 
   /**
  * declines existing event
@@ -271,16 +283,19 @@ static fetchCenterEvents(req, res) {
  * @returns { object } object containing modified event or sends error message
  */
   static declineUserEvent(req, res, next) {
-    database.event.update({ isAccepted: false }, {
+    db.event.update({ isAccepted: false }, {
       where: {
         id: req.params.id,
       },
     })
       .then((rows) => {
-        if (rows[0] === 0) return res.status(404).json(Help.getResponse('event not found'));
+        if (rows[0] === 0) {
+          return res.status(404).json(Helpers.getResponse('event not found'));
+        }
         return next();
       })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 
   /**
@@ -290,34 +305,42 @@ static fetchCenterEvents(req, res) {
  * @returns { object } object containing success message or sends error message
  */
   static sendMail(req, res) {
-    database.event.findOne({
+    db.event.findOne({
       where: {
         id: req.params.id,
       },
     })
-      .then((event) => {
-        return database.user.findOne({
-          where: {
-            id: event.userId,
-          },
-        })
-          .then((user) => {
-            const mailOptions = {
-              from: process.env.EMAIL,
-              subject: 'Event Decline',
-              to: user.email,
-              html: `<p>Dear user, we are very sorry to inform you that your event titled <strong>${event.name}</strong> slated between ${event.start} and ${event.end} has been declined due to internal reasons</p>. 
-                    <p>Appropriate refunds will be made. Do bare with us please.</p>
-                    <p>Thanks. Admin.</p>`,
-            };
-            return transporter.sendMail(mailOptions, (error) => {
-              if (error) return res.status(404).json(Help.getResponse('event declined, error occured sending mail to user'));
-              return res.json(Help.getResponse(req.params.id, 'declined', true));
-            });
-          })
-          .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+      .then(event => db.user.findOne({
+        where: {
+          id: event.userId,
+        },
       })
-      .catch(() => res.status(500).json(Help.getResponse('Internal server error')));
+        .then((user) => {
+          const mailOptions = {
+            from: process.env.EMAIL,
+            subject: 'Event Decline',
+            to: user.email,
+            html: `<p>Dear user, we are very sorry to inform you that your 
+            event titled <strong>${event.name}</strong> slated between 
+            ${event.start} and ${event.end} has been declined due to 
+            internal reasons</p>.<p>Appropriate refunds will be made. 
+            Do bare with us please.</p><p>Thanks. Admin.</p>`,
+          };
+          return EventController.transporter.sendMail(mailOptions, (error) => {
+            if (error) {
+              return res
+                .status(404)
+                .json(Helpers
+                  .getResponse('error occured sending mail to user'));
+            }
+            return res.json(Helpers
+              .getResponse(req.params.id, 'declined', true));
+          });
+        })
+        .catch(() => res.status(500)
+          .json(Helpers.getResponse('Internal server error'))))
+      .catch(() => res.status(500)
+        .json(Helpers.getResponse('Internal server error')));
   }
 };
 

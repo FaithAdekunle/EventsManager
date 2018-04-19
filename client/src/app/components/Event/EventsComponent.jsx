@@ -1,9 +1,9 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import Event from './EventComponent';
-import EditEvent from './EditEventComponent';
-import DeleteEvent from './DeleteEventComponent';
+import Event from './EventComponent.jsx';
+import EditEvent from './EditEventComponent.jsx';
+import DeleteEvent from './DeleteEventComponent.jsx';
 import OtherActions from '../../actions/others';
 import EventActions from '../../actions/eventActions';
 
@@ -59,19 +59,6 @@ class Events extends React.Component {
   }
 
   /**
-   * opens edit modal
-   * @returns { void }
-   */
-  openModal() {
-    const modal = $('#editModal');
-    modal.modal({
-      show: true,
-      keyboard: false,
-      backdrop: 'static',
-    });
-  }
-
-  /**
    * renders component in browser
    * @returns { component } to be rendered on the page
    */
@@ -85,30 +72,45 @@ class Events extends React.Component {
           <div className="col-lg-10 offset-lg-1">
             <div className="row my-events">
               <div className="col-8">
-                <h5>My Events | {this.props.alertState === 'loading' ? spinner : this.props.alertState !== null ? '?' :
-                this.props.eventsState.length}
+                <h5>
+                    My Events | {this.props.alertState === 'loading' ? spinner :
+                      this.props.eventsState.length}
                 </h5>
               </div>
             </div>
-            <div className={this.props.alertState && this.props.alertState !== 'loading' ? '' : 'hidden'}>
+            <div
+              className={this.props.alertState &&
+                 this.props.alertState !== 'loading' ?
+              '' : 'hidden'}
+            >
               <div className="alert alert-info" role="alert">
                 <strong>{this.props.alertState}</strong>
               </div>
             </div>
-            <div className={`${this.props.eventsState.length === 0 && this.props.alertState === null ? '' : 'hidden'}`}>
-              <h5>You have no registered events yet. Visit <a className="navTo redirect-to" onClick={() => this.props.history.push('/centers')}>centers</a> page.</h5>
+            <div
+              className={`${this.props.eventsState.length === 0 &&
+               this.props.alertState === null ? '' : 'hidden'}`}
+            >
+              <h5>
+                You have no registered events yet. Visit
+                <a
+                  className="navTo redirect-to"
+                  onClick={() => this.props.history.push('/centers')}
+                >
+                  centers
+                </a>
+                  page.
+              </h5>
             </div>
             <div className="row">
-              {this.props.eventsState.map((event) => {
-                return (
-                  <div className="col-md-6" key={event.id}>
-                    <Event
-                      event={event}
-                      history={this.props.history}
-                    />
-                  </div>
-                );
-              })}
+              {this.props.eventsState.map(event => (
+                <div className="col-md-6" key={event.id}>
+                  <Event
+                    event={event}
+                    history={this.props.history}
+                  />
+                </div>
+                ))}
             </div>
           </div>
         </div>
@@ -119,13 +121,11 @@ class Events extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    token: state.token,
-    eventsState: state.eventsState,
-    alertState: state.alertState,
-  };
-};
+const mapStateToProps = state => ({
+  token: state.token,
+  eventsState: state.eventsState,
+  alertState: state.alertState,
+});
 
 export default connect(mapStateToProps)(Events);
 

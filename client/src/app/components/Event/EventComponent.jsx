@@ -86,38 +86,71 @@ class Event extends React.Component {
         <div className="event-title">
           <h6 className={!event.isAccepted ? 'declined' : ''}>{event.name}</h6>
           <div>
-            <a className="navTo" onClick={() => this.openEditModal()}><i className="fa fa-pencil navTo" aria-hidden="true" /></a>
-            <a className="navTo delete-event" onClick={() => this.openDeleteModal()}><i className="fa fa-times navTo" aria-hidden="true" /></a>
+            <a
+              className="navTo"
+              onClick={() => this.openEditModal()}
+            >
+              <i className="fa fa-pencil navTo" aria-hidden="true" />
+            </a>
+            <a
+              className="navTo delete-event"
+              onClick={() => this.openDeleteModal()}
+            >
+              <i className="fa fa-times navTo" aria-hidden="true" />
+            </a>
           </div>
         </div>
         <div className="dropdown-divider divider" />
         <div className="row event-prop">
-          <div className="col-6"><span>Type: <strong className="text-muted">{event.type}</strong></span></div>
-          <div className="col-6"><span>Guests: <strong className="text-muted">{event.guests}</strong></span></div>
-          <div className="col-6"><span>Start: <strong className="text-muted">{event.start}</strong></span></div>
-          <div className="col-6"><span>End: <strong className="text-muted">{event.end}</strong></span></div>
+          <div className="col-6">
+            <span>Type:
+              <strong className="text-muted">{event.type}</strong>
+            </span>
+          </div>
+          <div className="col-6">
+            <span>Guests:
+              <strong className="text-muted">
+                {event.guests}
+              </strong>
+            </span>
+          </div>
+          <div className="col-6">
+            <span>Start:
+              <strong className="text-muted">
+                {event.start}
+              </strong>
+            </span>
+          </div>
+          <div className="col-6">
+            <span>End:
+              <strong className="text-muted">
+                {event.end}
+              </strong>
+            </span>
+          </div>
         </div>
-        <div className="venue"><span>Venue: </span><a className="navTo" onClick={this.navToCenter}><strong>{event.center.name}</strong></a></div>
+        <div className="venue">
+          <span>Venue: </span>
+          <a className="navTo" onClick={this.navToCenter}>
+            <strong>
+              {event.center.name}
+            </strong>
+          </a>
+        </div>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    centers: state.centersState,
-  };
-};
+const mapStateToProps = state => ({ centers: state.centersState });
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateEventState: (event) => {
-      dispatch({
-        type: 'UPDATE_EVENT_STATE',
-        payload: event,
-      });
-    },
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  updateEventState: (event) => {
+    dispatch({
+      type: 'UPDATE_EVENT_STATE',
+      payload: event,
+    });
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Event);

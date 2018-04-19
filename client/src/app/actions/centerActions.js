@@ -74,7 +74,12 @@ class CenterActions {
    * @param { boolean } admin
    * @returns { void }
    */
-  static getCenter(id, beforeCenterLoad, onCenterLoadSuccessful, admin = false) {
+  static getCenter(
+    id,
+    beforeCenterLoad,
+    onCenterLoadSuccessful,
+    admin = false,
+  ) {
     CenterActions.updateCenterState(null);
     beforeCenterLoad();
     axios
@@ -82,14 +87,18 @@ class CenterActions {
       .then((response) => {
         onCenterLoadSuccessful();
         CenterActions.updateCenterState(response.data.center);
-        if (admin) OtherActions.updateSelectedImages(response.data.center.images);
+        if (admin) {
+          OtherActions.updateSelectedImages(response.data.center.images);
+        }
       })
       .catch(({ response }) => {
         if (response) {
           onCenterLoadSuccessful();
           OtherActions.updateAlertState(response.data.error);
         } else {
-          OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+          OtherActions
+            .updateAlertState(`Looks like 
+            you're offline. Check internet connection.`);
         }
       });
   }
@@ -121,7 +130,9 @@ class CenterActions {
     OtherActions.updateAlertState(null);
     beforeLoad(loader);
     axios
-      .get(`${Helpers.host}/centers?filter=${filter}&facility=${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}`)
+      .get(`${Helpers.host}/centers
+      ?filter=${filter}&facility=${facility}&capacity=
+      ${capacity}&offset=${offset}&limit=${limit}`)
       .then((response) => {
         onLoadSuccessful(loader);
         setTimeout(() => {
@@ -134,7 +145,9 @@ class CenterActions {
           onLoadSuccessful(loader);
           OtherActions.updateAlertState(response.data.error);
         }
-        OtherActions.updateAlertState('Looks like you\'re offline. Check internet connection.');
+        OtherActions
+          .updateAlertState(`Looks like you're offline. 
+          Check internet connection.`);
       });
   }
 
@@ -166,7 +179,13 @@ class CenterActions {
    * @param { function } onCenterEditFailed
    * @returns { void }
    */
-  static editCenter(credentials, token, id, onCenterEditSuccessful, onCenterEditFailed) {
+  static editCenter(
+    credentials,
+    token,
+    id,
+    onCenterEditSuccessful,
+    onCenterEditFailed,
+  ) {
     return axios
       .put(`${Helpers.host}/centers/${id}?token=${token}`, credentials)
       .then((response) => {

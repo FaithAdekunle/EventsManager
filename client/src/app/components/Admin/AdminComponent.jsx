@@ -1,11 +1,11 @@
 import React from 'react';
 import { Switch, Redirect, Route } from 'react-router-dom';
-import AdminHome from './AdminHomeComponent';
-import AdminCenter from './AdminCenterComponent';
+import AdminHome from './AdminHomeComponent.jsx';
+import AdminCenter from './AdminCenterComponent.jsx';
 
 
-const Admin = () => {
-  return (
+const Admin = () =>
+  (
     <React.Fragment>
       <Switch>
         <Route exact path="/admin" component={AdminHome} />
@@ -14,6 +14,5 @@ const Admin = () => {
       </Switch>
     </React.Fragment>
   );
-};
 
 export default Admin;

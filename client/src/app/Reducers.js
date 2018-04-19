@@ -1,6 +1,6 @@
 import { createStore, combineReducers } from 'redux';
 import Helpers from './Helpers';
-import appState from './StoreComponent';
+import appState from './StoreComponent.jsx';
 
 /**
  * defines class for state reducers

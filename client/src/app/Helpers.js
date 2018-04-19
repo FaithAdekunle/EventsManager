@@ -60,7 +60,7 @@ class Helpers {
   /**
    * sorts array of objects in ascending order by name property
    * @param { array } array
-   * @returns { array } array of objects sorted by name property in ascending order
+   * @returns { array } objects sorted by name property in ascending order
    */
   static sortByName(array) {
     return array.sort((item1, item2) => item1.name > item2.name);
@@ -69,7 +69,7 @@ class Helpers {
   /**
    * sorts array of objects in ascending order by start property
    * @param { array } array
-   * @returns { array } array of objects sorted by start property in ascending order
+   * @returns { array } objects sorted by start property in ascending order
    */
   static sortByDate(array) {
     return array.sort((item1, item2) => {
@@ -85,7 +85,7 @@ class Helpers {
    * gets id of center from array of centers
    * @param { object } eventCenter
    * @param { array } centersState
-   * @returns { array } array of objects sorted by start property in ascending order
+   * @returns { array } objects sorted by start property in ascending order
    */
   static getCenterId(eventCenter, centersState) {
     const centerName = eventCenter.value;
