@@ -4,7 +4,7 @@ import jwtDecode from 'jwt-decode';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helpers from '../Helpers';
-import OtherActions from './../actions/others';
+import OtherActions from './../actions/otherActions';
 
 /**
  * NavTab component class

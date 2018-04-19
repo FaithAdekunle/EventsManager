@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
-import OtherActions from './../actions/others';
+import OtherActions from './../actions/otherActions';
 
 /**
  * Home component class

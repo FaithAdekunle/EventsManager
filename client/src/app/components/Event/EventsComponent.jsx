@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Event from './EventComponent.jsx';
 import EditEvent from './EditEventComponent.jsx';
 import DeleteEvent from './DeleteEventComponent.jsx';
-import OtherActions from '../../actions/others';
+import OtherActions from '../../actions/otherActions';
 import EventActions from '../../actions/eventActions';
 
 /**

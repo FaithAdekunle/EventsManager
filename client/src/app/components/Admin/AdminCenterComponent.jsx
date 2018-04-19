@@ -3,7 +3,7 @@ import Proptypes from 'prop-types';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import Helpers from '../../Helpers';
-import OtherActions from '../../actions/others';
+import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
 import EventActions from '../../actions/eventActions';
 

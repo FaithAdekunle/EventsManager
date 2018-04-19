@@ -1,6 +1,6 @@
 import { createStore, combineReducers } from 'redux';
 import Helpers from './Helpers';
-import appState from './StoreComponent.jsx';
+import storeComponent from './StoreComponent.jsx';
 
 /**
  * defines class for state reducers
@@ -182,7 +182,7 @@ class Reducers {
   }
 }
 
-const appStore = new Reducers(appState);
+const appStore = new Reducers(storeComponent);
 const store = createStore(combineReducers({
   token: appStore.tokenReducer,
   eventsState: appStore.eventsReducer,

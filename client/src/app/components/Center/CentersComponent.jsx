@@ -2,7 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import Center from './CenterComponent.jsx';
-import OtherActions from '../../actions/others';
+import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
 
 /**

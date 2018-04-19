@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Helpers from '../Helpers';
 import { dispatch } from '../Reducers';
-import OtherActions from './others';
+import OtherActions from './otherActions';
 import CenterActions from './centerActions';
 
 /**

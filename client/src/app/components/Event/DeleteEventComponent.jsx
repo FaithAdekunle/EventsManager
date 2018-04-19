@@ -2,7 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import EventActions from '../../actions/eventActions';
-import OtherActions from '../../actions/others';
+import OtherActions from '../../actions/otherActions';
 
 /**
  * DeleteEvent component class
