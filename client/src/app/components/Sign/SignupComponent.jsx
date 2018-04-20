@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import OtherActions from '../../actions/otherActions';
+import DialApi from '../../DialApi';
 
 /**
  * SignIn component class
@@ -20,6 +21,7 @@ class SignUp extends React.Component {
     this.changeFormState = this.changeFormState.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.navToSignin = this.navToSignin.bind(this);
+    this.beforeSignUp = this.beforeSignUp.bind(this);
     this.onSignupFail = this.onSignupFail.bind(this);
     this.onSignupSuccessful = this.onSignupSuccessful.bind(this);
   }
@@ -29,15 +31,11 @@ class SignUp extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    OtherActions.updatePageState({
-      userOnSignInPage: false,
-      userOnSignUpPage: false,
-    });
     OtherActions.updateAlertState(null);
   }
 
   /**
-   * executes after user logs in succesfully
+   * executes after user signs up succesfully
    * @param { object } response
    * @returns { void }
    */
@@ -46,20 +44,11 @@ class SignUp extends React.Component {
   }
 
   /**
-   * executes after failed login attempt
-   * @param { object } response
+   * executes after failed signup attempt
    * @returns { void }
    */
-  onSignupFail(response) {
+  onSignupFail() {
     this.changeFormState(false);
-    if (!response) {
-      return OtherActions
-        .updateAlertState(`Looks like you're offline. 
-        Check internet connection.`);
-    }
-    OtherActions.updateAlertState(Array.isArray(response.data.error) ?
-      response.data.error[0] : response.data.error);
-    return setTimeout(() => OtherActions.updateAlertState(null), 10000);
   }
 
   /**
@@ -69,20 +58,27 @@ class SignUp extends React.Component {
    */
   onSubmit(event) {
     event.preventDefault();
-    if (this.password.value !== this.passwordconfirm.value) {
-      OtherActions
-        .updateAlertState('Password and Confirm Password fields must be equal');
-      return setTimeout(() => OtherActions.updateAlertState(null), 3000);
-    }
-    this.changeFormState();
     const credentials = {
       fullName: this.fullname.value,
       email: this.email.value,
       password: this.password.value,
       confirmPassword: this.passwordconfirm.value,
     };
-    return OtherActions
-      .signup(credentials, this.onSignupSuccessful, this.onSignupFail);
+    return DialApi
+      .signup(
+        this.beforeSignUp,
+        credentials,
+        this.onSignupSuccessful,
+        this.onSignupFail,
+      );
+  }
+
+  /**
+   * executes before signup
+   * @returns { void }
+   */
+  beforeSignUp() {
+    this.changeFormState();
   }
 
   /**

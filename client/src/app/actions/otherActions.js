@@ -1,5 +1,3 @@
-import axios from 'axios';
-import Helpers from '../Helpers';
 import { dispatch } from '../Reducers';
 
 /**
@@ -75,57 +73,6 @@ class OtherActions {
       type: 'UPDATE_SELECTED_IMAGES',
       payload: images,
     });
-  }
-
-  /**
-   * action to log a user in
-   * @param { object } credentials
-   * @param { function } onLoginSuccessful
-   * @param { function } onLoginFail
-   * @returns { void }
-   */
-  static login(credentials, onLoginSuccessful, onLoginFail) {
-    axios
-      .post(`${Helpers.host}/users/login`, credentials)
-      .then((response) => {
-        OtherActions.updateToken(response.data.token);
-        onLoginSuccessful();
-      })
-      .catch(({ response }) => {
-        onLoginFail(response);
-      });
-  }
-
-  /**
-   * action to sign a user up
-   * @param { object } credentials
-   * @param { function } onSignupSuccessful
-   * @param { function } onSignupFail
-   * @returns { void }
-   */
-  static signup(credentials, onSignupSuccessful, onSignupFail) {
-    axios
-      .post(`${Helpers.host}/users`, credentials)
-      .then((response) => {
-        OtherActions.updateToken(response.data.token);
-        onSignupSuccessful();
-      })
-      .catch(({ response }) => {
-        onSignupFail(response);
-      });
-  }
-
-  /**
-   * action to search centers by name/location
-   * @param { string } filter
-   * @returns { void }
-   */
-  static updateSearch(filter) {
-    axios.get(`${Helpers.host}/centers?filter=${filter}`)
-      .then((response) => {
-        OtherActions.updateCenterSearch(response.data.centers);
-      })
-      .catch();
   }
 }
 

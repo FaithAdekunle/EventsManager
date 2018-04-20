@@ -1,5 +1,6 @@
 exclude_paths:
 - node_modules/
-- tests/
+- server/tests/
 - template/
 - client/
+- test.js
