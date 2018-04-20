@@ -4,3 +4,9 @@ exclude_paths:
 - template/
 - client/
 - test.js
+- config/
+- dist/
+- template/
+- bundle.js
+- bootstrap.js
+- bootstrap/
