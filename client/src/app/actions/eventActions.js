@@ -1,8 +1,4 @@
-import axios from 'axios';
-import Helpers from '../Helpers';
 import { dispatch } from '../Reducers';
-import OtherActions from './otherActions';
-import CenterActions from './centerActions';
 
 /**
  * EventActions component class
@@ -69,118 +65,25 @@ class EventActions {
   }
 
   /**
-   * action to fetch and events
-   * @param { string } token
-   * @param { function } onFetchEventsFail
+   * action to update center events
+   * @param { object } events
    * @returns { void }
    */
-  static updateEvents(token, onFetchEventsFail) {
-    OtherActions.updateAlertState('loading');
-    return axios
-      .get(`${Helpers.host}/events?token=${token}`)
-      .then((response) => {
-        OtherActions.updateAlertState(null);
-        EventActions.updateEventsState(response.data.events);
-      })
-      .catch((err) => {
-        if (!err.response) {
-          OtherActions
-            .updateAlertState(`Looks like you're offline. 
-            Check internet connection.`);
-        } else {
-          onFetchEventsFail(err.response);
-        }
-      });
+  static updateCenterEventsState(events) {
+    dispatch({
+      type: 'UPDATE_CENTER_EVENTS',
+      payload: events,
+    });
   }
 
   /**
-   * action to add new event from centers page
-   * @param { object } credentials
-   * @param { string } token
-   * @param { function } onEventSubmitSuccessful
-   * @param { function } onEventSubmitFail
+   * action to empty center events
    * @returns { void }
    */
-  static addEvent(
-    credentials,
-    token,
-    onEventSubmitSuccessful,
-    onEventSubmitFail,
-  ) {
-    axios
-      .post(`${Helpers.host}/events?token=${token}`, credentials)
-      .then(() => {
-        onEventSubmitSuccessful();
-      })
-      .catch((err) => {
-        onEventSubmitFail(err.response);
-      });
-  }
-
-  /**
-   * action to add new event or edit event
-   * @param { integer } id
-   * @param { object } credentials
-   * @param { string } token
-   * @param { function } onEventEditSuccessful
-   * @param { function } onEventEditFail
-   * @returns { void }
-   */
-  static editEvent(
-    id,
-    credentials,
-    token,
-    onEventEditSuccessful,
-    onEventEditFail,
-  ) {
-    axios
-      .put(`${Helpers.host}/events/${id}?token=${token}`, credentials)
-      .then((response) => {
-        EventActions.editEventsState(response.data);
-        onEventEditSuccessful();
-      })
-      .catch(({ response }) => {
-        onEventEditFail(response);
-      });
-  }
-
-  /**
-   * action to delete an event
-   * @param { object } eventState
-   * @param { string } token
-   * @param { function } onDeleteSuccessful
-   * @param { function } onDeleteFail
-   * @returns { void }
-   */
-  static deleteEvent(eventState, token, onDeleteSuccessful, onDeleteFail) {
-    axios
-      .delete(`${Helpers.host}/events/${eventState.id}?token=${token}`)
-      .then(() => {
-        onDeleteSuccessful();
-      })
-      .catch(({ response }) => {
-        onDeleteFail(response);
-      });
-  }
-
-  /**
-   * action to delete an event
-   * @param { object } center
-   * @param { number } id
-   * @param { number } index
-   * @param { string } token
-   * @param { function } onDeleteSuccessful
-   * @param { function } onDeleteFail
-   * @returns { void }
-   */
-  static declineEvent(center, id, index, token) {
-    return axios
-      .put(`${Helpers.host}/events/${id}/decline?token=${token}`)
-      .then(() => {
-        const update = { ...center };
-        center.events[index].isAccepted = false;
-        CenterActions.updateCenterState(update);
-      });
+  static emptyCenterEventsState() {
+    dispatch({
+      type: 'EMPTY_CENTER_EVENTS',
+    });
   }
 }
 

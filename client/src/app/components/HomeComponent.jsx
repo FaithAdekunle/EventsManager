@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
-import OtherActions from './../actions/otherActions';
+import DialApi from './../DialApi';
 
 /**
  * Home component class
@@ -21,30 +21,25 @@ class Home extends React.Component {
     this.changeFormState = this.changeFormState.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.navToCenters = this.navToCenters.bind(this);
+    this.beforeSignUp = this.beforeSignUp.bind(this);
     this.onSignupFail = this.onSignupFail.bind(this);
     this.onSignupSuccessful = this.onSignupSuccessful.bind(this);
   }
 
   /**
-   * executes after user logs in succesfully
-   * @param { object } response
+   * executes after user signs in succesfully
    * @returns { void }
    */
-  onSignupSuccessful(response) {
-    OtherActions.updateToken(response.data.token);
+  onSignupSuccessful() {
     this.props.history.push('/events');
   }
 
   /**
-   * executes after failed login attempt
-   * @param { object } err
+   * executes after failed signin attempt
    * @returns { void }
    */
-  onSignupFail(err) {
+  onSignupFail() {
     this.changeFormState(false);
-    OtherActions.updateAlertState(err.response ? err.response.data.err :
-      'Looks like you\'re offline. Check internet connection.');
-    setTimeout(() => OtherActions.updateAlertState(null), 10000);
   }
 
   /**
@@ -54,20 +49,27 @@ class Home extends React.Component {
    */
   onSubmit(event) {
     event.preventDefault();
-    if (this.password.value !== this.passwordconfirm.value) {
-      OtherActions
-        .updateAlertState('Password and Confirm Password fields must be equal');
-      return setTimeout(() => OtherActions.updateAlertState(null), 10000);
-    }
-    this.changeFormState();
     const credentials = {
       fullName: this.fullname.value,
       email: this.email.value,
       password: this.password.value,
       confirmPassword: this.passwordconfirm.value,
     };
-    return OtherActions
-      .signup(credentials, this.onSignupSuccessful, this.onSignupFail);
+    return DialApi
+      .signup(
+        this.beforeSignUp,
+        credentials,
+        this.onSignupSuccessful,
+        this.onSignupFail,
+      );
+  }
+
+  /**
+   * executes before signup
+   * @returns { void }
+   */
+  beforeSignUp() {
+    this.changeFormState();
   }
 
   /**
@@ -255,7 +257,7 @@ class Home extends React.Component {
             <div className="col-md-4">
               <div className="card">
                 <img
-                  sclassName="card-img-top"
+                  className="card-img-top"
                   src="images/seminars1.jpg"
                   alt=""
                 />

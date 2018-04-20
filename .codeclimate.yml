@@ -1,5 +1,12 @@
 exclude_paths:
 - node_modules/
-- tests/
+- server/tests/
 - template/
 - client/
+- test.js
+- config/
+- dist/
+- template/
+- bundle.js
+- bootstrap.js
+- bootstrap/
