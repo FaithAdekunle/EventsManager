@@ -253,20 +253,31 @@ module.exports = class DialApi {
 
   /**
    * action to log a user in
+   * @param { function } beforeLogin
    * @param { object } credentials
    * @param { function } onLoginSuccessful
    * @param { function } onLoginFail
    * @returns { void }
    */
-  static login(credentials, onLoginSuccessful, onLoginFail) {
+  static login(beforeLogin, credentials, onLoginSuccessful, onLoginFail) {
+    beforeLogin();
     axios
       .post(`${Helpers.host}/users/login`, credentials)
-      .then((response) => {
-        OtherActions.updateToken(response.data.token);
+      .then(({ data }) => {
+        OtherActions.updateToken(data.token);
         onLoginSuccessful();
       })
       .catch(({ response }) => {
-        onLoginFail(response);
+        onLoginFail();
+        if (!response) {
+          OtherActions
+            .updateAlertState(`Looks like you're offline. 
+            Check internet connection.`);
+        } else {
+          OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+            response.data.error[0] : response.data.error);
+        }
+        setTimeout(() => OtherActions.updateAlertState(null), 10000);
       });
   }
 
