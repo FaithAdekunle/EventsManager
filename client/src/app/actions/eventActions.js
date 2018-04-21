@@ -18,13 +18,13 @@ class EventActions {
 
   /**
    * action to add to events
-   * @param { object } event
+   * @param { object } events
    * @returns { void }
    */
-  static addToEventsState(event) {
+  static addToEventsState(events) {
     dispatch({
       type: 'ADD_TO_EVENTS_STATE',
-      payload: event,
+      payload: events,
     });
   }
 
@@ -61,28 +61,6 @@ class EventActions {
     dispatch({
       type: 'UPDATE_EVENT_STATE',
       payload: event,
-    });
-  }
-
-  /**
-   * action to update center events
-   * @param { object } events
-   * @returns { void }
-   */
-  static updateCenterEventsState(events) {
-    dispatch({
-      type: 'UPDATE_CENTER_EVENTS',
-      payload: events,
-    });
-  }
-
-  /**
-   * action to empty center events
-   * @returns { void }
-   */
-  static emptyCenterEventsState() {
-    dispatch({
-      type: 'EMPTY_CENTER_EVENTS',
     });
   }
 }
