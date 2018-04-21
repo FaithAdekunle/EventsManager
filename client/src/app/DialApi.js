@@ -364,6 +364,12 @@ module.exports = class DialApi {
       .then((response) => {
         OtherActions.updateCenterSearch(response.data.centers);
       })
-      .catch();
+      .catch(({ response }) => {
+        if (!response) {
+          OtherActions
+            .updateAlertState(`Looks like you're offline. 
+            Check internet connection.`);
+        }
+      });
   }
 };

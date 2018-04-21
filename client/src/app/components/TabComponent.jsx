@@ -5,6 +5,7 @@ import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helpers from '../Helpers';
 import OtherActions from './../actions/otherActions';
+import DialApi from './../DialApi';
 
 /**
  * NavTab component class
@@ -94,7 +95,7 @@ class NavTab extends React.Component {
     this.searchList.classList.remove('hidden');
     const { value } = e.target;
     if (!value) return OtherActions.updateCenterSearch([]);
-    return OtherActions.updateSearch(value);
+    return DialApi.updateSearch(value);
   }
 
   /**
