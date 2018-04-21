@@ -1,5 +1,4 @@
 import { createStore, combineReducers } from 'redux';
-import Helpers from './Helpers';
 import storeComponent from './StoreComponent.jsx';
 
 /**
@@ -53,12 +52,12 @@ class Reducers {
   eventsReducer(state = this.state.eventsState, action) {
     switch (action.type) {
       case 'UPDATE_EVENTS_STATE':
-        return Helpers.sortByDate(action.payload);
+        return action.payload;
       case 'ADD_TO_EVENTS_STATE':
-        return Helpers.sortByDate([
-          action.payload,
+        return [
           ...state,
-        ]);
+          ...action.payload,
+        ];
       case 'EDIT_EVENTS_STATE':
         return state.map((event) => {
           if (event.id === action.payload.id) return action.payload;

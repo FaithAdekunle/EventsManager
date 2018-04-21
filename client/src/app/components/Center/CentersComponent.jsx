@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Center from './CenterComponent.jsx';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
+import DialApi from '../../DialApi';
 
 /**
  * Centers component class
@@ -41,7 +42,7 @@ class Centers extends React.Component {
    */
   componentDidMount() {
     window.addEventListener('scroll', this.handleScroll, false);
-    CenterActions.updateCenters(
+    DialApi.updateCenters(
       this.mainLoader,
       this.beforeLoad,
       this.onLoadSuccessful,
@@ -96,7 +97,7 @@ class Centers extends React.Component {
     this.facility = this.facilityField.value || '';
     this.offset = 0;
     CenterActions.emptyCentersState();
-    CenterActions.updateCenters(
+    DialApi.updateCenters(
       this.mainLoader,
       this.beforeLoad,
       this.onLoadSuccessful,
@@ -149,7 +150,7 @@ class Centers extends React.Component {
   handleScroll() {
     if (window.innerHeight + window.scrollY === document.body.offsetHeight) {
       this.offset += this.increase;
-      CenterActions.updateCenters(
+      DialApi.updateCenters(
         this.subLoader,
         this.beforeLoad,
         this.onLoadSuccessful,

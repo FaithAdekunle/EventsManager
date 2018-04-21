@@ -7,7 +7,7 @@ import Helpers from './Helpers';
 
 module.exports = class DialApi {
   /**
-   * action to fetch and events
+   * fetch user events
    * @param { string } token
    * @param { function } onFetchEventsFail
    * @returns { void }
@@ -27,6 +27,45 @@ module.exports = class DialApi {
             Check internet connection.`);
         } else {
           onFetchEventsFail(err.response);
+        }
+      });
+  }
+
+  /**
+   * fetch center events
+   * @param { string } centerId
+   * @param { string } beforeLoad
+   * @param { string } onLoadSuccessful
+   * @param { string } upcoming
+   * @param { string } offset
+   * @param { string } limit
+   * @param { function } onLoadFail
+   * @returns { void }
+   */
+  static updateCenterEvents(
+    centerId,
+    beforeLoad,
+    onLoadSuccessful,
+    upcoming = false,
+    offset = 0,
+    limit = 0,
+    onLoadFail,
+  ) {
+    beforeLoad();
+    return axios
+      .get(`${Helpers.host}/${centerId}/events?upcoming=${upcoming}&offset=` +
+      `${offset}&limit=${limit}`)
+      .then(({ data }) => {
+        onLoadSuccessful(data.events);
+        OtherActions.updateAlertState(null);
+        EventActions.addToEventsState(data.events);
+      })
+      .catch(({ response }) => {
+        onLoadFail();
+        if (!response) {
+          OtherActions
+            .updateAlertState(`Looks like you're offline. 
+            Check internet connection.`);
         }
       });
   }
@@ -185,13 +224,12 @@ module.exports = class DialApi {
     OtherActions.updateAlertState(null);
     beforeLoad(loader);
     axios
-      .get(`${Helpers.host}/centers
-      ?filter=${filter}&facility=${facility}&capacity=
-      ${capacity}&offset=${offset}&limit=${limit}`)
-      .then((response) => {
+      .get(`${Helpers.host}/centers?filter=${filter}&facility=` +
+      `${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}`)
+      .then(({ data }) => {
         onLoadSuccessful(loader);
         setTimeout(() => {
-          CenterActions.updateCentersState(response.data.centers);
+          CenterActions.updateCentersState(data.centers);
         }, 500);
       })
       .catch(({ response }) => {

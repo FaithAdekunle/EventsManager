@@ -3,9 +3,11 @@ import Proptypes from 'prop-types';
 import jwtDecode from 'jwt-decode';
 import { connect } from 'react-redux';
 import Helpers from '../../Helpers';
+import DialApi from '../../DialApi';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
 import EventActions from '../../actions/eventActions';
+import CenterEvents from './CenterEvents.jsx';
 
 /**
  * CenterDetails component class
@@ -47,7 +49,7 @@ class CenterDetails extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    CenterActions.getCenter(
+    DialApi.getCenter(
       this.props.match.params.id,
       this.beforeCenterLoad,
       this.onCenterLoadSuccessful,
@@ -132,7 +134,6 @@ class CenterDetails extends React.Component {
 
   /**
    * excecutes before fetching centers
-   * @param { object } loader
    * @returns { void }
    */
   beforeCenterLoad() {
@@ -312,27 +313,9 @@ class CenterDetails extends React.Component {
                       <div className="text-primary text-center">
                         Booked dates
                       </div>
-                      <ul className="list-group booked-dates">
-                        <li
-                          className={
-                            `text-center list-group-item 
-                            ${center.events.length === 0 ? '' : 'hidden'}`
-                          }
-                        >
-                          no booked dates
-                        </li>
-                        {
-                          Helpers.sortByDate(center.events).map(event => (
-                            <li className="list-group-item" key={event.id}>
-                              {
-                                  event.start === event.end ?
-                                    event.start :
-                                    `${event.start} - ${event.end}`
-                              }
-                            </li>
-                            ))
-                        }
-                      </ul>
+                      <CenterEvents
+                        id={parseInt(this.props.match.params.id, 10)}
+                      />
                     </div>
                   </div>
                 </div>
