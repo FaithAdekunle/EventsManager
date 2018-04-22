@@ -6,6 +6,8 @@ import EditEvent from './EditEventComponent.jsx';
 import DeleteEvent from './DeleteEventComponent.jsx';
 import OtherActions from '../../actions/otherActions';
 import EventActions from '../../actions/eventActions';
+import DialApi from '../../DialApi';
+import Helpers from '../../Helpers';
 
 /**
  * Events component class
@@ -31,8 +33,11 @@ class Events extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    EventActions
-      .updateEvents(this.props.token, this.onFetchEventsFail);
+    DialApi
+      .updateEvents(
+        this.props.token,
+        this.onFetchEventsFail,
+      );
   }
 
   /**
@@ -43,6 +48,7 @@ class Events extends React.Component {
     $('#editModal').modal('hide');
     $('#deleteModal').modal('hide');
     OtherActions.updateAlertState(null);
+    EventActions.updateEventsState([]);
   }
 
   /**
@@ -92,18 +98,18 @@ class Events extends React.Component {
                this.props.alertState === null ? '' : 'hidden'}`}
             >
               <h5>
-                You have no registered events yet. Visit
+                You have no registered events yet. Visit&nbsp;
                 <a
                   className="navTo redirect-to"
                   onClick={() => this.props.history.push('/centers')}
                 >
-                  centers
+                  centers&nbsp;
                 </a>
                   page.
               </h5>
             </div>
             <div className="row">
-              {this.props.eventsState.map(event => (
+              {Helpers.sortByDate(this.props.eventsState).map(event => (
                 <div className="col-md-6" key={event.id}>
                   <Event
                     event={event}

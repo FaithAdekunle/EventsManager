@@ -9,7 +9,6 @@ class Event extends React.Component {
   static propTypes = {
     event: Proptypes.object,
     history: Proptypes.object,
-    centers: Proptypes.array,
     updateEventState: Proptypes.func,
   }
 
@@ -18,23 +17,9 @@ class Event extends React.Component {
    */
   constructor() {
     super();
-    this.getCenterName = this.getCenterName.bind(this);
     this.openDeleteModal = this.openDeleteModal.bind(this);
     this.openEditModal = this.openEditModal.bind(this);
     this.navToCenter = this.navToCenter.bind(this);
-  }
-
-  /**
-   * gets center name using id
-   * @returns { string } centerName
-   */
-  getCenterName() {
-    let centerName = '';
-    this.props.centers.map((center) => {
-      if (center.id === this.props.event.centerId) centerName = center.name;
-      return null;
-    });
-    return centerName;
   }
 
   /**
@@ -72,7 +57,7 @@ class Event extends React.Component {
    * @returns { void }
    */
   navToCenter() {
-    this.props.history.push(`/centers/${this.props.event.center.id}`);
+    this.props.history.push(`/centers/${this.props.event.centerId}`);
   }
 
   /**
@@ -103,26 +88,26 @@ class Event extends React.Component {
         <div className="dropdown-divider divider" />
         <div className="row event-prop">
           <div className="col-6">
-            <span>Type:
+            <span>Type:&nbsp;
               <strong className="text-muted">{event.type}</strong>
             </span>
           </div>
           <div className="col-6">
-            <span>Guests:
+            <span>Guests:&nbsp;
               <strong className="text-muted">
                 {event.guests}
               </strong>
             </span>
           </div>
           <div className="col-6">
-            <span>Start:
+            <span>Start:&nbsp;
               <strong className="text-muted">
                 {event.start}
               </strong>
             </span>
           </div>
           <div className="col-6">
-            <span>End:
+            <span>End:&nbsp;
               <strong className="text-muted">
                 {event.end}
               </strong>
@@ -131,18 +116,22 @@ class Event extends React.Component {
         </div>
         <div className="venue">
           <span>Venue: </span>
-          <a className="navTo" onClick={this.navToCenter}>
-            <strong>
-              {event.center.name}
-            </strong>
-          </a>
+          {
+            event.center ? (
+              <a className="navTo" onClick={this.navToCenter}>
+                <strong>
+                  {event.center.name}
+                </strong>
+              </a>
+            ) : ''
+          }
         </div>
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({ centers: state.centersState });
+const mapStateToProps = null;
 
 const mapDispatchToProps = dispatch => ({
   updateEventState: (event) => {

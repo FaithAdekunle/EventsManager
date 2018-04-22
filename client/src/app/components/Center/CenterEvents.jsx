@@ -47,10 +47,9 @@ class CenterEvents extends React.Component {
       this.props.id,
       this.beforeLoad,
       this.onLoadSuccessful,
-      true,
+      this.onLoadFail,
       this.offset,
       this.limit,
-      this.onLoadFail,
     );
   }
 
@@ -98,7 +97,6 @@ class CenterEvents extends React.Component {
         this.props.id,
         this.beforeLoad,
         this.onLoadSuccessful,
-        true,
         this.offset,
         this.limit,
       );

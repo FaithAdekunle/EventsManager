@@ -81,22 +81,6 @@ class Helpers {
       return item1Start[0] > item2Start[0];
     });
   }
-
-  /**
-   * gets id of center from array of centers
-   * @param { object } eventCenter
-   * @param { array } centersState
-   * @returns { array } objects sorted by start property in ascending order
-   */
-  static getCenterId(eventCenter, centersState) {
-    const centerName = eventCenter.value;
-    let centerId = 0;
-    centersState.map((center) => {
-      if (center.name === centerName) centerId = center.id;
-      return null;
-    });
-    return centerId;
-  }
 }
 
 export default Helpers;
