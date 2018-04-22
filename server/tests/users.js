@@ -8,7 +8,7 @@ import host from '../index.js';
 chai.use(chaiHttp);
 chai.should();
 
-describe('Tests for User API endpoint', () => {
+module.exports = describe('Tests for User API endpoint', () => {
   describe('Test for creating new user and/or admin', () => {
     it('shoud return a status 400 error response for a missing fullName field', (done) => {
       chai

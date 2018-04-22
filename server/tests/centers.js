@@ -7,7 +7,7 @@ import host from '../index.js';
 chai.use(chaiHttp);
 chai.should();
 
-describe('Tests for Centers API', () => {
+module.exports = describe('Tests for Centers API', () => {
   describe('Add new center', () => {
     it('should return a status 400 error response missing name field', (done) => {
       chai
