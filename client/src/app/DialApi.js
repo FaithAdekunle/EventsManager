@@ -12,21 +12,24 @@ module.exports = class DialApi {
    * @param { function } onFetchEventsFail
    * @returns { void }
    */
-  static updateEvents(token, onFetchEventsFail) {
+  static updateEvents(
+    token,
+    onFetchEventsFail,
+  ) {
     OtherActions.updateAlertState('loading');
     return axios
-      .get(`${Helpers.host}/events?token=${token}`)
+      .get(`${Helpers.host}/events?token=${token}&upcoming=true`)
       .then((response) => {
         OtherActions.updateAlertState(null);
         EventActions.updateEventsState(response.data.events);
       })
-      .catch((err) => {
-        if (!err.response) {
+      .catch(({ response }) => {
+        if (!response) {
           OtherActions
             .updateAlertState(`Looks like you're offline. 
             Check internet connection.`);
         } else {
-          onFetchEventsFail(err.response);
+          onFetchEventsFail(response);
         }
       });
   }
@@ -36,25 +39,23 @@ module.exports = class DialApi {
    * @param { string } centerId
    * @param { string } beforeLoad
    * @param { string } onLoadSuccessful
-   * @param { string } upcoming
+   * @param { function } onLoadFail
    * @param { string } offset
    * @param { string } limit
-   * @param { function } onLoadFail
    * @returns { void }
    */
   static updateCenterEvents(
     centerId,
     beforeLoad,
     onLoadSuccessful,
-    upcoming = false,
+    onLoadFail,
     offset = 0,
     limit = 0,
-    onLoadFail,
   ) {
     beforeLoad();
     return axios
-      .get(`${Helpers.host}/${centerId}/events?upcoming=${upcoming}&offset=` +
-      `${offset}&limit=${limit}`)
+      .get(`${Helpers.host}/${centerId}/events?upcoming=true&offset=` +
+      `${offset}${limit !== 0 ? `&limit=${limit}` : ''}`)
       .then(({ data }) => {
         onLoadSuccessful(data.events);
         OtherActions.updateAlertState(null);
@@ -89,9 +90,7 @@ module.exports = class DialApi {
       .then(() => {
         onEventSubmitSuccessful();
       })
-      .catch((err) => {
-        onEventSubmitFail(err.response);
-      });
+      .catch(({ response }) => onEventSubmitFail(response));
   }
 
   /**

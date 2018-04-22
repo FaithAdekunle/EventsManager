@@ -6,7 +6,6 @@ import Helpers from '../../Helpers';
 import DialApi from '../../DialApi';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
-import EventActions from '../../actions/eventActions';
 import CenterEvents from './CenterEvents.jsx';
 
 /**
@@ -120,11 +119,11 @@ class CenterDetails extends React.Component {
       name: this.eventName.value,
       type: this.eventType.value,
       guests: this.eventGuests.value,
-      days: this.eventDays.value,
-      start: Helpers.changeDateFormat(this.eventDate.value),
+      start: Helpers.changeDateFormat(this.eventStartDate.value),
+      end: Helpers.changeDateFormat(this.eventEndDate.value),
       centerId: this.props.center.id,
     };
-    EventActions.addEvent(
+    DialApi.addEvent(
       credentials,
       this.props.token,
       this.onEventSubmitSuccessful,
@@ -361,43 +360,41 @@ class CenterDetails extends React.Component {
                                 />
                               </div>
                               <div className="row">
-                                <div className="col-5">
+                                <div className="col-6">
                                   <div className="form-group">
                                     <label
-                                      htmlFor="days"
-                                      className="col-form-label"
-                                    >
-                                      Days
-                                    </label>
-                                    <input
-                                      ref={(input) => {
-                                        this.eventDays = input;
-                                      }}
-                                      required
-                                      type="number"
-                                      className="form-control"
-                                      id="days"
-                                      min="1"
-                                      max="2147483647"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-7">
-                                  <div className="form-group">
-                                    <label
-                                      htmlFor="date"
+                                      htmlFor="start-date"
                                       className="col-form-label"
                                     >
                                       Start Date
                                     </label>
                                     <input
                                       ref={(input) => {
-                                        this.eventDate = input;
+                                        this.eventStartDate = input;
                                       }}
                                       required
                                       type="date"
                                       className="form-control"
-                                      id="date"
+                                      id="start-date"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="col-6">
+                                  <div className="form-group">
+                                    <label
+                                      htmlFor="end-date"
+                                      className="col-form-label"
+                                    >
+                                      End Date
+                                    </label>
+                                    <input
+                                      ref={(input) => {
+                                        this.eventEndDate = input;
+                                      }}
+                                      required
+                                      type="date"
+                                      className="form-control"
+                                      id="end-date"
                                     />
                                   </div>
                                 </div>
@@ -455,7 +452,7 @@ class CenterDetails extends React.Component {
                                 type="submit"
                                 className="btn btn-outline-primary btn-block"
                               >
-                                Book this venue
+                                Book
                               </button>
                             </form>
                           </fieldset>
