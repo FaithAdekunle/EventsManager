@@ -1,17 +1,18 @@
 import express from 'express';
+import swagger from 'swagger-ui-express';
 import logger from 'morgan';
 import cors from 'cors';
 import path from 'path';
-import swaggerTools from 'swagger-tools';
+// import swaggerTools from 'swagger-tools';
 import bodyParser from 'body-parser';
 import AppRouter from './routes/index';
 import swaggerDoc from './openapi.json';
 import db from './db';
 
-const options = {
-  controllers: './server/dist/controllers',
-  useStubs: true,
-};
+// const options = {
+//   controllers: './server/dist/controllers',
+//   useStubs: true,
+// };
 
 /**
  * defines class for express application
@@ -27,12 +28,13 @@ class App {
     db.sync();
     const app = express();
     app.use(cors());
-    swaggerTools.initializeMiddleware(swaggerDoc, (middleware) => {
-      app.use(middleware.swaggerMetadata());
-      app.use(middleware.swaggerValidator());
-      app.use(middleware.swaggerRouter(options));
-      app.use(middleware.swaggerUi());
-    });
+    // swaggerTools.initializeMiddleware(swaggerDoc, (middleware) => {
+    //   app.use(middleware.swaggerMetadata());
+    //   app.use(middleware.swaggerValidator());
+    //   app.use(middleware.swaggerRouter(options));
+    //   app.use(middleware.swaggerUi());
+    // });
+    app.use('/docs', swagger.serve, swagger.setup(swaggerDoc));
     app.use(logger('dev'));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));

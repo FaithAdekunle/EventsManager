@@ -120,7 +120,7 @@ module.exports = class CenterController {
     })
       .then((existingCenter) => {
         if (existingCenter) {
-          return res.status(400)
+          return res.status(409)
             .json(Helpers
               .getResponse('center name already exists in center address'));
         }
