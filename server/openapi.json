@@ -33,7 +33,6 @@
             "Users"
           ],
           "summary": "Creates a new User account",
-          "operationId": "UserController.signUp",
           "produces": [
             "application/json"
           ],
@@ -47,21 +46,29 @@
               "description": "user details used to create new user",
               "required": true,
               "schema": {
-                "$ref": "#/definitions/UserSignin"
+                "$ref": "#/definitions/UserSignup"
               }
           }
           ],
           "responses": {
             "201": {
-              "description": "Successful request",
+              "description": "Successful signup request",
               "schema": {
                 "$ref": "#/definitions/User"
               }
             },
             "400": {
-              "description": "Invalid request",
+              "description": "Invalid signup request",
               "schema": {
                 "$ref": "#/definitions/Error"
+              }
+            },
+            "409": {
+              "description": "Email conflict",
+              "schema": {
+                "items": {
+                  "$ref": "#/definitions/Error"
+                }
               }
             }
           }
@@ -73,7 +80,6 @@
             "Users"
           ],
           "summary": "Logs in existing User account",
-          "operationId": "UserController.signIn",
           "produces": [
             "application/json"
           ],
@@ -84,7 +90,7 @@
             {
               "name": "body",
               "in": "body",
-              "description": "user details used to log on existing user",
+              "description": "user details used to log in existing user",
               "required": true,
               "schema": {
                 "$ref": "#/definitions/UserLogin"
@@ -93,15 +99,23 @@
           ],
           "responses": {
             "200": {
-              "description": "Successful request",
+              "description": "Successful login request",
               "schema": {
                 "$ref": "#/definitions/User"
               }
             },
             "400": {
-              "description": "Invalid request",
+              "description": "Invalid login request",
               "schema": {
                 "$ref": "#/definitions/Error"
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "schema": {
+                "items": {
+                  "$ref": "#/definitions/Error"
+                }
               }
             }
           }
@@ -113,7 +127,6 @@
           "Centers"
         ],
         "summary": "Creates a new event center",
-        "operationId": "CenterController.addCenter",
         "consumes" : [
           "application/json"
         ],
@@ -132,19 +145,19 @@
             "description": "Details used to create new event center",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SubmitCenter"
+              "$ref": "#/definitions/AddOrEditCenter"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Successful request",
+            "description": "Successful post request",
             "schema": {
               "$ref": "#/definitions/Center"
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Invalid post request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -160,6 +173,20 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "409": {
+            "description": "Name/Location error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           }
         }
       },
@@ -168,7 +195,6 @@
           "Centers"
         ],
         "summary": "Fetches all existing event centers",
-        "operationId": "CenterController.fetchCenters",
         "produces": [
           "application/json"
         ],
@@ -176,21 +202,21 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "fetched centers will have this in their names or addresses",
+            "description": "fetched centers will have this value in their names or addresses",
             "required": false,
             "type": "string"
           },
           {
             "name": "facility",
             "in": "query",
-            "description": "fetched centers will have this in their list of facilities",
+            "description": "fetched centers will have this facility in their list of facilities",
             "required": false,
             "type": "string"
           },
           {
             "name": "capacity",
             "in": "query",
-            "description": "fetched centers can contain this or more gursts",
+            "description": "fetched centers can contain this or more guests",
             "required": false,
             "type": "integer"
           },
@@ -204,7 +230,7 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "only centers within this limit will be fetched",
+            "description": "not more than this number of centers will be returned",
             "required": false,
             "type": "integer"
           }
@@ -217,6 +243,14 @@
                 "$ref": "#/definitions/Center"
               }
             }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           }
         }
       }
@@ -227,7 +261,6 @@
           "Centers"
         ],
         "summary": "Modifies an existing event center",
-        "operationId": "CenterController.modifyCenter",
         "consumes" : [
           "application/json"
         ],
@@ -253,7 +286,7 @@
             "description": "Details used to edit existing event center",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SubmitCenter"
+              "$ref": "#/definitions/AddOrEditCenter"
             }
           }
         ],
@@ -281,6 +314,18 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "409": {
+            "description": "Name/Location error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
@@ -289,7 +334,6 @@
           "Centers"
         ],
         "summary": "Fetches an existing event center",
-        "operationId": "CenterController.fetchCenter",
         "produces": [
           "application/json"
         ],
@@ -314,6 +358,12 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "500": {
+            "description": "Admin not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -324,7 +374,6 @@
           "Events"
         ],
         "summary": "Create new user event",
-        "operationId": "EventController.createEvent",
         "consumes" :[
           "application/json"
         ],
@@ -343,7 +392,7 @@
             "description": "Details used to create new user event",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SubmitEvent"
+              "$ref": "#/definitions/AddOrEditEvent"
             }
           }
         ],
@@ -377,6 +426,12 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
@@ -385,13 +440,35 @@
           "Events"
         ],
         "summary": "Fetches existing user events",
-        "operationId": "EventController.fetchUserEvents",
         "produces": [
           "application/json"
         ],
         "security": [
           {
             "userSecurity": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "upcoming",
+            "in": "query",
+            "description": "If true, only upcoming events will be fetched",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset the fetched events by this value",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "not more than this number of events are returned",
+            "required": false,
+            "type": "integer"
           }
         ],
         "responses": {
@@ -401,6 +478,75 @@
               "items": {
                 "$ref": "#/definitions/Event"
               }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/:centerId/events":{
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Fetches existing center events",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          { 
+            "name": "id",
+            "in": "path",
+            "description": "id of the center whose events should be fetched",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "upcoming",
+            "in": "query",
+            "description": "If true, only upcoming events will be fetched",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset the fetched events by this value",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "not more than this number of events are returned",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Event"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -412,7 +558,6 @@
           "Events"
         ],
         "summary": "Modifies existing user event",
-        "operationId": "EventController.modifyEvent",
         "produces": [
           "application/json"
         ],
@@ -438,7 +583,7 @@
             "description": "Details used to create new user event",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SubmitEvent"
+              "$ref": "#/definitions/AddOrEditEvent"
             }
           }
         ],
@@ -474,6 +619,12 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
@@ -482,7 +633,6 @@
           "Events"
         ],
         "summary": "Deletes existing user event",
-        "operationId": "EventController.deleteEvent",
         "produces": [
           "application/json"
         ],
@@ -526,6 +676,12 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -536,7 +692,6 @@
           "Events"
         ],
         "summary": "Declines existing user event",
-        "operationId": "EventController.declineUserEvent",
         "produces": [
           "application/json"
         ],
@@ -580,6 +735,12 @@
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -598,7 +759,7 @@
     }
   },
   "definitions": {
-    "SubmitEvent": {
+    "AddOrEditEvent": {
       "type": "object",
       "properties": {
         "name": {
@@ -613,14 +774,14 @@
         "start": {
           "type": "string"
         },
-        "guests": {
-          "type": "integer"
+        "end": {
+          "type": "string"
         },
-        "days": {
+        "guests": {
           "type": "integer"
         }
       },
-      "required": ["name", "type", "centerId", "start", "days", "guests"]
+      "required": ["name", "type", "centerId", "start", "end", "guests"]
     },
     "Event": {
       "type": "object",
@@ -638,7 +799,15 @@
               "type": "string"
             },
             "center": {
-              "type": "string"
+              "type": "object",
+              "properties":{
+                "name": {
+                  "type": "string"
+                },
+                "capacity": {
+                  "type": "integer"
+                }
+              }
             },
             "start": {
               "type": "string"
@@ -651,17 +820,14 @@
             },
             "guests": {
               "type": "integer"
-            },
-            "days": {
-              "type": "integer"
             }
           },
-          "required": ["name", "type", "center", "start", "days", "guests", "id"]
+          "required": ["name", "type", "start", "end", "guests", "id"]
         }
       },
       "required": ["status", "event"]
     },
-    "SubmitCenter": {
+    "AddOrEditCenter": {
       "type": "object",
       "properties": {
         "name": {
@@ -757,7 +923,7 @@
       },
       "required": ["email", "password"]
     },
-    "UserSignin": {
+    "UserSignup": {
       "type": "object",
       "properties": {
         "fullName": {
