@@ -195,7 +195,6 @@ module.exports = describe('Tests for User API endpoint', () => {
           password: testHelper.userPassword,
           confirmPassword: testHelper.userPassword,
           email: testHelper.userEmail,
-          phoneNumber: '08101592531',
         })
         .end((err, res) => {
           res.should.have.status(409);

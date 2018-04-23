@@ -342,7 +342,7 @@ module.exports = describe('Tests for Centers API', () => {
         });
     });
 
-    it('should return a status 400 error response for adding a center that already exists', (done) => {
+    it('should return a status 409 error response for adding a center that already exists', (done) => {
       chai
         .request(host)
         .post(`/api/v1/centers?token=${testHelper.adminToken}`)
@@ -356,7 +356,7 @@ module.exports = describe('Tests for Centers API', () => {
           cost: 300000,
         })
         .end((err, res) => {
-          res.should.have.status(400);
+          res.should.have.status(409);
           res.should.be.a('object');
           res.body.should.have.property('error').to.equal('center name already exists in center address');
           done();
