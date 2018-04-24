@@ -1,7 +1,7 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin-advanced');
 const path = require('path');
 const webpack = require('webpack');
-
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   entry: ['babel-polyfill', './client/src/app/index.jsx'],
@@ -71,5 +71,6 @@ module.exports = {
       'window.jQuery': 'jquery',
       Popper: ['popper.js', 'default'],
     }),
+    new Dotenv(),
   ],
 };
