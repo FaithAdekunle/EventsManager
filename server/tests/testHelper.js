@@ -1,6 +1,12 @@
 import uuidv4 from 'uuid/v4';
 
+/**
+ * TestHelpers class
+ */
 class TestHelper {
+  /**
+   * constructor
+   */
   constructor() {
     this.userToken = undefined;
     this.adminToken = undefined;
@@ -17,22 +23,41 @@ class TestHelper {
     this.fakeEmail = `${uuidv4()}@gmail.com`;
   }
 
+  /**
+   * sets to received user token after test login
+   * @param { string } userToken
+   * @returns { void }
+   */
   setUserToken(userToken) {
     this.userToken = userToken;
   }
 
+  /**
+   * sets to received admin token after test login
+   * @param { string } adminToken
+   * @returns { void }
+   */
   setAdminToken(adminToken) {
     this.adminToken = adminToken;
   }
 
+  /**
+   * sets to id of created center
+   * @param { integer } centerId
+   * @returns { void }
+   */
   setCenterId(centerId) {
     this.centerId = centerId;
   }
 
+  /**
+   * sets to id of created event
+   * @param { integer } eventId
+   * @returns { void }
+   */
   setEventId(eventId) {
     this.eventId = eventId;
   }
 }
 
 export default new TestHelper();
-
