@@ -2,128 +2,95 @@
 
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import bodies from './bodies';
 import testHelper from './testHelper';
-import host from '../index.js';
+import host from '../index';
 
 chai.use(chaiHttp);
 chai.should();
 
-module.exports = describe('Tests for User API endpoint', () => {
-  describe('Test for creating new user and/or admin', () => {
-    it('shoud return a status 400 error response for a missing fullName field', (done) => {
+module.exports = describe('Tests for User endpoints', () => {
+  describe('POST api/v1/users', () => {
+    it('shoud return error for missing fullname field', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.NO_FULLNAME)
         .end((err, res) => {
           res.should.have.status(400);
           res.body.should.be.a('object');
-          res.body.should.have.property('error').equal('fullName must be 1 - 30 characters');
+          res.body.should.have
+            .property('error')
+            .equal('fullName must be 1 - 30 characters');
           done();
         });
     });
 
-    it('shoud return a status 400 error response for a empty fullName field', (done) => {
+    it('shoud return error for empty fullname field', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: '',
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.EMPTY_FULLNAME)
         .end((err, res) => {
           res.should.have.status(400);
           res.body.should.be.a('object');
-          res.body.should.have.property('error').to.equal('fullName must be 1 - 30 characters');
+          res.body.should.have
+            .property('error')
+            .to.equal('fullName must be 1 - 30 characters');
           done();
         });
     });
 
-    it('shoud return a status 400 error response for a fullName field of only spaces', (done) => {
+    it('shoud return error for missing password field', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: '      ',
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.NO_PASSWORD)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('fullName must be 1 - 30 characters');
+          res.body.should.have
+            .property('error')
+            .to.equal('password must be 8 - 100 characters');
           done();
         });
     });
 
-    it('shoud return a status 400 error response for a missing password field', (done) => {
+    it('shoud return error for short length password', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: 'Test Test',
-          confirmPassword: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.SHORT_PASSWORD)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('password must be 8 - 100 characters');
+          res.body.should.have
+            .property('error')
+            .to.equal('password must be 8 - 100 characters');
           done();
         });
     });
 
-    it('shoud return a status 400 error response for a password field less than 8 characters password', (done) => {
+    it('shoud return error for missing password confirm field', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          password: 'pass',
-          confirmPassword: 'pass',
-          fullName: 'Test Test',
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.NO_CONFIRM_PASSWORD)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('password must be 8 - 100 characters');
+          res.body.should.have
+            .property('error')
+            .to.equal('missing password confirm');
           done();
         });
     });
 
-    it('shoud return a status 400 error response for a missing password confirm field', (done) => {
+    it('shoud return error for missing email field', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: 'Test Test',
-          password: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('missing password confirm');
-          done();
-        });
-    });
-
-    it('shoud return a status 400 error response for a missing email field', (done) => {
-      chai
-        .request(host)
-        .post('/api/v1/users')
-        .send({
-          fullName: 'Test Test',
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-        })
+        .send(bodies.userBodies.NO_EMAIL)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -132,16 +99,11 @@ module.exports = describe('Tests for User API endpoint', () => {
         });
     });
 
-    it('shoud return a status 400 error response for an invalid email value', (done) => {
+    it('shoud return error for invalid email value', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: 'Faith Adekunle',
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-          email: 'adegold71gmail.com',
-        })
+        .send(bodies.userBodies.INVALID_EMAIL)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -150,34 +112,26 @@ module.exports = describe('Tests for User API endpoint', () => {
         });
     });
 
-    it('shoud return a status 400 error response for password mismatch', (done) => {
+    it('shoud return error for password mismatch', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: 'Faith Adekunle',
-          password: testHelper.userPassword,
-          confirmPassword: 'password',
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.PASSWORD_MISMATCH)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('password and confirmPassword fields are not equal');
+          res.body.should.have
+            .property('error')
+            .to.equal('password and confirmPassword fields are not equal');
           done();
         });
     });
 
-    it('shoud return a status 201 success response for creating a user', (done) => {
+    it('shoud sucessfully create a user', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: 'asuahoidudfhla',
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.CREATE_USER)
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
@@ -186,34 +140,28 @@ module.exports = describe('Tests for User API endpoint', () => {
         });
     });
 
-    it('shoud return a status 409 error response for creating a user with an already existing email', (done) => {
+    it('shoud return error for creating existing user', (done) => {
       chai
         .request(host)
         .post('/api/v1/users')
-        .send({
-          fullName: 'asuahoidudfhla',
-          password: testHelper.userPassword,
-          confirmPassword: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.CONFLICT_USER)
         .end((err, res) => {
           res.should.have.status(409);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('a user already exits with this email');
+          res.body.should.have
+            .property('error')
+            .equal('a user already exits with this email');
           done();
         });
     });
   });
 
-  describe('Test for loggin a user and/or admin', () => {
-    it('shoud return a status 200 success response for logging in an admin', (done) => {
+  describe('POST /api/v1/users/login', () => {
+    it('shoud log admin in', (done) => {
       chai
         .request(host)
         .post('/api/v1/users/login')
-        .send({
-          password: testHelper.adminPassword,
-          email: testHelper.adminEmail,
-        })
+        .send(bodies.userBodies.ADMIN_LOGIN)
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
@@ -223,14 +171,11 @@ module.exports = describe('Tests for User API endpoint', () => {
         });
     });
 
-    it('shoud return a status 200 success response for logging in a user', (done) => {
+    it('shoud log user in', (done) => {
       chai
         .request(host)
         .post('/api/v1/users/login')
-        .send({
-          password: testHelper.userPassword,
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.USER_LOGIN)
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
@@ -240,34 +185,32 @@ module.exports = describe('Tests for User API endpoint', () => {
         });
     });
 
-    it('shoud return a status 400 error response for logging in a user with wrong password', (done) => {
+    it('shoud return error logging in a user with wrong password', (done) => {
       chai
         .request(host)
         .post('/api/v1/users/login')
-        .send({
-          password: 'wrong_password',
-          email: testHelper.userEmail,
-        })
+        .send(bodies.userBodies.WRONG_USER_PASSWORD)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('email and password combination invalid');
+          res.body.should.have
+            .property('error')
+            .equal('email and password combination invalid');
           done();
         });
     });
 
-    it('shoud return a status 400 error response for logging in a user with wrong email', (done) => {
+    it('shoud return error for logging in a user with wrong email', (done) => {
       chai
         .request(host)
         .post('/api/v1/users/login')
-        .send({
-          password: 'wrong_password',
-          email: testHelper.fakeEmail,
-        })
+        .send(bodies.userBodies.WRONG_USER_EMAIL)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('email and password combination invalid');
+          res.body.should.have
+            .property('error')
+            .equal('email and password combination invalid');
           done();
         });
     });

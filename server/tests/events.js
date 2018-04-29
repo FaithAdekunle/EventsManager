@@ -2,6 +2,7 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import testHelper from './testHelper';
+import bodies from './bodies';
 import host from '../index.js';
 
 chai.use(chaiHttp);
@@ -9,213 +10,151 @@ chai.should();
 
 module.exports = describe('Tests for events api', () => {
   describe('POST api/v1/events', () => {
-    it('should return a status 400 error response for missing name field', (done) => {
+    it('should return error for missing name field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          type: 'test type 123',
-          start: '20/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.NO_NAME)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('name must be 1 - 30 characters');
+          res.body.should.have.property('error').to
+            .equal('name must be 1 - 30 characters');
           done();
         });
     });
 
-    it('should return a status 400 error response for empty name field', (done) => {
+    it('should return error for empty name field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: '         ',
-          type: 'test type 123',
-          start: '20/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.EMPTY_NAME)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('name must be 1 - 30 characters');
+          res.body.should.have.property('error').to
+            .equal('name must be 1 - 30 characters');
           done();
         });
     });
 
-    it('should return a status 400 error response for missing type field', (done) => {
+    it('should return error for missing type field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          start: '20/12/2018',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.NO_TYPE)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('type must be between 1 - 20 characters');
+          res.body.should.have.property('error').to
+            .equal('type must be between 1 - 20 characters');
           done();
         });
     });
 
-    it('should return a status 400 error response for empty type field', (done) => {
+    it('should return error for empty type field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: '         ',
-          start: '20/12/2018',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.EMPTY_TYPE)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('type must be between 1 - 20 characters');
+          res.body.should.have.property('error').to
+            .equal('type must be between 1 - 20 characters');
           done();
         });
     });
 
-    it('should return a status 400 error response for missing center id field', (done) => {
+    it('should return error for missing center id field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 20,
-          end: '21/12/2019',
-        })
+        .send(bodies.eventBodies.NO_CENTER_ID)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('invalid centerId value');
+          res.body.should.have.property('error').to
+            .equal('invalid centerId value');
           done();
         });
     });
 
-    it('should return a status 400 error response for invalid center id field', (done) => {
+    it('should return error for invalid center id field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: -2,
-        })
+        .send(bodies.eventBodies.INVALID_CENTER_ID)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('invalid centerId value');
+          res.body.should.have.property('error').to
+            .equal('invalid centerId value');
           done();
         });
     });
 
-    it('should return a status 400 error response for missing guests field', (done) => {
+    it('should return error for missing guests field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.NO_GUESTS)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('guests must be a positive integer');
+          res.body.should.have.property('error').to
+            .equal('guests must be a positive integer');
           done();
         });
     });
 
-    it('should return a status 400 error response for invalid guests field', (done) => {
+    it('should return error for invalid guests field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 0,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.INVALID_GUESTS)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('guests must be a positive integer');
+          res.body.should.have.property('error').to
+            .equal('guests must be a positive integer');
           done();
         });
     });
 
-    it('should return a status 400 error response for missing end field', (done) => {
+    it('should return error for missing end date field', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 20,
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.NO_END_DATE)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('Invalid end date. Use format DD/MM/YYYY.');
+          res.body.should.have.property('error').to
+            .equal('Invalid end date. Use format DD/MM/YYYY.');
           done();
         });
     });
 
-    it('should return a status 400 error response for past end date', (done) => {
+    it('should return errorfor past end date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 20,
-          end: '21/12/2017',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.PAST_END_DATE)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').to.equal('end date is past');
+          res.body.should.have.property('error').to
+            .equal('end date is past');
           done();
         });
     });
 
-    it('should return a status 400 success response for booking a past start date', (done) => {
+    it('should return error for booking a past start date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2016',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.PAST_START_DATE)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -224,58 +163,39 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 400 success response for booking invalid start date', (done) => {
+    it('should return error for booking invalid start date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '70/22/2018',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.INVALID_START_DATE)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('Invalid start date. Use format DD/MM/YYYY.');
+          res.body.should.have.property('error')
+            .equal('Invalid start date. Use format DD/MM/YYYY.');
           done();
         });
     });
 
-    it('should return a status 400 success response for start date ahead of end date', (done) => {
+    it('should return error for start date set after end date', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2018',
-          guests: 20,
-          end: '19/12/2018',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.BAD_TIMING)
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('start date cannot be ahead of end date');
+          res.body.should.have.property('error')
+            .equal('start date cannot be ahead of end date');
           done();
         });
     });
 
-    it('should return a status 400 error response for missing token', (done) => {
+    it('should return error for missing token', (done) => {
       chai
         .request(host)
         .post('/api/v1/events')
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.CREATE_EVENT(testHelper.centerId))
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -284,18 +204,11 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 401 error response for bad token token', (done) => {
+    it('should return error for bad token token', (done) => {
       chai
         .request(host)
         .post(`/api/v1/events?token=${testHelper.fakeToken}`)
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.CREATE_EVENT(testHelper.centerId))
         .end((err, res) => {
           res.should.have.status(401);
           res.should.be.a('object');
@@ -304,18 +217,11 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 201 success response for valid post request', (done) => {
+    it('should create and add a new event', (done) => {
       chai
         .request(host)
         .post(`/api/v1/events?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '20/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.CREATE_EVENT(testHelper.centerId))
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
@@ -325,18 +231,11 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 201 success response for valid post request', (done) => {
+    it('should create another event', (done) => {
       chai
         .request(host)
         .post(`/api/v1/events?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 456',
-          type: 'test type 123',
-          start: '30/12/2019',
-          guests: 20,
-          end: '31/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.CREATE_ANOTHER_EVENT(testHelper.centerId))
         .end((err, res) => {
           res.should.have.status(201);
           res.should.be.a('object');
@@ -347,7 +246,7 @@ module.exports = describe('Tests for events api', () => {
   });
 
   describe('GET api/v1/events', () => {
-    it('should return a status 200 success response fetching all events', (done) => {
+    it('should fetch all events', (done) => {
       chai
         .request(host)
         .get(`/api/v1/events?token=${testHelper.userToken}`)
@@ -361,7 +260,7 @@ module.exports = describe('Tests for events api', () => {
   });
 
   describe('GET api/v1/:centerId/events', () => {
-    it('should return a status 404 error response for fetching events for a non existing center', (done) => {
+    it('should return error for non existing center', (done) => {
       chai
         .request(host)
         .get('/api/v1/0/events')
@@ -371,9 +270,9 @@ module.exports = describe('Tests for events api', () => {
           res.body.error.should.equal('center not found');
           done();
         });
-    })
+    });
 
-    it('should return a status 404 error response for fetching events for an invalid centerId', (done) => {
+    it('should return error for invalid center id', (done) => {
       chai
         .request(host)
         .get('/api/v1/centerId/events')
@@ -383,9 +282,9 @@ module.exports = describe('Tests for events api', () => {
           res.body.error.should.equal('invalid centerId parameter');
           done();
         });
-    })
+    });
 
-    it('should return a status 201 success response for fetching events for a center', (done) => {
+    it('should fetch events booked in one center', (done) => {
       chai
         .request(host)
         .get(`/api/v1/${testHelper.centerId}/events`)
@@ -395,42 +294,15 @@ module.exports = describe('Tests for events api', () => {
           res.body.status.should.equal('success');
           done();
         });
-    })
-  })
+    });
+  });
 
   describe('PUT api/v1/events/:id', () => {
-    it('should return a status 200 success response for valid put request', (done) => {
-      chai
-        .request(host)
-        .put(`/api/v1/events/${testHelper.eventId}?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 123 changed',
-          type: 'test type 123',
-          start: '20/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: testHelper.centerId,
-        })
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.should.be.a('object');
-          res.body.event.should.have.property('name').equal('test event 123 changed');
-          done();
-        });
-    });
-
-    it('should return a status 404 failure response for editing a non existing event', (done) => {
+    it('should return error for non existing event', (done) => {
       chai
         .request(host)
         .put(`/api/v1/events/2147483648?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 123 changed',
-          type: 'test type 123',
-          start: '10/12/2019',
-          guests: 20,
-          end: '11/12/2019',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.NO_EVENT(testHelper.centerId))
         .end((err, res) => {
           res.should.have.status(404);
           res.should.be.a('object');
@@ -439,58 +311,54 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 409 error response for booked dates', (done) => {
+    it('should edit event', (done) => {
       chai
         .request(host)
-        .post(`/api/v1/events?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '30/12/2019',
-          guests: 20,
-          end: '01/01/2020',
-          centerId: testHelper.centerId,
-        })
+        .put(`/api/v1/events/${testHelper.eventId}` +
+          `?token=${testHelper.userToken}`)
+        .send(bodies.eventBodies.EDIT_EVENT(testHelper.centerId))
         .end((err, res) => {
-          res.should.have.status(409);
+          res.should.have.status(200);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('dates have been booked');
+          res.body.event.should.have.property('name')
+            .equal('test event 123 changed');
           done();
         });
     });
 
-    it('should return a status 409 error response for more guests than capacity', (done) => {
+    it('should return error for booked dates', (done) => {
       chai
         .request(host)
         .post(`/api/v1/events?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '30/12/2019',
-          guests: 600,
-          end: '01/01/2020',
-          centerId: testHelper.centerId,
-        })
+        .send(bodies.eventBodies.BOOKED_DATES(testHelper.centerId))
         .end((err, res) => {
           res.should.have.status(409);
           res.should.be.a('object');
-          res.body.should.have.property('error').equal('guests too large for this center');
+          res.body.should.have.property('error')
+            .equal('dates have been booked');
           done();
         });
     });
 
-    it('should return a status 404 error response for booking a non existing center', (done) => {
+    it('should return error for too many guests', (done) => {
       chai
         .request(host)
         .post(`/api/v1/events?token=${testHelper.userToken}`)
-        .send({
-          name: 'test event 123',
-          type: 'test type 123',
-          start: '19/12/2019',
-          guests: 20,
-          end: '21/12/2019',
-          centerId: 0,
-        })
+        .send(bodies.eventBodies.TOO_MANY_GUESTS(testHelper.centerId))
+        .end((err, res) => {
+          res.should.have.status(409);
+          res.should.be.a('object');
+          res.body.should.have.property('error')
+            .equal('guests too large for this center');
+          done();
+        });
+    });
+
+    it('should return error non existing center', (done) => {
+      chai
+        .request(host)
+        .post(`/api/v1/events?token=${testHelper.userToken}`)
+        .send(bodies.eventBodies.NO_CENTER)
         .end((err, res) => {
           res.should.have.status(404);
           res.should.be.a('object');
@@ -501,7 +369,7 @@ module.exports = describe('Tests for events api', () => {
   });
 
   describe('PUT api/v1/events/:id/decline', () => {
-    it('should return a status 404 error response for declining non existing event', (done) => {
+    it('should return error for non existing event', (done) => {
       chai
         .request(host)
         .put(`/api/v1/events/0/decline?token=${testHelper.adminToken}`)
@@ -513,10 +381,11 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 200 success response for declining user event', (done) => {
+    it('should decline event', (done) => {
       chai
         .request(host)
-        .put(`/api/v1/events/${testHelper.eventId}/decline?token=${testHelper.adminToken}`)
+        .put(`/api/v1/events/${testHelper.eventId}/decline` +
+          `?token=${testHelper.adminToken}`)
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');
@@ -527,7 +396,7 @@ module.exports = describe('Tests for events api', () => {
   });
 
   describe('DELETE api/v1/events/:id', () => {
-    it('should return a status 404 success response for deleting a non existing event', (done) => {
+    it('should return error for non existing event', (done) => {
       chai
         .request(host)
         .delete(`/api/v1/events/0?token=${testHelper.userToken}`)
@@ -539,10 +408,11 @@ module.exports = describe('Tests for events api', () => {
         });
     });
 
-    it('should return a status 200 success response for deleting an event', (done) => {
+    it('should delete an event', (done) => {
       chai
         .request(host)
-        .delete(`/api/v1/events/${testHelper.eventId}?token=${testHelper.userToken}`)
+        .delete(`/api/v1/events/${testHelper.eventId}` +
+          `?token=${testHelper.userToken}`)
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');

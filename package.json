@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node ./server/dist/index.js --ignore ./client",
-    "start:dev": "npm run pack:dev && npm run build && node ./server/dist/index.js --ignore ./client",
+    "start:dev": "npm run build && node ./server/dist/index.js --ignore ./client",
     "build": "babel server -d server/dist --copy-files --ignore server/dist,server/data,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
@@ -28,7 +28,7 @@
     "testClient": "mocha ./client/test/*.test.js --compilers js:babel-register --require ./client/test/setup.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
-    "pack:dev": "webpack -d",
+    "pack:dev": "webpack -d && webpack-dev-server --hot",
     "pack:prod": "webpack -p"
   },
   "dependencies": {
