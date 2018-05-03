@@ -18,23 +18,24 @@ module.exports = class EventController {
   });
 
   /**
-  * provides validation for incoming start and end dates
-  * @param { integer } value
-  * @param { string } field
-  * @returns { void }
-  */
+   * provides validation for incoming start and end dates
+   * @param { integer } value
+   * @param { string } field
+   * @returns { void }
+   */
   static validateDateField(value, field) {
     if (!moment(value, 'DD-MM-YYYY').isValid()) {
       throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
     }
-    if (!(moment(value, 'DD-MM-YYYY')
-      .isAfter(moment()))) throw new Error(`${field} date is past`);
+    if (!moment(value, 'DD-MM-YYYY').isAfter(moment())) {
+      throw new Error(`${field} date is past`);
+    }
   }
 
   /**
- * provides validation for incoming request body for creating/editing event
- * @returns { array } an array of functions to parse request
- */
+   * provides validation for incoming request body for creating/editing event
+   * @returns { array } an array of functions to parse request
+   */
   static eventValidations() {
     return [
       body('name')
@@ -47,34 +48,30 @@ module.exports = class EventController {
         .trim()
         .isLength({ min: 1, max: 20 })
         .withMessage('type must be between 1 - 20 characters'),
-      body('start')
-        .custom((value) => {
-          EventController.validateDateField(value, 'start');
-        }),
-      body('end')
-        .custom((value) => {
-          EventController.validateDateField(value, 'end');
-        }),
+      body('start').custom((value) => {
+        EventController.validateDateField(value, 'start');
+      }),
+      body('end').custom((value) => {
+        EventController.validateDateField(value, 'end');
+      }),
       sanitize('centerId').toInt(),
-      body('centerId')
-        .custom((value) => {
-          if (!Number.isInteger(value) || Math.sign(value) === -1) {
-            throw new Error('invalid centerId value');
-          }
-        }),
+      body('centerId').custom((value) => {
+        if (!Number.isInteger(value) || Math.sign(value) === -1) {
+          throw new Error('invalid centerId value');
+        }
+      }),
       sanitize('guests').toInt(),
-      body('guests')
-        .custom(value => Helpers.sanitizeInteger(value, 'guests')),
+      body('guests').custom(value => Helpers.sanitizeInteger(value, 'guests')),
     ];
   }
 
   /**
    * checks if there are any failed validations
- * @param {object} req
- * @param {object} res
- * @param {function} next
- * @returns {object | function} next()
- */
+   * @param {object} req
+   * @param {object} res
+   * @param {function} next
+   * @returns {object | function} next()
+   */
   static checkFailedValidations(req, res, next) {
     if (validationResult(req).isEmpty()) return next();
     const errors = validationResult(req).array();
@@ -90,33 +87,39 @@ module.exports = class EventController {
 
   /**
    * checks if there are any failed validations
- * @param {object} req
- * @param {object} res
- * @param {function} next
- * @returns {object | function} next()
- */
+   * @param {object} req
+   * @param {object} res
+   * @param {function} next
+   * @returns {object | function} next()
+   */
   static checkAndSanitizeDateFields(req, res, next) {
-    if ((moment(req.body.start, 'DD-MM-YYYY')
-      .isAfter(moment(req.body.end, 'DD-MM-YYYY')))) {
-      return res.status(400).json(Helpers
-        .getResponse('start date cannot be ahead of end date'));
+    if (
+      moment(req.body.start, 'DD-MM-YYYY')
+        .isAfter(moment(req.body.end, 'DD-MM-YYYY'))
+    ) {
+      return res
+        .status(400)
+        .json(Helpers.getResponse('start date cannot be ahead of end date'));
     }
     ['start', 'end'].map((date) => {
       req.body[date] = moment(req.body[date], 'DD-MM-YYYY')
-        .format('DD MM YYYY').split(' ').join('/');
+        .format('DD MM YYYY')
+        .split(' ')
+        .join('/');
       return null;
     });
     return next();
   }
 
   /**
- * creates new event
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing created event or sends error message
- */
+   * creates new event
+   * @param {object} req
+   * @param {object} res
+   * @returns { object } event error
+   */
   static createEvent(req, res) {
-    db.event.create(req.body)
+    db.event
+      .create(req.body)
       .then((createdEvent) => {
         res.status(201).json(Helpers.getResponse(createdEvent, 'event', true));
       })
@@ -126,221 +129,245 @@ module.exports = class EventController {
   }
 
   /**
- * modifies existing event
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing modified event or sends error message
- */
+   * modifies existing event
+   * @param {object} req
+   * @param {object} res
+   * @returns { object } event or error
+   */
   static modifyEvent(req, res) {
-    db.event.update(req.body, {
-      where: {
-        id: req.params.id,
-        userId: req.body.userId,
-      },
-    })
+    db.event
+      .update(req.body, {
+        where: {
+          id: req.params.id,
+          userId: req.body.userId,
+        },
+      })
       .then((rows) => {
         if (rows[0] === 0) {
           return res.status(404).json(Helpers.getResponse('event not found'));
         }
-        return db.event.findOne({
-          where: {
-            id: req.params.id,
-            userId: req.body.userId,
-          },
-          include: [{
-            model: db.center,
-            attributes: ['name', 'capacity'],
-          }],
-        })
+        return db.event
+          .findOne({
+            where: {
+              id: req.params.id,
+              userId: req.body.userId,
+            },
+            include: [
+              {
+                model: db.center,
+                attributes: ['name', 'capacity'],
+              },
+            ],
+          })
           .then((updatedEvent) => {
             res.json(Helpers.getResponse(updatedEvent, 'event', true));
           })
-          .catch(() => res.status(500)
-            .json(Helpers.getResponse('Internal server error')));
+          .catch(() =>
+            res.status(500).json(Helpers.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500)
-        .json(Helpers.getResponse('Internal server error')));
+      .catch(() =>
+        res.status(500).json(Helpers.getResponse('Internal server error')));
   }
 
   /**
- * deletes existing event
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing delete success message or error message
- */
+   * deletes existing event
+   * @param {object} req
+   * @param {object} res
+   * @returns { object } success or error message
+   */
   static deleteEvent(req, res) {
-    db.event.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.body.userId,
-      },
-    })
+    db.event
+      .findOne({
+        where: {
+          id: req.params.id,
+          userId: req.body.userId,
+        },
+      })
       .then((event) => {
         if (!event) {
           return res.status(404).json(Helpers.getResponse('event not found'));
         }
-        return db.event.destroy({
-          where: {
-            id: req.params.id,
-            userId: req.body.userId,
-          },
-        })
-          .then(() => res.json(Helpers
-            .getResponse(req.params.id, 'deteted', true)))
-          .catch(() => res.status(500)
-            .json(Helpers.getResponse('Internal server error')));
+        return db.event
+          .destroy({
+            where: {
+              id: req.params.id,
+              userId: req.body.userId,
+            },
+          })
+          .then(() =>
+            res.json(Helpers.getResponse(req.params.id, 'deteted', true)))
+          .catch(() =>
+            res.status(500).json(Helpers.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500)
-        .json(Helpers.getResponse('Internal server error')));
+      .catch(() =>
+        res.status(500).json(Helpers.getResponse('Internal server error')));
   }
 
   /**
- * filters events based on query properties
- * @param {object} events
- * @param {object} req
- * @returns { object } object containing all user's event or fetch error message
- */
-  static filterEvents(events, req) {
+   * filters events based on query properties
+   * @param { integer } totalCount
+   * @param {object} events
+   * @param {object} req
+   * @param {object} res
+   * @returns { object } events or error
+   */
+  static filterEvents(totalCount, events, req, res) {
     const limit = parseInt(req.query.limit, 10);
-    const offset = parseInt(req.query.offset, 10);
-    const { upcoming } = req.query;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const { upcoming, pagination } = req.query;
     let upcomingEvents = null;
     if (upcoming === 'true') {
-      upcomingEvents = events
-        .filter(event => moment(event.end, 'DD-MM-YYYY')
-          .isSameOrAfter(moment()));
+      upcomingEvents = events.filter(event =>
+        moment(event.end, 'DD-MM-YYYY').isSameOrAfter(moment()));
     } else {
       upcomingEvents = events;
     }
     if (offset) upcomingEvents = upcomingEvents.slice(offset);
-    if (limit) upcomingEvents = upcomingEvents.slice(0, limit);
-    return upcomingEvents;
+    if (!Number.isNaN(limit)) upcomingEvents = upcomingEvents.slice(0, limit);
+    const response = Helpers.getResponse(upcomingEvents, 'events', true);
+    if (pagination === 'true') {
+      const metaData = {
+        pagination: Helpers.paginationMetadata(
+          offset,
+          limit,
+          totalCount,
+          upcomingEvents.length,
+        ),
+      };
+      response.metaData = metaData;
+    }
+    return res.json(response);
   }
 
   /**
- * fetches existing events
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing all user's event or fetch error message
- */
+   * fetches existing events
+   * @param {object} req
+   * @param {object} res
+   * @returns { object } events or error
+   */
   static fetchUserEvents(req, res) {
-    db.event.findAll({
-      where: {
-        userId: req.body.userId,
-      },
-      include: [{
-        model: db.center,
-        attributes: ['name', 'capacity'],
-      }],
-    })
-      .then(events => res.json(Helpers.getResponse(
-        EventController.filterEvents(events, req),
-        'events',
-        true,
-      )))
-      .catch(() => res.status(500)
-        .json(Helpers.getResponse('Internal server error')));
+    db.event
+      .findAndCountAll({
+        where: {
+          userId: req.body.userId,
+        },
+        include: [
+          {
+            model: db.center,
+            attributes: ['name', 'capacity'],
+          },
+        ],
+      })
+      .then(result =>
+        EventController.filterEvents(result.count, result.rows, req, res))
+      .catch(() =>
+        res.status(500).json(Helpers.getResponse('Internal server error')));
   }
 
   /**
- * fetches existing events
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing all user's event or fetch error message
- */
+   * fetches existing events
+   * @param {object} req
+   * @param {object} res
+   * @returns { object } events or error
+   */
   static fetchCenterEvents(req, res) {
-    db.center.findOne({
-      where: {
-        id: req.params.centerId,
-      },
-    })
+    db.center
+      .findOne({
+        where: {
+          id: req.params.centerId,
+        },
+      })
       .then((center) => {
         if (!center) {
           return res.status(404).json(Helpers.getResponse('center not found'));
         }
-        return db.event.findAll({
-          where: {
-            centerId: req.params.centerId,
-          },
-        })
-          .then(events => res.json(Helpers.getResponse(
-            EventController.filterEvents(events, req),
-            'events',
-            true,
-          )))
-          .catch(() => res.status(500)
-            .json(Helpers.getResponse('Internal server error')));
+        return db.event
+          .findAndCountAll({
+            where: {
+              centerId: req.params.centerId,
+            },
+          })
+          .then(result =>
+            EventController.filterEvents(result.count, result.rows, req, res))
+          .catch(() =>
+            res.status(500).json(Helpers.getResponse('Internal server error')));
       })
-      .catch(() => res.status(500)
-        .json(Helpers.getResponse('Internal server error')));
+      .catch(() =>
+        res.status(500).json(Helpers.getResponse('Internal server error')));
   }
 
   /**
- * declines existing event
- * @param {object} req
- * @param {object} res
- * @param {object} next
- * @returns { object } object containing modified event or sends error message
- */
+   * declines existing event
+   * @param {object} req
+   * @param {object} res
+   * @param {object} next
+   * @returns { object } next or error
+   */
   static declineUserEvent(req, res, next) {
-    db.event.update({ isAccepted: false }, {
-      where: {
-        id: req.params.id,
-      },
-    })
+    db.event
+      .update(
+        { isAccepted: false },
+        {
+          where: {
+            id: req.params.id,
+          },
+        },
+      )
       .then((rows) => {
         if (rows[0] === 0) {
           return res.status(404).json(Helpers.getResponse('event not found'));
         }
         return next();
       })
-      .catch(() => res.status(500)
-        .json(Helpers.getResponse('Internal server error')));
+      .catch(() =>
+        res.status(500).json(Helpers.getResponse('Internal server error')));
   }
 
   /**
- * sends mail to user
- * @param {object} req
- * @param {object} res
- * @returns { object } object containing success message or sends error message
- */
+   * sends mail to user
+   * @param {object} req
+   * @param {object} res
+   * @returns { void }
+   */
   static sendMail(req, res) {
-    db.event.findOne({
-      where: {
-        id: req.params.id,
-      },
-    })
-      .then(event => db.user.findOne({
+    db.event
+      .findOne({
         where: {
-          id: event.userId,
+          id: req.params.id,
         },
       })
-        .then((user) => {
-          const mailOptions = {
-            from: process.env.EMAIL,
-            subject: 'Event Decline',
-            to: user.email,
-            html: `<p>Dear user, we are very sorry to inform you that your 
+      .then(event =>
+        db.user
+          .findOne({
+            where: {
+              id: event.userId,
+            },
+          })
+          .then((user) => {
+            const mailOptions = {
+              from: process.env.EMAIL,
+              subject: 'Event Decline',
+              to: user.email,
+              html: `<p>Dear user, we are very sorry to inform you that your 
             event titled <strong>${event.name}</strong> slated between 
             ${event.start} and ${event.end} has been declined due to 
             internal reasons</p>.<p>Appropriate refunds will be made. 
             Do bare with us please.</p><p>Thanks. Admin.</p>`,
-          };
-          return EventController.transporter.sendMail(mailOptions, (error) => {
-            if (error) {
-              return res
-                .status(404)
-                .json(Helpers
-                  .getResponse('error occured sending mail to user'));
-            }
-            return res.json(Helpers
-              .getResponse(req.params.id, 'declined', true));
-          });
-        })
-        .catch(() => res.status(500)
-          .json(Helpers.getResponse('Internal server error'))))
-      .catch(() => res.status(500)
-        .json(Helpers.getResponse('Internal server error')));
+            };
+            EventController.transporter.sendMail(mailOptions, (error) => {
+              if (error) {
+                return res
+                  .status(404)
+                  .json(Helpers
+                    .getResponse('error occured sending mail to user'));
+              }
+              return res.json(Helpers
+                .getResponse(req.params.id, 'declined', true));
+            });
+          })
+          .catch(() =>
+            res.status(500).json(Helpers.getResponse('Internal server error'))))
+      .catch(() =>
+        res.status(500).json(Helpers.getResponse('Internal server error')));
   }
 };
-
