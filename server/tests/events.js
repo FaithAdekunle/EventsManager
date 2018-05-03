@@ -257,6 +257,35 @@ module.exports = describe('Tests for events api', () => {
           done();
         });
     });
+
+    it('should fetch all events with pagination', (done) => {
+      chai
+        .request(host)
+        .get(`/api/v1/events?token=${testHelper.userToken}&pagination=true`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.a('object');
+          res.body.status.should.equal('success');
+          res.body.should.have.property('metaData');
+          res.body.metaData.pagination.currentPage.should.equal(1);
+          done();
+        });
+    });
+
+    it('should fetch some events with pagination', (done) => {
+      chai
+        .request(host)
+        .get(`/api/v1/events?token=${testHelper.userToken}` +
+        '&pagination=true&offset=1&limit=1')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.should.be.a('object');
+          res.body.status.should.equal('success');
+          res.body.should.have.property('metaData');
+          res.body.metaData.pagination.currentPage.should.equal(2);
+          done();
+        });
+    });
   });
 
   describe('GET api/v1/:centerId/events', () => {

@@ -52,13 +52,13 @@
           ],
           "responses": {
             "201": {
-              "description": "Successful signup request",
+              "description": "Successful request",
               "schema": {
                 "$ref": "#/definitions/User"
               }
             },
             "400": {
-              "description": "Invalid signup request",
+              "description": "Bad request",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -66,9 +66,7 @@
             "409": {
               "description": "Email conflict",
               "schema": {
-                "items": {
-                  "$ref": "#/definitions/Error"
-                }
+                "$ref": "#/definitions/Error"
               }
             }
           }
@@ -99,13 +97,13 @@
           ],
           "responses": {
             "200": {
-              "description": "Successful login request",
+              "description": "Successful request",
               "schema": {
                 "$ref": "#/definitions/User"
               }
             },
             "400": {
-              "description": "Invalid login request",
+              "description": "Bad request",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -113,9 +111,7 @@
             "500": {
               "description": "Internal server error",
               "schema": {
-                "items": {
-                  "$ref": "#/definitions/Error"
-                }
+                "$ref": "#/definitions/Error"
               }
             }
           }
@@ -151,13 +147,23 @@
         ],
         "responses": {
           "201": {
-            "description": "Successful post request",
+            "description": "Successful request",
             "schema": {
-              "$ref": "#/definitions/Center"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "center": {
+                  "type": "object",
+                  "$ref": "#/definitions/Center"
+                }
+              },
+              "required": ["status", "center"]
             }
           },
           "400": {
-            "description": "Invalid post request",
+            "description": "Bad request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -175,7 +181,7 @@
             }
           },
           "409": {
-            "description": "Name/Location error",
+            "description": "Name/Location conflict",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -183,9 +189,7 @@
           "500": {
             "description": "Internal server error",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -233,23 +237,48 @@
             "description": "not more than this number of centers will be returned",
             "required": false,
             "type": "integer"
+          },
+          {
+            "name": "pagination",
+            "in": "query",
+            "description": "retrieve pagination metadata",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Center"
-              }
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "centers": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Center"
+                  }
+                },
+                "metaData": {
+                  "type": "object",
+                  "properties": {
+                    "pagination": {
+                      "type": "object",
+                      "$ref": "#/definitions/Pagination"
+                    }
+                  },
+                  "required": ["pagination"]
+                }
+              },
+              "required": ["status", "centers"]
             }
           },
           "500": {
             "description": "Internal server error",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -294,11 +323,21 @@
           "201": {
             "description": "Successful request",
             "schema": {
-              "$ref": "#/definitions/Center"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "center": {
+                  "type": "object",
+                  "$ref": "#/definitions/Center"
+                }
+              },
+              "required": ["status", "center"]
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Bad request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -316,7 +355,7 @@
             }
           },
           "409": {
-            "description": "Name/Location error",
+            "description": "Name/Location conflict",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -350,7 +389,17 @@
           "200": {
             "description": "Successful request",
             "schema": {
-              "$ref": "#/definitions/Center"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "center": {
+                  "type": "object",
+                  "$ref": "#/definitions/Center"
+                }
+              },
+              "required": ["status", "center"]
             }
           },
           "404": {
@@ -360,7 +409,7 @@
             }
           },
           "500": {
-            "description": "Admin not found",
+            "description": "Internal server error",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -400,11 +449,20 @@
           "201": {
             "description": "Successful request",
             "schema": {
-              "$ref": "#/definitions/Event"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "event": {
+                  "type": "object",
+                  "$ref": "#/definitions/Event"
+                }
+              }
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Bad request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -469,19 +527,58 @@
             "description": "not more than this number of events are returned",
             "required": false,
             "type": "integer"
+          },
+          {
+            "name": "pagination",
+            "in": "query",
+            "description": "retrieve pagination metadata",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Event"
-              }
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Event"
+                  }
+                },
+                "metaData": {
+                  "type": "object",
+                  "properties": {
+                    "pagination": {
+                      "type": "object",
+                      "$ref": "#/definitions/Pagination"
+                    }
+                  },
+                  "required": ["pagination"]
+                }
+              },
+              "required": ["status", "events"]
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Authentication error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "User/Center not found",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -532,15 +629,48 @@
             "description": "not more than this number of events are returned",
             "required": false,
             "type": "integer"
+          },
+          {
+            "name": "pagination",
+            "in": "query",
+            "description": "retrieve pagination metadata",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Event"
-              }
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Event"
+                  }
+                },
+                "metaData": {
+                  "type": "object",
+                  "properties": {
+                    "pagination": {
+                      "type": "object",
+                      "$ref": "#/definitions/Pagination"
+                    }
+                  },
+                  "required": ["pagination"]
+                }
+              },
+              "required": ["status", "events"]
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -591,13 +721,20 @@
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Event"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "event": {
+                  "type": "object",
+                  "$ref": "#/definitions/Event"
+                }
               }
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Bad request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -654,13 +791,12 @@
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Success"
-              }
+              "type": "object",
+              "$ref": "#/definitions/Success"
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Bad request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -713,13 +849,11 @@
           "200": {
             "description": "Successful request",
             "schema": {
-              "items": {
-                "$ref": "#/definitions/Success"
-              }
+              "$ref": "#/definitions/Success"
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "Bad request",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -786,46 +920,37 @@
     "Event": {
       "type": "object",
       "properties": {
-        "status": {
+        "name": {
           "type": "string"
         },
-        "event": {
+        "type": {
+          "type": "string"
+        },
+        "center": {
           "type": "object",
-          "properties": {
+          "properties":{
             "name": {
               "type": "string"
             },
-            "type": {
-              "type": "string"
-            },
-            "center": {
-              "type": "object",
-              "properties":{
-                "name": {
-                  "type": "string"
-                },
-                "capacity": {
-                  "type": "integer"
-                }
-              }
-            },
-            "start": {
-              "type": "string"
-            },
-            "end": {
-              "type": "string"
-            },
-            "id": {
-              "type": "integer"
-            },
-            "guests": {
+            "capacity": {
               "type": "integer"
             }
-          },
-          "required": ["name", "type", "start", "end", "guests", "id"]
+          }
+        },
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "guests": {
+          "type": "integer"
         }
       },
-      "required": ["status", "event"]
+      "required": ["name", "type", "start", "end", "guests", "id"]
     },
     "AddOrEditCenter": {
       "type": "object",
@@ -857,47 +982,71 @@
     "Center": {
       "type": "object",
       "properties": {
-        "status": {
+        "name": {
           "type": "string"
         },
-        "center": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "facilities": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "address": {
-              "type": "string"
-            },
-            "id": {
-              "type": "integer"
-            },
-            "cost": {
-              "type": "integer"
-            },
-            "capacity": {
-              "type": "integer"
-            },
-            "images": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": ["name", "description", "address", "cost", "capacity", "facilities", "id", "images"]
+        "description": {
+          "type": "string"
+        },
+        "facilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "address": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "cost": {
+          "type": "integer"
+        },
+        "capacity": {
+          "type": "integer"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
-      "required": ["status", "center"]
+      "required": ["name", "description", "address", "cost", "capacity", "facilities", "id", "images"]
+    },
+    "Pagination": {
+      "type": "object",
+      "properties": {
+        "limt": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "pageCount": {
+          "type": "integer"
+        },
+        "totalCount": {
+          "type": "integer"
+        },
+        "currentPage": {
+          "type": "integer"
+        },
+        "previousOffset": {
+          "type": "integer"
+        },
+        "previousPage": {
+          "type": "integer"
+        },
+        "endPage": {
+          "type": "integer"
+        },
+        "endOffset": {
+          "type": "integer"
+        }
+      },
+      "required": ["currentPage"]
     },
     "User": {
       "type": "object",

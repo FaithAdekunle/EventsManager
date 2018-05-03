@@ -8,10 +8,7 @@
     }
   },
   "nyc": {
-    "exclude": [
-      "server/dist/**",
-      "server/index.js"
-    ]
+    "exclude": ["server/dist/**", "server/index.js"]
   },
   "private": true,
   "engines": {
@@ -20,23 +17,27 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node ./server/dist/index.js --ignore ./client",
-    "start:dev": "npm run build && node ./server/dist/index.js --ignore ./client",
-    "build": "babel server -d server/dist --copy-files --ignore server/dist,server/data,server/tests/",
+    "start:dev":
+      "npm run build && node ./server/dist/index.js --ignore ./client",
+    "build":
+      "webpack --config webpack.prod.js && babel server -d server/dist --copy-files --ignore server/dist,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
-    "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/index.js --require babel-core/register",
-    "testClient": "mocha ./client/test/*.test.js --compilers js:babel-register --require ./client/test/setup.js",
+    "test":
+      "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/index.js --require babel-core/register",
+    "testClient": "jest",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test",
-    "pack:dev": "webpack -d && webpack-dev-server --hot",
-    "pack:prod": "webpack -p"
+    "webpack": "webpack-dev-server --open --config webpack.dev.js"
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "babel-jest": "^22.4.3",
     "bcrypt": "^1.0.3",
     "body-parser": "~1.18.2",
     "bootstrap": "^4.0.0-beta.2",
     "cookie-parser": "~1.4.3",
+    "copy-webpack-plugin-advanced": "^1.0.3",
     "cors": "^2.8.4",
     "debug": "~2.6.9",
     "dotenv": "^4.0.0",
@@ -46,6 +47,7 @@
     "file-loader": "^1.1.5",
     "font-awesome": "^4.7.0",
     "font-awesome-loader": "^1.0.2",
+    "jest": "^22.4.3",
     "jquery": "^3.2.1",
     "jsonwebtoken": "^8.1.0",
     "jwt-decode": "^2.2.0",
@@ -58,16 +60,21 @@
     "popper.js": "^1.12.9",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
+    "react-addons-test-utils": "^15.6.2",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^4.0.8",
+    "react-test-renderer": "^16.3.2",
     "redux": "^3.7.2",
     "sequelize": "^4.23.1",
     "sequelize-cli": "^3.1.0",
     "swagger-ui-express": "^3.0.8",
+    "uglifyjs-webpack-plugin": "^1.2.5",
     "url-loader": "^0.6.2",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "webpack": "^3.10.0",
+    "webpack-merge": "^4.1.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -82,7 +89,6 @@
     "chai-enzyme": "^0.8.0",
     "chai-http": "^3.0.0",
     "codeclimate-test-reporter": "^0.5.0",
-    "copy-webpack-plugin-advanced": "^1.0.3",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.4",
     "css-loader": "^0.28.7",
@@ -104,7 +110,6 @@
     "redux-mock-store": "^1.5.1",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.0",
-    "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.7"
   }
 }

@@ -273,14 +273,28 @@ module.exports = describe('Tests for Centers endpoints', () => {
         });
     });
 
-    it('should fetch first center', (done) => {
+    it('should fetch all centers with pagination', (done) => {
       chai
         .request(host)
-        .get('/api/v1/centers?limit=1')
+        .get('/api/v1/centers?pagination=true&limit=0')
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.have.property('centers');
-          res.body.centers.length.should.equal(1);
+          res.body.should.have.property('metaData');
+          res.body.metaData.pagination.limit.should.equal(0);
+          done();
+        });
+    });
+
+    it('should fetch some centers with pagination', (done) => {
+      chai
+        .request(host)
+        .get('/api/v1/centers?pagination=true&offset=1&limit=1')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.have.property('centers');
+          res.body.should.have.property('metaData');
+          res.body.metaData.pagination.currentPage.should.equal(2);
           done();
         });
     });
