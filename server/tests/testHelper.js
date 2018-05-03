@@ -1,7 +1,7 @@
 import uuidv4 from 'uuid/v4';
 
 /**
- * TestHelpers class
+ * TestHelpers class. Holds realtime test data
  */
 class TestHelper {
   /**
