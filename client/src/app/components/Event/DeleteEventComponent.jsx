@@ -3,6 +3,7 @@ import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/otherActions';
+import DialApi from '../../DialApi';
 
 /**
  * DeleteEvent component class
@@ -30,9 +31,24 @@ class DeleteEvent extends React.Component {
   constructor() {
     super();
     this.deleteEvent = this.deleteEvent.bind(this);
-    DeleteEvent.nullEvent = DeleteEvent.nullEvent.bind(this);
     this.onDeleteSuccesful = this.onDeleteSuccesful.bind(this);
     this.onDeleteFail = this.onDeleteFail.bind(this);
+  }
+
+  /**
+   * executes after component updates
+   * @returns { void }
+   */
+  componentDidUpdate() {
+    const event = this.props.eventState;
+    if (event && event.action === 'delete') {
+      const modal = $('#deleteModal');
+      modal.modal({
+        show: true,
+        keyboard: false,
+        backdrop: 'static',
+      });
+    }
   }
 
   /**
@@ -41,7 +57,7 @@ class DeleteEvent extends React.Component {
    * @returns { void }
    */
   onDeleteSuccesful() {
-    EventActions.deleteFromEventsState(this.props.eventState);
+    EventActions.deleteFromEventsState(this.props.eventState.event);
     this.confirm.classList.remove('hidden');
     this.deleting.classList.add('hidden');
     DeleteEvent.nullEvent();
@@ -53,6 +69,8 @@ class DeleteEvent extends React.Component {
    * @returns { void }
    */
   onDeleteFail(response) {
+    this.confirm.classList.remove('hidden');
+    this.deleting.classList.add('hidden');
     if (!response) {
       alert('Looks like you\'re offline. Check internet connection.');
       return DeleteEvent.nullEvent();
@@ -73,8 +91,8 @@ class DeleteEvent extends React.Component {
   deleteEvent() {
     this.confirm.classList.add('hidden');
     this.deleting.classList.remove('hidden');
-    EventActions.deleteEvent(
-      this.props.eventState,
+    DialApi.deleteEvent(
+      this.props.eventState.event.id,
       this.props.token,
       this.onDeleteSuccesful,
       this.onDeleteFail,
@@ -102,7 +120,7 @@ class DeleteEvent extends React.Component {
               <div ref={(input) => { this.confirm = input; }}>
                 <h5>
                   Delete event{eventState !== null ?
-                    ` "${this.props.eventState.name}"` : ''}?
+                    ` "${this.props.eventState.event.name}"` : ''}?
                 </h5>
                 <div className="pull-right">
                   <button className="btn btn-danger" onClick={this.deleteEvent}>

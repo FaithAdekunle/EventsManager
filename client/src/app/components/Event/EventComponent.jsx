@@ -28,13 +28,10 @@ class Event extends React.Component {
    */
   openEditModal() {
     if (this.props.event.isAccepted) {
-      const modal = $('#editModal');
-      modal.modal({
-        show: true,
-        keyboard: false,
-        backdrop: 'static',
+      this.props.updateEventState({
+        action: 'edit',
+        event: this.props.event,
       });
-      this.props.updateEventState(this.props.event);
     }
   }
 
@@ -43,12 +40,9 @@ class Event extends React.Component {
    * @returns { void }
    */
   openDeleteModal() {
-    this.props.updateEventState(this.props.event);
-    const modal = $('#deleteModal');
-    modal.modal({
-      show: true,
-      keyboard: false,
-      backdrop: 'static',
+    this.props.updateEventState({
+      action: 'delete',
+      event: this.props.event,
     });
   }
 

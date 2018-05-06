@@ -1,3 +1,6 @@
+#container
+  font-size: 0.7em
+
 nav
   padding: 10px 50px 10px 50px !important
 
@@ -9,6 +12,7 @@ nav
 
 .top-section
   padding: 50px 0 50px 0
+  margin-top: 60px
   background: url('/images/trans4.jpg')
 
 .submit-button
@@ -45,6 +49,10 @@ nav
 
 .form-page
   padding-top: 50px
+  margin-top: 70px
+  
+.bottom-loader
+  margin-bottom: 30px
 
 .single-center
   margin-bottom: 15px
@@ -54,6 +62,11 @@ nav
 
 .no-visible
   visibility: hidden
+
+.form-error
+  visibility: visible
+  color: #ff1744
+  margin: 2px 0
 
 .redirect
   padding: 15px 0 50px 0
@@ -66,7 +79,8 @@ nav
   
 .events-container
   padding-top: 50px
-  padding-bottom: 50px
+  margin-top: 60px
+  max-width: 1100px
 
 .my-events
   padding-bottom: 30px
@@ -109,8 +123,24 @@ nav
   margin-left: auto
   padding: 40px 20px 60px 20px
   max-width: 1370px
+  width: 100%
+  height: 100vh
+  display: flex
+  justify-content: space-between
+  align-items: center
+  flex-direction: column
+
+  .fill-width
+    width: 100%
+
+.margin-center
+  margin: 0 auto
+  text-align: center
+  ul
+    display: inline-block
 
 .centers-loader
+  margin-top: 60px
   height: 5px
   width: 0%
 
@@ -164,6 +194,10 @@ nav
 .center-detail-page
   margin-bottom: 100px
 
+.detail-content
+  max-width: 1450px
+  margin: 0 auto
+
 .book-this-center
   padding: 20px
 
@@ -178,6 +212,9 @@ nav
 .center-loader
   height: 5px
   width: 0%
+
+.margin-nav
+  margin-top: 60px
 
 .d-block
   height: 300px
@@ -245,11 +282,20 @@ td
   overflow-y: scroll
 
 @media only screen and (min-width: 767px)
+  #container
+    font-size: 1em
+
+  .form-error
+    font-size: 0.8em
+
+  .event
+    font-size: 0.8em
+
   nav
     padding: 10px 100px 10px 100px !important
 
   .top-section
-    padding: 80px 0 80px 0
+    padding: 100px 0 100px 0
 
   .body-section
     .row

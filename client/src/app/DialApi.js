@@ -10,27 +10,27 @@ module.exports = class DialApi {
    * fetch user events
    * @param { string } token
    * @param { function } onFetchEventsFail
+   * @param { integer } limit
+   * @param { integer } offset
    * @returns { void }
    */
   static updateEvents(
     token,
     onFetchEventsFail,
+    limit = 'limit',
+    offset = 0,
   ) {
     OtherActions.updateAlertState('loading');
     return axios
-      .get(`${Helpers.host}/events?token=${token}&upcoming=true`)
-      .then((response) => {
+      .get(`${Helpers.host}/events?token=${token}&upcoming=true&` +
+      `offset=${offset}&limit=${limit}&pagination=true`)
+      .then(({ data }) => {
         OtherActions.updateAlertState(null);
-        EventActions.updateEventsState(response.data.events);
+        OtherActions.updatePagination(data.metaData.pagination);
+        EventActions.addToEventsState(data.events);
       })
       .catch(({ response }) => {
-        if (!response) {
-          OtherActions
-            .updateAlertState(`Looks like you're offline. 
-            Check internet connection.`);
-        } else {
-          onFetchEventsFail(response);
-        }
+        onFetchEventsFail(response);
       });
   }
 
@@ -111,8 +111,8 @@ module.exports = class DialApi {
   ) {
     axios
       .put(`${Helpers.host}/events/${id}?token=${token}`, credentials)
-      .then((response) => {
-        EventActions.editEventsState(response.data);
+      .then(({ data }) => {
+        EventActions.editEventsState(data.event);
         onEventEditSuccessful();
       })
       .catch(({ response }) => {
@@ -122,15 +122,15 @@ module.exports = class DialApi {
 
   /**
    * action to delete an event
-   * @param { object } eventState
+   * @param { integer } id
    * @param { string } token
    * @param { function } onDeleteSuccessful
    * @param { function } onDeleteFail
    * @returns { void }
    */
-  static deleteEvent(eventState, token, onDeleteSuccessful, onDeleteFail) {
+  static deleteEvent(id, token, onDeleteSuccessful, onDeleteFail) {
     axios
-      .delete(`${Helpers.host}/events/${eventState.id}?token=${token}`)
+      .delete(`${Helpers.host}/events/${id}?token=${token}`)
       .then(() => {
         onDeleteSuccessful();
       })
@@ -224,11 +224,13 @@ module.exports = class DialApi {
     beforeLoad(loader);
     axios
       .get(`${Helpers.host}/centers?filter=${filter}&facility=` +
-      `${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}`)
+      `${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}` +
+      '&pagination=true')
       .then(({ data }) => {
         onLoadSuccessful(loader);
         setTimeout(() => {
           CenterActions.updateCentersState(data.centers);
+          OtherActions.updatePagination(data.metaData.pagination);
         }, 500);
       })
       .catch(({ response }) => {
@@ -314,7 +316,6 @@ module.exports = class DialApi {
           OtherActions.updateAlertState(Array.isArray(response.data.error) ?
             response.data.error[0] : response.data.error);
         }
-        setTimeout(() => OtherActions.updateAlertState(null), 10000);
       });
   }
 
@@ -349,7 +350,6 @@ module.exports = class DialApi {
           OtherActions.updateAlertState(Array.isArray(response.data.error) ?
             response.data.error[0] : response.data.error);
         }
-        setTimeout(() => OtherActions.updateAlertState(null), 10000);
       });
   }
 

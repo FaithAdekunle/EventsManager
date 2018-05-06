@@ -74,6 +74,18 @@ class OtherActions {
       payload: images,
     });
   }
+
+  /**
+   * action to update pagination metadata
+   * @param { object } pagination
+   * @returns { void }
+   */
+  static updatePagination(pagination) {
+    dispatch({
+      type: 'UPDATE_PAGINATION_STATE',
+      payload: pagination,
+    });
+  }
 }
 
 export default OtherActions;

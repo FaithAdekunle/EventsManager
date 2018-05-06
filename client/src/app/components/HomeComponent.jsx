@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import DialApi from './../DialApi';
+import OtherActions from './../actions/otherActions';
 
 /**
  * Home component class
@@ -55,6 +56,10 @@ class Home extends React.Component {
       password: this.password.value,
       confirmPassword: this.passwordconfirm.value,
     };
+    if (credentials.password !== credentials.confirmPassword) {
+      return OtherActions
+        .updateAlertState('Password and Confirm password must be equal');
+    }
     return DialApi
       .signup(
         this.beforeSignUp,
@@ -133,8 +138,8 @@ class Home extends React.Component {
               </div>
               <div className="col-md-6 col-lg-4 offset-lg-1">
                 <div
-                  className={`alert alert-danger ${!this.props.alertState ?
-                  'no-visible' : ''}`}
+                  className={this.props.alertState ?
+                        'form-error' : 'no-visible'}
                 >
                   {this.props.alertState}
                 </div>

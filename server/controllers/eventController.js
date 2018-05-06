@@ -205,13 +205,12 @@ module.exports = class EventController {
 
   /**
    * filters events based on query properties
-   * @param { integer } totalCount
    * @param {object} events
    * @param {object} req
    * @param {object} res
    * @returns { object } events or error
    */
-  static filterEvents(totalCount, events, req, res) {
+  static filterEvents(events, req, res) {
     const limit = parseInt(req.query.limit, 10);
     const offset = parseInt(req.query.offset, 10) || 0;
     const { upcoming, pagination } = req.query;
@@ -222,6 +221,14 @@ module.exports = class EventController {
     } else {
       upcomingEvents = events;
     }
+    upcomingEvents.sort((event1, event2) => {
+      if (moment(event1.start, 'DD-MM-YYYY')
+        .isAfter(moment(event2.start, 'DD-MM-YYYY'))) {
+        return 1;
+      }
+      return -1;
+    });
+    const totalCount = upcomingEvents.length;
     if (offset) upcomingEvents = upcomingEvents.slice(offset);
     if (!Number.isNaN(limit)) upcomingEvents = upcomingEvents.slice(0, limit);
     const response = Helpers.getResponse(upcomingEvents, 'events', true);
@@ -259,7 +266,7 @@ module.exports = class EventController {
         ],
       })
       .then(result =>
-        EventController.filterEvents(result.count, result.rows, req, res))
+        EventController.filterEvents(result.rows, req, res))
       .catch(() =>
         res.status(500).json(Helpers.getResponse('Internal server error')));
   }
@@ -288,7 +295,7 @@ module.exports = class EventController {
             },
           })
           .then(result =>
-            EventController.filterEvents(result.count, result.rows, req, res))
+            EventController.filterEvents(result.rows, req, res))
           .catch(() =>
             res.status(500).json(Helpers.getResponse('Internal server error')));
       })

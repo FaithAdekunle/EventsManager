@@ -206,7 +206,7 @@ class NavTab extends React.Component {
     return (
       <React.Fragment>
         <nav
-          className="navbar navbar-fixed-top navbar-expand-lg
+          className="navbar fixed-top navbar-expand-lg
            navbar-light bg-dark"
         >
           <a
