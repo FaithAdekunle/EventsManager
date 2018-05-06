@@ -19,6 +19,7 @@ class Reducers {
     this.centerReducer = this.centerReducer.bind(this);
     this.eventReducer = this.eventReducer.bind(this);
     this.imagesReducer = this.imagesReducer.bind(this);
+    this.paginationReducer = this.paginationReducer.bind(this);
   }
 
   /**
@@ -113,10 +114,7 @@ class Reducers {
   centersReducer(state = this.state.centersState, action) {
     switch (action.type) {
       case 'UPDATE_CENTERS_STATE':
-        return [
-          ...state,
-          ...action.payload,
-        ];
+        return action.payload;
       case 'ADD_TO_CENTERS_STATE':
         return [
           action.payload,
@@ -166,7 +164,7 @@ class Reducers {
   }
 
   /**
-   * reducer for centerFilter state property
+   * reducer for alert state property
    * @param { object } state
    * @param { object } action
    * @returns { string } new or old alertState state property
@@ -174,6 +172,21 @@ class Reducers {
   alertReducer(state = this.state.alertState, action) {
     switch (action.type) {
       case 'UPDATE_ALERT_STATE':
+        return action.payload;
+      default:
+        return state;
+    }
+  }
+
+  /**
+   * reducer for pagination metadata
+   * @param { object } state
+   * @param { object } action
+   * @returns { string } new or old alertState pagination metadata
+   */
+  paginationReducer(state = this.state.pagination, action) {
+    switch (action.type) {
+      case 'UPDATE_PAGINATION_STATE':
         return action.payload;
       default:
         return state;
@@ -191,5 +204,6 @@ const store = createStore(combineReducers({
   eventState: appStore.eventReducer,
   alertState: appStore.alertReducer,
   selectedImages: appStore.imagesReducer,
+  pagination: appStore.paginationReducer,
 }));
 module.exports = store;

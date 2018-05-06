@@ -118,6 +118,12 @@ class SignIn extends React.Component {
                       aria-hidden="true"
                     />
                   </h2>
+                  <div
+                    className={this.props.alertState ?
+                        'form-error' : 'no-visible'}
+                  >
+                    {this.props.alertState}
+                  </div>
                 </div>
                 <div className="card-body">
                   <fieldset ref={(input) => { this.fieldset = input; }}>
@@ -161,14 +167,6 @@ class SignIn extends React.Component {
                 <a className="navTo redirect-to" onClick={this.navToSignup}>
                   New here? Sign up for a new account.
                 </a>
-              </div>
-            </div>
-            <div className="col-md-2 col-lg-3">
-              <div
-                className={`alert alert-danger 
-                ${!this.props.alertState ? 'hidden' : ''}`}
-              >
-                {this.props.alertState}
               </div>
             </div>
           </div>

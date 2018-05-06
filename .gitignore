@@ -1,6 +1,7 @@
 node_modules
 .nyc_output
 server/dist
+client/dist
 server/.DS_Store
 /coverage
 .env

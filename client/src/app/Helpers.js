@@ -67,21 +67,5 @@ class Helpers {
   static sortByName(array) {
     return array.sort((item1, item2) => item1.name > item2.name);
   }
-
-  /**
-   * sorts array of objects in ascending order by start property
-   * @param { array } array
-   * @returns { array } objects sorted by start property in ascending order
-   */
-  static sortByDate(array) {
-    return array.sort((item1, item2) => {
-      const item1Start = item1.start.split('/');
-      const item2Start = item2.start.split('/');
-      if (item1Start[2] !== item2Start[2]) return item1Start[2] > item2Start[2];
-      if (item1Start[1] !== item2Start[1]) return item1Start[1] > item2Start[1];
-      return item1Start[0] > item2Start[0];
-    });
-  }
 }
-
 export default Helpers;

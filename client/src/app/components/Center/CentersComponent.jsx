@@ -1,6 +1,8 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
+import Pagination from 'rc-pagination';
+import 'rc-pagination/assets/index.css';
 import Center from './CenterComponent.jsx';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
@@ -14,6 +16,7 @@ class Centers extends React.Component {
     centers: Proptypes.array,
     alert: Proptypes.string,
     history: Proptypes.object,
+    pagination: Proptypes.object,
   }
 
   /**
@@ -23,17 +26,16 @@ class Centers extends React.Component {
     super();
     this.offset = 0;
     this.limit = 3;
-    this.increase = 3;
     this.filter = '';
     this.capacity = 1;
     this.facility = '';
     this.loaded = false;
-    this.handleScroll = this.handleScroll.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onLoadFail = this.onLoadFail.bind(this);
     this.beforeLoad = this.beforeLoad.bind(this);
     this.load = this.load.bind(this);
     this.onLoadSuccessful = this.onLoadSuccessful.bind(this);
+    this.loadNextPage = this.loadNextPage.bind(this);
   }
 
   /**
@@ -41,7 +43,6 @@ class Centers extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll, false);
     DialApi.updateCenters(
       this.mainLoader,
       this.beforeLoad,
@@ -57,8 +58,8 @@ class Centers extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll, false);
     OtherActions.updateAlertState(null);
+    OtherActions.updatePagination(null);
     CenterActions.emptyCentersState();
   }
 
@@ -97,6 +98,7 @@ class Centers extends React.Component {
     this.facility = this.facilityField.value || '';
     this.offset = 0;
     CenterActions.emptyCentersState();
+    OtherActions.updatePagination(null);
     DialApi.updateCenters(
       this.mainLoader,
       this.beforeLoad,
@@ -144,24 +146,23 @@ class Centers extends React.Component {
   }
 
   /**
-   * onScroll event handler
+   * displays loader bar
+   * @param { integer } nextPage
    * @returns { void }
    */
-  handleScroll() {
-    if (window.innerHeight + window.scrollY === document.body.offsetHeight) {
-      this.offset += this.increase;
-      DialApi.updateCenters(
-        this.subLoader,
-        this.beforeLoad,
-        this.onLoadSuccessful,
-        this.onLoadFail,
-        this.offset,
-        this.limit,
-        this.filter,
-        this.facility,
-        this.capacity,
-      );
-    }
+  loadNextPage(nextPage) {
+    this.offset = this.limit * (nextPage - 1);
+    DialApi.updateCenters(
+      this.mainLoader,
+      this.beforeLoad,
+      this.onLoadSuccessful,
+      this.onLoadFail,
+      this.offset,
+      this.limit,
+      this.filter,
+      this.facility,
+      this.capacity,
+    );
   }
 
   /**
@@ -169,6 +170,7 @@ class Centers extends React.Component {
    * @returns { component } to be rendered on the page
    */
   render() {
+    const { pagination } = this.props;
     return (
       <React.Fragment>
         <div
@@ -176,76 +178,88 @@ class Centers extends React.Component {
           ref={(input) => { this.mainLoader = input; }}
         />
         <div className="centers-container">
-          {
-            this.props.alert ? (
-              <div className="alert alert-info" role="alert">
-                <strong>{this.props.alert}</strong>
-              </div>
-            ) : ''
-          }
-          <fieldset ref={(input) => { this.fieldset = input; }}>
-            <form onSubmit={this.onSubmit}>
-              <div className="row">
-                <div className="col-md-10">
-                  <div className="row">
-                    <div className="col-md-4">
-                      <input
-                        type="text"
-                        className="form-control filter"
-                        placeholder="Name or Address"
-                        ref={(input) => { this.filterField = input; }}
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <input
-                        type="text"
-                        className="form-control filter"
-                        placeholder="Facility"
-                        ref={(input) => { this.facilityField = input; }}
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <input
-                        type="number"
-                        className="form-control filter"
-                        min="1"
-                        max="2147483647"
-                        placeholder="Capacity"
-                        ref={(input) => { this.capacityField = input; }}
-                      />
+          <div className="fill-width">
+            {
+              this.props.alert ? (
+                <div className="alert alert-info" role="alert">
+                  <strong>{this.props.alert}</strong>
+                </div>
+              ) : ''
+            }
+            <fieldset ref={(input) => { this.fieldset = input; }}>
+              <form onSubmit={this.onSubmit}>
+                <div className="row">
+                  <div className="col-md-10">
+                    <div className="row">
+                      <div className="col-md-4">
+                        <input
+                          type="text"
+                          className="form-control filter"
+                          placeholder="Name or Address"
+                          ref={(input) => { this.filterField = input; }}
+                        />
+                      </div>
+                      <div className="col-md-4">
+                        <input
+                          type="text"
+                          className="form-control filter"
+                          placeholder="Facility"
+                          ref={(input) => { this.facilityField = input; }}
+                        />
+                      </div>
+                      <div className="col-md-4">
+                        <input
+                          type="number"
+                          className="form-control filter"
+                          min="1"
+                          max="2147483647"
+                          placeholder="Capacity"
+                          ref={(input) => { this.capacityField = input; }}
+                        />
+                      </div>
                     </div>
                   </div>
+                  <div className="col-md-2">
+                    <input
+                      type="submit"
+                      className="form-control filter btn btn-outline-primary"
+                      defaultValue="Filter"
+                    />
+                  </div>
                 </div>
-                <div className="col-md-2">
-                  <input
-                    type="submit"
-                    className="form-control filter btn btn-outline-primary"
-                    defaultValue="Filter"
-                  />
+              </form>
+            </fieldset>
+            {
+              this.props.centers.length > 0 ? (
+                <div className="row">
+                  {
+                    this.props.centers.map(center => (
+                      <div
+                        className="col-md-6 col-lg-4 single-center"
+                        key={center.id}
+                      >
+                        <Center center={center} history={this.props.history} />
+                      </div>
+                      ))
+                }
                 </div>
-              </div>
-            </form>
-          </fieldset>
-          {
-            this.props.centers.length > 0 ? (
-              <div className="row">
-                {
-                  this.props.centers.map(center => (
-                    <div
-                      className="col-md-6 col-lg-4 single-center"
-                      key={center.id}
-                    >
-                      <Center center={center} history={this.props.history} />
-                    </div>
-                    ))
-              }
-              </div>
-            ) : ''
-          }
-          <div
-            className="centers-loader"
-            ref={(input) => { this.subLoader = input; }}
-          />
+              ) : ''
+            }
+          </div>
+          <div className="margin-center">
+            {
+              pagination ? (
+                <Pagination
+                  pageSize={this.limit}
+                  defaultCurrent={pagination.currentPage}
+                  total={pagination.totalCount}
+                  onChange={this.loadNextPage}
+                  showTitle={false}
+                  hideOnSinglePage
+                />
+              ) : ''
+            }
+          </div>
         </div>
       </React.Fragment>
     );
@@ -255,6 +269,7 @@ class Centers extends React.Component {
 const mapStateToProps = state => ({
   centers: state.centersState,
   alert: state.alertState,
+  pagination: state.pagination,
 });
 
 export default connect(mapStateToProps)(Centers);

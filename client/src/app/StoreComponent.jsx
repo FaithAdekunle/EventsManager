@@ -15,6 +15,7 @@ class StoreComponent {
     this.selectedImages = [];
     this.alertState = null;
     this.eventState = null;
+    this.pagination = null;
   }
 }
 
