@@ -49,6 +49,7 @@ class CenterEvents extends React.Component {
     this.onLoadSuccessful = this.onLoadSuccessful.bind(this);
     this.onScroll = this.onScroll.bind(this);
     this.onLoadFail = this.onLoadFail.bind(this);
+    this.declineEvent = this.declineEvent.bind(this);
     this.noMoreEvents = false;
   }
 
