@@ -215,8 +215,8 @@ module.exports = class DialApi {
   ) {
     return axios
       .put(`${Helpers.host}/centers/${id}?token=${token}`, credentials)
-      .then((response) => {
-        onCenterEditSuccessful(response.data.center);
+      .then(({ data }) => {
+        onCenterEditSuccessful(data.center);
       })
       .catch(({ response }) => {
         onCenterEditFailed(response);

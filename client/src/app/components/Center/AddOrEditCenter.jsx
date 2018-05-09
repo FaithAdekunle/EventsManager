@@ -61,7 +61,7 @@ class AddOrEditCenter extends React.Component {
    */
   onSuccessful(center) {
     if (center) {
-      CenterActions.editCentersState(center);
+      CenterActions.updateCenterState(center);
     } else {
       OtherActions.updateAlertState(constants.ADD_CENTER);
       setTimeout(() => OtherActions.updateAlertState(null), 10000);
@@ -209,6 +209,15 @@ class AddOrEditCenter extends React.Component {
       facilities,
       images,
     };
+    if (this.props.center) {
+      return DialApi.editCenter(
+        credentials,
+        this.props.token,
+        this.props.center.id,
+        this.onSuccessful,
+        this.onFail,
+      );
+    }
     return DialApi.addCenter(
       credentials,
       this.props.token,
