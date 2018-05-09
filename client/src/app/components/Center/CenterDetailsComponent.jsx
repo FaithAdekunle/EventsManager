@@ -247,7 +247,8 @@ class CenterDetails extends React.Component {
           />
           <div
             className={`container alert alert-info
-             ${alert === constants.NO_CONNECTION && !center ? '' : 'hidden'}`}
+             ${(alert === constants.NO_CONNECTION ||
+              alert === 'center not found') && !center ? '' : 'hidden'}`}
             role="alert"
           >
             {alert}

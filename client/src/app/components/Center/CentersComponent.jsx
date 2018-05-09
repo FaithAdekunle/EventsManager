@@ -134,7 +134,6 @@ class Centers extends React.Component {
     CenterActions.emptyCentersState();
     OtherActions.updatePagination(null);
     DialApi.updateCenters(
-      this.mainLoader,
       this.beforeLoad,
       this.onLoadSuccessful,
       this.onLoadFail,
