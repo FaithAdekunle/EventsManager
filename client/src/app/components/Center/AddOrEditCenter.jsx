@@ -118,6 +118,10 @@ class AddOrEditCenter extends React.Component {
       OtherActions.updateSelectedImages([]);
       this.form.reset();
     }
+    Helpers.facilities.map((facility) => {
+      this[facility].addEventListener('change', this.updateFacilities);
+      return null;
+    });
     const modal = $('#centerModal');
     modal.modal('hide');
   }
@@ -151,6 +155,7 @@ class AddOrEditCenter extends React.Component {
    */
   updateFacilities(e) {
     this.facilities[e.target.value] = e.target.checked;
+    console.log(e.target.value, this.facilities);
   }
 
   /**
