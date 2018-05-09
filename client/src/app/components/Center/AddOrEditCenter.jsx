@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import Helpers from '../../Helpers';
 import OtherActions from '../../actions/otherActions';
+import CenterActions from '../../actions/centerActions';
 import constants from '../../constants';
 import DialApi from '../../DialApi';
 
@@ -45,16 +46,6 @@ class AddOrEditCenter extends React.Component {
   }
 
   /**
-   * executes after component updates
-   * @returns { void }
-   */
-  componentDidUpdate() {
-    if (this.props.center) {
-      OtherActions.updateSelectedImages(this.props.center.images);
-    }
-  }
-
-  /**
    * executes before component unmounts
    * @returns { void }
    */
@@ -68,13 +59,13 @@ class AddOrEditCenter extends React.Component {
    * @param { object } center
    * @returns { void }
    */
-  onSuccessful() {
-    OtherActions.updateAlertState(constants.ADD_CENTER);
-    setTimeout(() => OtherActions.updateAlertState(null), 10000);
-    this.fieldset.disabled = false;
-    this.form.reset();
-    this.facilities = {};
-    OtherActions.updateSelectedImages([]);
+  onSuccessful(center) {
+    if (center) {
+      CenterActions.editCentersState(center);
+    } else {
+      OtherActions.updateAlertState(constants.ADD_CENTER);
+      setTimeout(() => OtherActions.updateAlertState(null), 10000);
+    }
     this.closeModal();
   }
 
@@ -107,9 +98,26 @@ class AddOrEditCenter extends React.Component {
     if (this.props.alert !== NO_CONNECTION && this.props.alert !== ADD_CENTER) {
       OtherActions.updateAlertState(null);
     }
-    OtherActions.updateSelectedImages([]);
-    this.form.reset();
     this.facilities = {};
+    this.images.value = null;
+    this.fieldset.disabled = false;
+    if (this.props.center) {
+      const { center } = this.props;
+      OtherActions.updateSelectedImages(center.images);
+      this.centerName.value = center.name;
+      this.centerAddress.value = center.address;
+      this.centerDescription.value = center.description;
+      this.centerCapacity.value = center.capacity;
+      this.centerCost.value = center.cost;
+      center.facilities.map((facility) => {
+        this[facility].checked = true;
+        this.facilities[facility] = true;
+        return null;
+      });
+    } else {
+      OtherActions.updateSelectedImages([]);
+      this.form.reset();
+    }
     const modal = $('#centerModal');
     modal.modal('hide');
   }
@@ -440,6 +448,9 @@ class AddOrEditCenter extends React.Component {
                                     >
                                       <input
                                         type="checkbox"
+                                        ref={(input) => {
+                                          this[facility] = input;
+                                        }}
                                         className="form-check-input"
                                         defaultValue={facility}
                                         defaultChecked={center ? center

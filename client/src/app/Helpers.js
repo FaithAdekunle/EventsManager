@@ -6,9 +6,9 @@ class Helpers {
     ? 'https://andela-events-manager.herokuapp.com/api/v1'
     : 'http://localhost:7777/api/v1';
 
-  static cloudinaryPreset = 'axgrmj0a';
+  static cloudinaryPreset = process.env.CLOUDINARY_PRESET;
 
-  static cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dutglgwaa/upload';
+  static cloudinaryUrl = process.env.CLOUDINARY_URL
 
   static centerTypes = [
     'Anniversary',

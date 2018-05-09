@@ -8,6 +8,7 @@ import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
 import CenterEvents from './CenterEvents.jsx';
 import constants from '../../constants';
+import AddOrEditCenter from './AddOrEditCenter.jsx';
 
 /**
  * CenterDetails component class
@@ -57,6 +58,7 @@ class CenterDetails extends React.Component {
     this.onEventSubmitSuccessful = this.onEventSubmitSuccessful.bind(this);
     this.onEventSubmitFail = this.onEventSubmitFail.bind(this);
     this.onCenterLoadFail = this.onCenterLoadFail.bind(this);
+    this.openEditModal = this.openEditModal.bind(this);
   }
 
   /**
@@ -147,6 +149,20 @@ class CenterDetails extends React.Component {
   }
 
   /**
+   * opens modal to book center
+   * @returns { void }
+   */
+  openEditModal() {
+    OtherActions.updateSelectedImages(this.props.center.images);
+    const modal = $('#centerModal');
+    modal.modal({
+      show: true,
+      keyboard: false,
+      backdrop: 'static',
+    });
+  }
+
+  /**
    * bookss center
    * @param { object } event
    * @returns { void }
@@ -218,6 +234,7 @@ class CenterDetails extends React.Component {
       userIsAdmin = false;
     }
     const canBookCenter = token && !userIsAdmin;
+    const canEditCenter = token && userIsAdmin;
     return (
       <div className="center-detail-page">
         <div className="detail-content">
@@ -228,16 +245,13 @@ class CenterDetails extends React.Component {
             }
             ref={(input) => { this.loader = input; }}
           />
-          {
-            alert === constants.NO_CONNECTION ? (
-              <div
-                className="container alert alert-info"
-                role="alert"
-              >
-                {alert}
-              </div>
-            ) : ''
-          }
+          <div
+            className={`container alert alert-info
+             ${alert === constants.NO_CONNECTION ? '' : 'hidden'}`}
+            role="alert"
+          >
+            {alert}
+          </div>
           {
             center ? (
               <React.Fragment>
@@ -334,6 +348,25 @@ class CenterDetails extends React.Component {
                               >
                               Book this center
                               </button>
+                            </React.Fragment>
+                          ) : null
+                        }
+                        {
+                          canEditCenter ? (
+                            <React.Fragment>
+                              <hr />
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-lg
+                                btn-block see-more"
+                                onClick={this.openEditModal}
+                              >
+                              Edit this center
+                              </button>
+                              <AddOrEditCenter
+                                history={this.props.history}
+                                center={center}
+                              />
                             </React.Fragment>
                           ) : null
                         }

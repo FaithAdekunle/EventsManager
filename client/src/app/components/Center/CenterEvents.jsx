@@ -1,6 +1,7 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
+import jwtDecode from 'jwt-decode';
 import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/otherActions';
 import DialApi from '../../DialApi';
@@ -12,6 +13,26 @@ class CenterEvents extends React.Component {
   static propTypes = {
     id: Proptypes.number,
     events: Proptypes.array,
+    token: Proptypes.string,
+  }
+
+  /**
+   * adds 'hover-date' class to target
+   * @param { object } e
+   * @param { boolean } userIsAdmin
+   * @returns { void }
+   */
+  static onMouseEnterDate(e, userIsAdmin) {
+    if (userIsAdmin) e.target.classList.add('hover-date');
+  }
+
+  /**
+   * removess 'hover-date' class from target
+   * @param { object } e
+   * @returns { void }
+   */
+  static onMouseLeaveDate(e) {
+    e.target.classList.remove('hover-date');
   }
 
   /**
@@ -113,6 +134,15 @@ class CenterEvents extends React.Component {
   }
 
   /**
+   * declines event
+   * @param {integer} id
+   * @returns { void }
+   */
+  declineEvent(id) {
+    return this.offset + id;
+  }
+
+  /**
    * displays loader bar
    * @param { integer } start
    * @param { integer } increase
@@ -147,7 +177,13 @@ class CenterEvents extends React.Component {
    * @returns { component } to be rendered on the page
    */
   render() {
-    const { events } = this.props;
+    const { events, token } = this.props;
+    let userIsAdmin = false;
+    try {
+      userIsAdmin = (jwtDecode(token)).isAdmin;
+    } catch (error) {
+      userIsAdmin = false;
+    }
     return (
       <React.Fragment>
         <div
@@ -168,12 +204,26 @@ class CenterEvents extends React.Component {
           </li>
           {
             events.map(event => (
-              <li className="list-group-item" key={event.id}>
+              <li
+                className={`${!event.isAccepted ?
+                'declined' : ''} list-group-item`}
+                onMouseEnter={e => CenterEvents
+                  .onMouseEnterDate(e, userIsAdmin)}
+                onMouseLeave={CenterEvents.onMouseLeaveDate}
+                key={event.id}
+              >
                 {
-                  event.isAccepted === true ? (
-                    event.start === event.end ?
-                    event.start :
-                    `${event.start} - ${event.end}`
+                  event.start === event.end ?
+                  event.start :
+                  `${event.start} - ${event.end}`
+                }
+                {
+                  userIsAdmin ? (
+                    <i
+                      className="fa fa-times pull-right"
+                      aria-hidden="true"
+                      onClick={() => this.declineEvent(event.id)}
+                    />
                   ) : ''
                 }
               </li>
@@ -187,6 +237,7 @@ class CenterEvents extends React.Component {
 
 const mapStateToProps = state => ({
   events: state.eventsState,
+  token: state.token,
 });
 
 export default connect(mapStateToProps)(CenterEvents);

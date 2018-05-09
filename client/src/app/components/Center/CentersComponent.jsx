@@ -90,9 +90,11 @@ class Centers extends React.Component {
     if (this.offset > 0) this.offset -= this.increase;
     if (this.fieldset) this.fieldset.disabled = false;
     if (response) {
-      this.mainLoader.style.width = '100%';
+      if (this.mainLoader) this.mainLoader.style.width = '100%';
       setTimeout(() => {
-        this.mainLoader.classList.remove('success-background');
+        if (this.mainLoader) {
+          this.mainLoader.classList.remove('success-background');
+        }
         OtherActions.updateAlertState(response.data.error);
       }, 500);
     } else {
@@ -108,9 +110,11 @@ class Centers extends React.Component {
   onLoadSuccessful(data) {
     this.loaded = true;
     if (this.fieldset) this.fieldset.disabled = false;
-    this.mainLoader.style.width = '100%';
+    if (this.mainLoader) this.mainLoader.style.width = '100%';
     setTimeout(() => {
-      this.mainLoader.classList.remove('success-background');
+      if (this.mainLoader) {
+        this.mainLoader.classList.remove('success-background');
+      }
       CenterActions.updateCentersState(data.centers);
       OtherActions.updatePagination(data.metaData.pagination);
     }, 500);
@@ -164,7 +168,7 @@ class Centers extends React.Component {
   load(start = 0, increase = 2, interval = 50) {
     if (!this.loaded && start < 70) {
       start += increase;
-      this.mainLoader.style.width = `${start}%`;
+      if (this.mainLoader) this.mainLoader.style.width = `${start}%`;
       if (start === 50) {
         interval = 1000;
       }
