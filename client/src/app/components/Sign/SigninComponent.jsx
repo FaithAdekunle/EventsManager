@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import OtherActions from '../../actions/otherActions';
 import DialApi from '../../DialApi';
+import constants from '../../constants';
 
 /**
  * SignIn component class
@@ -36,19 +37,28 @@ class SignIn extends React.Component {
 
   /**
    * executes after user logs in succesfully
-   * @param { object } response
+   * @param { object } data
    * @returns { void }
    */
-  onUserLoginSuccessful() {
+  onUserLoginSuccessful(data) {
+    OtherActions.updateToken(data.token);
     this.props.history.push('/events');
   }
 
   /**
    * executes after failed login attempt
+   * @param { object } response
    * @returns { void }
    */
-  onUserLoginFail() {
+  onUserLoginFail(response) {
     this.changeFormState(false);
+    if (!response) {
+      OtherActions
+        .updateAlertState(constants.NO_CONNECTION);
+    } else {
+      OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+        response.data.error[0] : response.data.error);
+    }
   }
 
   /**
@@ -64,8 +74,8 @@ class SignIn extends React.Component {
     };
     DialApi
       .login(
-        this.beforeLogin,
         credentials,
+        this.beforeLogin,
         this.onUserLoginSuccessful,
         this.onUserLoginFail,
       );
@@ -110,14 +120,14 @@ class SignIn extends React.Component {
             <div className="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
               <div className="card">
                 <div className="card-header">
-                  <h2>
-                    Sign in to manage your events and more
+                  <h3>
+                    Sign in to manage your events
                     <i
                       className="fa fa-spinner fa-spin hidden"
                       ref={(input) => { this.spinner = input; }}
                       aria-hidden="true"
                     />
-                  </h2>
+                  </h3>
                   <div
                     className={this.props.alertState ?
                         'form-error' : 'no-visible'}

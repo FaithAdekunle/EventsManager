@@ -47,11 +47,12 @@ class EditEvent extends React.Component {
 
   /**
    * executes after event has been created/edited succesfully
-   * @param { object } response
+   * @param { object } event
    * @returns { void }
    */
-  onEventEditSuccessful() {
+  onEventEditSuccessful(event) {
     this.spinner.classList.add('hidden');
+    EventActions.editEventsState(event);
     this.nullEvent();
   }
 
@@ -122,12 +123,15 @@ class EditEvent extends React.Component {
    * @returns { void }
    */
   nullEvent() {
+    const { alert } = this.props;
     this.form.reset();
     this.fieldset.disabled = false;
     const modal = $('#editModal');
     modal.modal('hide');
-    if (!this.props.alert.includes('Check internet connection')) {
-      OtherActions.updateAlertState(null);
+    if (alert) {
+      if (!alert.includes('Check internet connection')) {
+        OtherActions.updateAlertState(null);
+      }
     }
     EventActions.updateEventState(null);
   }
@@ -149,7 +153,7 @@ class EditEvent extends React.Component {
           aria-labelledby="title"
           aria-hidden="true"
         >
-          <div className="modal-dialog" role="document">
+          <div className="modal-dialog modal-dialog-centered" role="document">
             <div className="modal-content">
               <div>
                 <div className="modal-header">

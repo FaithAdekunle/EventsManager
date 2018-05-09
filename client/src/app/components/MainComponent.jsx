@@ -6,7 +6,6 @@ import Home from './HomeComponent.jsx';
 import EventCenters from './Center/EventCentersComponent.jsx';
 import Signin from './Sign/SigninComponent.jsx';
 import Signup from './Sign/SignupComponent.jsx';
-import Admin from './Admin/AdminComponent.jsx';
 import UserEvents from './Event/UserEventsComponent.jsx';
 
 const Main = (properties) => {
@@ -25,7 +24,7 @@ const Main = (properties) => {
           path="/home"
           render={props => (
               token ? (
-                <Redirect to={`${userIsAdmin ? '/admin' : '/events'}`} />
+                <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
               ) : (
                 <Home {...props} />
               )
@@ -37,7 +36,7 @@ const Main = (properties) => {
           path="/signin"
           render={props => (
               token ? (
-                <Redirect to={`${userIsAdmin ? '/admin' : '/events'}`} />
+                <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
               ) : (
                 <Signin {...props} />
               )
@@ -49,20 +48,9 @@ const Main = (properties) => {
           path="/signup"
           render={props => (
               token ? (
-                <Redirect to={`${userIsAdmin ? '/admin' : '/events'}`} />
+                <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
               ) : (
                 <Signup {...props} />
-              )
-            )
-          }
-        />
-        <Route
-          path="/admin"
-          render={props => (
-              userIsAdmin ? (
-                <Admin {...props} />
-              ) : (
-                <Redirect to="/signin" />
               )
             )
           }

@@ -30,14 +30,13 @@ class CenterActions {
 
   /**
    * action to edit centers
-   * @param { number } index
    * @param { object } center
    * @returns { void }
    */
-  static editCentersState(index, center) {
+  static editCentersState(center) {
     dispatch({
       type: 'EDIT_CENTERS_STATE',
-      payload: { index, center },
+      payload: center,
     });
   }
 

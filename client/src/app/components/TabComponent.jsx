@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import Helpers from '../Helpers';
 import OtherActions from './../actions/otherActions';
 import DialApi from './../DialApi';
+import constants from '../constants';
 
 /**
  * NavTab component class
@@ -16,6 +17,27 @@ class NavTab extends React.Component {
     history: Proptypes.object,
     location: Proptypes.object,
     centerSearch: Proptypes.array,
+  }
+
+  /**
+   * executes on search successful
+   * @param { array } centers
+   * @returns { void }
+   */
+  static onSearchSuccessful(centers) {
+    OtherActions.updateCenterSearch(centers);
+  }
+
+  /**
+   * executes on search fail
+   * @param { object } response
+   * @returns { void }
+   */
+  static onSearchFail(response) {
+    if (!response) {
+      OtherActions
+        .updateAlertState(constants.NO_CONNECTION);
+    }
   }
 
   /**
@@ -95,7 +117,11 @@ class NavTab extends React.Component {
     this.searchList.classList.remove('hidden');
     const { value } = e.target;
     if (!value) return OtherActions.updateCenterSearch([]);
-    return DialApi.updateSearch(value);
+    return DialApi.updateSearch(
+      value,
+      NavTab.onSearchSuccessful,
+      NavTab.onSearchFail,
+    );
   }
 
   /**
@@ -132,14 +158,6 @@ class NavTab extends React.Component {
       if (userIsAdmin) {
         fourthLink = (
           <React.Fragment>
-            <li className="nav-item">
-              <a
-                className="nav-link navTo text-white"
-                onClick={() => this.navTo('/admin')}
-              >
-                Admin
-              </a>
-            </li>
             <li className="nav-item pull-right">
               <a
                 className="nav-link navTo text-white"

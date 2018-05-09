@@ -121,11 +121,10 @@ class Reducers {
           ...state,
         ];
       case 'EDIT_CENTERS_STATE':
-        return [
-          ...state.slice(0, action.payload.index),
-          action.payload.center,
-          ...state.slice(action.payload.index + 1, state.length),
-        ];
+        return state.map((center) => {
+          if (center.id === action.payload.id) return action.payload;
+          return center;
+        });
       case 'EMPTY_CENTERS_STATE':
         return [];
       default:

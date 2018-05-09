@@ -114,7 +114,7 @@ class DeleteEvent extends React.Component {
         aria-labelledby="title"
         aria-hidden="true"
       >
-        <div className="modal-dialog" role="document">
+        <div className="modal-dialog modal-dialog-centered" role="document">
           <div className="modal-content">
             <div className="container event-delete">
               <div ref={(input) => { this.confirm = input; }}>
