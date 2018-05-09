@@ -1,7 +1,5 @@
 import axios from 'axios';
 import CenterActions from './actions/centerActions';
-import EventActions from './actions/eventActions';
-import OtherActions from './actions/otherActions';
 import Helpers from './Helpers';
 
 
@@ -9,6 +7,7 @@ module.exports = class DialApi {
   /**
    * fetch user events
    * @param { string } token
+   * @param { function } onFetchEventsSuccessful
    * @param { function } onFetchEventsFail
    * @param { integer } limit
    * @param { integer } offset
@@ -16,22 +15,16 @@ module.exports = class DialApi {
    */
   static updateEvents(
     token,
+    onFetchEventsSuccessful,
     onFetchEventsFail,
     limit = 'limit',
     offset = 0,
   ) {
-    OtherActions.updateAlertState('loading');
     return axios
       .get(`${Helpers.host}/events?token=${token}&upcoming=true&` +
       `offset=${offset}&limit=${limit}&pagination=true`)
-      .then(({ data }) => {
-        OtherActions.updateAlertState(null);
-        OtherActions.updatePagination(data.metaData.pagination);
-        EventActions.addToEventsState(data.events);
-      })
-      .catch(({ response }) => {
-        onFetchEventsFail(response);
-      });
+      .then(({ data }) => onFetchEventsSuccessful(data))
+      .catch(({ response }) => onFetchEventsFail(response));
   }
 
   /**
@@ -56,19 +49,8 @@ module.exports = class DialApi {
     return axios
       .get(`${Helpers.host}/${centerId}/events?upcoming=true&offset=` +
       `${offset}${limit !== 0 ? `&limit=${limit}` : ''}`)
-      .then(({ data }) => {
-        onLoadSuccessful(data.events);
-        OtherActions.updateAlertState(null);
-        EventActions.addToEventsState(data.events);
-      })
-      .catch(({ response }) => {
-        onLoadFail();
-        if (!response) {
-          OtherActions
-            .updateAlertState(`Looks like you're offline. 
-            Check internet connection.`);
-        }
-      });
+      .then(({ data }) => onLoadSuccessful(data.events))
+      .catch(({ response }) => onLoadFail(response));
   }
 
   /**
@@ -87,9 +69,7 @@ module.exports = class DialApi {
   ) {
     axios
       .post(`${Helpers.host}/events?token=${token}`, credentials)
-      .then(() => {
-        onEventSubmitSuccessful();
-      })
+      .then(() => onEventSubmitSuccessful())
       .catch(({ response }) => onEventSubmitFail(response));
   }
 
@@ -111,13 +91,8 @@ module.exports = class DialApi {
   ) {
     axios
       .put(`${Helpers.host}/events/${id}?token=${token}`, credentials)
-      .then(({ data }) => {
-        EventActions.editEventsState(data.event);
-        onEventEditSuccessful();
-      })
-      .catch(({ response }) => {
-        onEventEditFail(response);
-      });
+      .then(({ data }) => onEventEditSuccessful(data.event))
+      .catch(({ response }) => onEventEditFail(response));
   }
 
   /**
@@ -131,12 +106,8 @@ module.exports = class DialApi {
   static deleteEvent(id, token, onDeleteSuccessful, onDeleteFail) {
     axios
       .delete(`${Helpers.host}/events/${id}?token=${token}`)
-      .then(() => {
-        onDeleteSuccessful();
-      })
-      .catch(({ response }) => {
-        onDeleteFail(response);
-      });
+      .then(() => onDeleteSuccessful())
+      .catch(({ response }) => onDeleteFail(response));
   }
 
   /**
@@ -164,41 +135,24 @@ module.exports = class DialApi {
    * @param { number } id
    * @param { func } beforeCenterLoad
    * @param { func } onCenterLoadSuccessful
-   * @param { boolean } admin
+   * @param { func } onCenterLoadFail
    * @returns { void }
    */
   static getCenter(
     id,
     beforeCenterLoad,
     onCenterLoadSuccessful,
-    admin = false,
+    onCenterLoadFail,
   ) {
-    CenterActions.updateCenterState(null);
     beforeCenterLoad();
     axios
       .get(`${Helpers.host}/centers/${id}`)
-      .then((response) => {
-        onCenterLoadSuccessful();
-        CenterActions.updateCenterState(response.data.center);
-        if (admin) {
-          OtherActions.updateSelectedImages(response.data.center.images);
-        }
-      })
-      .catch(({ response }) => {
-        if (response) {
-          onCenterLoadSuccessful();
-          OtherActions.updateAlertState(response.data.error);
-        } else {
-          OtherActions
-            .updateAlertState(`Looks like 
-            you're offline. Check internet connection.`);
-        }
-      });
+      .then(({ data }) => onCenterLoadSuccessful(data))
+      .catch(({ response }) => onCenterLoadFail(response));
   }
 
   /**
    * action to update centers state
-   * @param { object } loader
    * @param { func } beforeLoad
    * @param { func } onLoadSuccessful
    * @param { func } onLoadFail
@@ -210,7 +164,6 @@ module.exports = class DialApi {
    * @returns { void }
    */
   static updateCenters(
-    loader,
     beforeLoad,
     onLoadSuccessful,
     onLoadFail,
@@ -220,29 +173,13 @@ module.exports = class DialApi {
     facility = '',
     capacity = 1,
   ) {
-    OtherActions.updateAlertState(null);
-    beforeLoad(loader);
+    beforeLoad();
     axios
       .get(`${Helpers.host}/centers?filter=${filter}&facility=` +
       `${facility}&capacity=${capacity}&offset=${offset}&limit=${limit}` +
       '&pagination=true')
-      .then(({ data }) => {
-        onLoadSuccessful(loader);
-        setTimeout(() => {
-          CenterActions.updateCentersState(data.centers);
-          OtherActions.updatePagination(data.metaData.pagination);
-        }, 500);
-      })
-      .catch(({ response }) => {
-        onLoadFail();
-        if (response) {
-          onLoadSuccessful(loader);
-          OtherActions.updateAlertState(response.data.error);
-        }
-        OtherActions
-          .updateAlertState(`Looks like you're offline. 
-          Check internet connection.`);
-      });
+      .then(({ data }) => onLoadSuccessful(data))
+      .catch(({ response }) => onLoadFail(response));
   }
 
   /**
@@ -256,12 +193,8 @@ module.exports = class DialApi {
   static addCenter(credentials, token, onCenterAddSuccessful, onCenterAddFail) {
     return axios
       .post(`${Helpers.host}/centers?token=${token}`, credentials)
-      .then((response) => {
-        onCenterAddSuccessful(response.data.center);
-      })
-      .catch(({ response }) => {
-        onCenterAddFail(response);
-      });
+      .then(({ data }) => onCenterAddSuccessful(data.center))
+      .catch(({ response }) => onCenterAddFail(response));
   }
 
   /**
@@ -292,31 +225,18 @@ module.exports = class DialApi {
 
   /**
    * action to log a user in
-   * @param { function } beforeLogin
    * @param { object } credentials
+   * @param { function } beforeLogin
    * @param { function } onLoginSuccessful
    * @param { function } onLoginFail
    * @returns { void }
    */
-  static login(beforeLogin, credentials, onLoginSuccessful, onLoginFail) {
+  static login(credentials, beforeLogin, onLoginSuccessful, onLoginFail) {
     beforeLogin();
     axios
       .post(`${Helpers.host}/users/login`, credentials)
-      .then(({ data }) => {
-        OtherActions.updateToken(data.token);
-        onLoginSuccessful();
-      })
-      .catch(({ response }) => {
-        onLoginFail();
-        if (!response) {
-          OtherActions
-            .updateAlertState(`Looks like you're offline. 
-            Check internet connection.`);
-        } else {
-          OtherActions.updateAlertState(Array.isArray(response.data.error) ?
-            response.data.error[0] : response.data.error);
-        }
-      });
+      .then(({ data }) => onLoginSuccessful(data))
+      .catch(({ response }) => onLoginFail(response));
   }
 
   /**
@@ -336,39 +256,20 @@ module.exports = class DialApi {
     beforeSignUp();
     axios
       .post(`${Helpers.host}/users`, credentials)
-      .then(({ data }) => {
-        OtherActions.updateToken(data.token);
-        onSignupSuccessful();
-      })
-      .catch(({ response }) => {
-        onSignupFail(response);
-        if (!response) {
-          OtherActions
-            .updateAlertState(`Looks like you're offline. 
-            Check internet connection.`);
-        } else {
-          OtherActions.updateAlertState(Array.isArray(response.data.error) ?
-            response.data.error[0] : response.data.error);
-        }
-      });
+      .then(({ data }) => onSignupSuccessful(data))
+      .catch(({ response }) => onSignupFail(response));
   }
 
   /**
    * action to search centers by name/location
    * @param { string } filter
+   * @param { function } onSearchSuccessful
+   * @param { function } onSearchFail
    * @returns { void }
    */
-  static updateSearch(filter) {
-    axios.get(`${Helpers.host}/centers?filter=${filter}`)
-      .then((response) => {
-        OtherActions.updateCenterSearch(response.data.centers);
-      })
-      .catch(({ response }) => {
-        if (!response) {
-          OtherActions
-            .updateAlertState(`Looks like you're offline. 
-            Check internet connection.`);
-        }
-      });
+  static updateSearch(filter, onSearchSuccessful, onSearchFail) {
+    axios.get(`${Helpers.host}/centers?filter=${filter}&limit=100`)
+      .then(({ data }) => onSearchSuccessful(data.centers))
+      .catch(({ response }) => onSearchFail(response));
   }
 };

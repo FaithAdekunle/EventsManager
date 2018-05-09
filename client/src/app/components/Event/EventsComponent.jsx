@@ -21,6 +21,17 @@ class Events extends React.Component {
   }
 
   /**
+   * executes after attempt to fetch events fail
+   * @param { object } data
+   * @returns { void }
+   */
+  static onFetchEventsSuccessful(data) {
+    OtherActions.updateAlertState(null);
+    OtherActions.updatePagination(data.metaData.pagination);
+    EventActions.addToEventsState(data.events);
+  }
+
+  /**
    * constructor
    */
   constructor() {
@@ -37,9 +48,11 @@ class Events extends React.Component {
    */
   componentDidMount() {
     window.addEventListener('scroll', this.loadNext, false);
+    OtherActions.updateAlertState('loading');
     DialApi
       .updateEvents(
         this.props.token,
+        Events.onFetchEventsSuccessful,
         this.onFetchEventsFail,
         this.limit,
         this.offset,
@@ -87,9 +100,11 @@ class Events extends React.Component {
     if (pos - 60 === document.body.offsetHeight &&
     this.props.eventsState.length < this.props.pagination.totalCount) {
       this.offset += this.limit;
+      OtherActions.updateAlertState('loading');
       DialApi
         .updateEvents(
           this.props.token,
+          Events.onFetchEventsSuccessful,
           this.onFetchEventsFail,
           this.limit,
           this.offset,

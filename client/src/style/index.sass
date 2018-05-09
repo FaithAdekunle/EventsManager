@@ -256,12 +256,13 @@ td
 
 .search-result
   position: absolute
-  width: 150%
-  left: -25%
+  width: 120%
+  max-height: 200px
+  overflow-y: scroll
+  left: -10%
   top: 100%
   z-index: 1000
   li
-    font-size: 0.8em
     padding: 0.1em 0.5em
     cursor: pointer
     background-color: #212529
@@ -290,6 +291,11 @@ td
 
   .event
     font-size: 0.8em
+  
+  .search-result
+    max-height: 200px
+    li
+      font-size: 0.7em
 
   nav
     padding: 10px 100px 10px 100px !important

@@ -7,6 +7,7 @@ import DialApi from '../../DialApi';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
 import CenterEvents from './CenterEvents.jsx';
+import constants from '../../constants';
 
 /**
  * CenterDetails component class
@@ -55,6 +56,7 @@ class CenterDetails extends React.Component {
     this.submitEvent = this.submitEvent.bind(this);
     this.onEventSubmitSuccessful = this.onEventSubmitSuccessful.bind(this);
     this.onEventSubmitFail = this.onEventSubmitFail.bind(this);
+    this.onCenterLoadFail = this.onCenterLoadFail.bind(this);
   }
 
   /**
@@ -66,6 +68,7 @@ class CenterDetails extends React.Component {
       this.props.match.params.id,
       this.beforeCenterLoad,
       this.onCenterLoadSuccessful,
+      this.onCenterLoadFail,
     );
   }
 
@@ -112,14 +115,34 @@ class CenterDetails extends React.Component {
 
   /**
    * executes after centers have been fetched
-   * @param { object } loader
+   * @param { object } data
    * @returns { void }
    */
-  onCenterLoadSuccessful() {
+  onCenterLoadSuccessful(data) {
     this.loaded = true;
     this.loader.style.width = '100%';
     setTimeout(() => {
       this.loader.classList.remove('success-background');
+      CenterActions.updateCenterState(data.center);
+    }, 500);
+  }
+
+  /**
+   * executes after centers have been fetched
+   * @param { object } response
+   * @returns { void }
+   */
+  onCenterLoadFail(response) {
+    this.loaded = true;
+    this.loader.style.width = '100%';
+    setTimeout(() => {
+      this.loader.classList.remove('success-background');
+      if (response) {
+        OtherActions.updateAlertState(response.data.error);
+      } else {
+        OtherActions
+          .updateAlertState(constants.NO_CONNECTION);
+      }
     }, 500);
   }
 
@@ -154,6 +177,7 @@ class CenterDetails extends React.Component {
   beforeCenterLoad() {
     this.loaded = false;
     this.loader.classList.add('success-background');
+    CenterActions.updateCenterState(null);
     this.load();
   }
 
@@ -204,13 +228,16 @@ class CenterDetails extends React.Component {
             }
             ref={(input) => { this.loader = input; }}
           />
-          <div
-            className={`container ${alert ? '' : 'hidden'} 
-            alert alert-info`}
-            role="alert"
-          >
-            {alert}
-          </div>
+          {
+            alert === constants.NO_CONNECTION ? (
+              <div
+                className="container alert alert-info"
+                role="alert"
+              >
+                {alert}
+              </div>
+            ) : ''
+          }
           {
             center ? (
               <React.Fragment>
@@ -345,7 +372,7 @@ class CenterDetails extends React.Component {
                 {
                   canBookCenter ? (
                     <div className="modal fade" id="submitModal">
-                      <div className="modal-dialog">
+                      <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
                           <div className="modal-header">
                             <h4 className="modal-title text-center">

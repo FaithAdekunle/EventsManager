@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import OtherActions from '../../actions/otherActions';
 import DialApi from '../../DialApi';
+import constants from '../../constants';
 
 /**
  * SignIn component class
@@ -36,19 +37,28 @@ class SignUp extends React.Component {
 
   /**
    * executes after user signs up succesfully
-   * @param { object } response
+   * @param { object } data
    * @returns { void }
    */
-  onSignupSuccessful() {
+  onSignupSuccessful(data) {
+    OtherActions.updateToken(data.token);
     this.props.history.push('/events');
   }
 
   /**
    * executes after failed signup attempt
+   * @param { object } response
    * @returns { void }
    */
-  onSignupFail() {
+  onSignupFail(response) {
     this.changeFormState(false);
+    if (!response) {
+      OtherActions
+        .updateAlertState(constants.NO_CONNECTION);
+    } else {
+      OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+        response.data.error[0] : response.data.error);
+    }
   }
 
   /**
@@ -112,14 +122,14 @@ class SignUp extends React.Component {
             <div className="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
               <div className="card">
                 <div className="card-header">
-                  <h2>
+                  <h3>
                     Sign up to register your events.
                     <i
                       className="fa fa-spinner fa-spin hidden"
                       ref={(input) => { this.spinner = input; }}
                       aria-hidden="true"
                     />
-                  </h2>
+                  </h3>
                   <div
                     className={this.props.alertState ?
                         'form-error' : 'no-visible'}

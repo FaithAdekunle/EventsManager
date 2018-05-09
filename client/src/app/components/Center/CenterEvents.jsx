@@ -2,6 +2,7 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import EventActions from '../../actions/eventActions';
+import OtherActions from '../../actions/otherActions';
 import DialApi from '../../DialApi';
 
 /**
@@ -72,15 +73,23 @@ class CenterEvents extends React.Component {
     this.loader.style.width = '100%';
     setTimeout(() => {
       this.loader.classList.remove('success-background');
+      OtherActions.updateAlertState(null);
+      EventActions.addToEventsState(events);
     }, 200);
   }
 
   /**
    * excecutes after fetching events
+   * @param { object } response
    * @returns { void }
    */
-  onLoadFail() {
+  onLoadFail(response) {
     if (this.offset > 0) this.offset -= this.increase;
+    if (!response) {
+      OtherActions
+        .updateAlertState(`Looks like you're offline. 
+        Check internet connection.`);
+    }
   }
 
   /**
