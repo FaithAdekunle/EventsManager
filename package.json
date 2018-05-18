@@ -21,7 +21,7 @@
     "lint": "eslint .",
     "start": "node ./server/dist/index.js --ignore ./client",
     "start:dev": "npm run build && node ./server/dist/index.js --ignore ./client",
-    "build": "webpack --config webpack.dev.js && babel server -d server/dist --copy-files --ignore server/dist,server/tests/",
+    "build": "webpack --config webpack.prod.js && babel server -d server/dist --copy-files --ignore server/dist,server/tests/",
     "postinstall": "npm run build",
     "mocha": "mocha --compilers js:babel-core/register",
     "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/index.js --require babel-core/register",
