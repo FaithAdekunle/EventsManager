@@ -1,9 +1,9 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import Event from './EventComponent.jsx';
-import EditEvent from './EditEventComponent.jsx';
-import DeleteEvent from './DeleteEventComponent.jsx';
+import EventCardComponent from './EventCardComponent.jsx';
+import EditEventComponent from './EditEventComponent.jsx';
+import DeleteEventComponent from './DeleteEventComponent.jsx';
 import OtherActions from '../../actions/otherActions';
 import EventActions from '../../actions/eventActions';
 import DialApi from '../../DialApi';
@@ -11,24 +11,12 @@ import DialApi from '../../DialApi';
 /**
  * Events component class
  */
-class Events extends React.Component {
+class EventsComponent extends React.Component {
   static propTypes = {
     history: Proptypes.object,
-    eventsState: Proptypes.array,
-    alertState: Proptypes.string,
+    events: Proptypes.array,
+    alert: Proptypes.string,
     token: Proptypes.string,
-    pagination: Proptypes.object,
-  }
-
-  /**
-   * executes after attempt to fetch events fail
-   * @param { object } data
-   * @returns { void }
-   */
-  static onFetchEventsSuccessful(data) {
-    OtherActions.updateAlertState(null);
-    OtherActions.updatePagination(data.metaData.pagination);
-    EventActions.addToEventsState(data.events);
   }
 
   /**
@@ -38,8 +26,11 @@ class Events extends React.Component {
     super();
     this.offset = 0;
     this.limit = 10;
+    this.totalCount = 0;
     this.onFetchEventsFail = this.onFetchEventsFail.bind(this);
+    this.onFetchEventsSuccessful = this.onFetchEventsSuccessful.bind(this);
     this.loadNext = this.loadNext.bind(this);
+    this.onDeleteEvent = this.onDeleteEvent.bind(this);
   }
 
   /**
@@ -47,12 +38,13 @@ class Events extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
+    window.scrollTo(0, 0);
     window.addEventListener('scroll', this.loadNext, false);
-    OtherActions.updateAlertState('loading');
+    OtherActions.setAlert('loading');
     DialApi
       .updateEvents(
         this.props.token,
-        Events.onFetchEventsSuccessful,
+        this.onFetchEventsSuccessful,
         this.onFetchEventsFail,
         this.limit,
         this.offset,
@@ -67,9 +59,9 @@ class Events extends React.Component {
     window.removeEventListener('scroll', this.loadNext, false);
     $('#editModal').modal('hide');
     $('#deleteModal').modal('hide');
-    OtherActions.updateAlertState(null);
-    OtherActions.updatePagination(null);
-    EventActions.updateEventsState([]);
+    OtherActions.setAlert(null);
+    OtherActions.setPagination(null);
+    EventActions.setEvents([]);
   }
 
   /**
@@ -81,14 +73,33 @@ class Events extends React.Component {
     if (this.offset >= this.limit) this.offset -= this.limit;
     if (!response) {
       return OtherActions
-        .updateAlertState(`Looks like you're offline. 
+        .setAlert(`Looks like you're offline. 
         Check internet connection.`);
     }
     if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();
       return this.props.history.push('/signin');
     }
-    return OtherActions.updateAlertState(response.data.error);
+    return OtherActions.setAlert(response.data.error);
+  }
+
+  /**
+   * executes after attempt to fetch events fail
+   * @param { object } data
+   * @returns { void }
+   */
+  onFetchEventsSuccessful(data) {
+    OtherActions.setAlert(null);
+    this.totalCount = data.metaData.pagination.totalCount;
+    EventActions.addToEvents(data.events);
+  }
+
+  /**
+   * executes after an event has been deleted
+   * @returns { void }
+   */
+  onDeleteEvent() {
+    this.totalCount -= 1;
   }
 
   /**
@@ -98,13 +109,13 @@ class Events extends React.Component {
   loadNext() {
     const pos = window.innerHeight + window.scrollY;
     if (pos - 60 === document.body.offsetHeight &&
-    this.props.eventsState.length < this.props.pagination.totalCount) {
+    this.props.events.length < this.totalCount) {
       this.offset += this.limit;
-      OtherActions.updateAlertState('loading');
+      OtherActions.setAlert('loading');
       DialApi
         .updateEvents(
           this.props.token,
-          Events.onFetchEventsSuccessful,
+          this.onFetchEventsSuccessful,
           this.onFetchEventsFail,
           this.limit,
           this.offset,
@@ -120,7 +131,7 @@ class Events extends React.Component {
     const spinner = (
       <i className="fa fa-spinner fa-spin" aria-hidden="true" />
     );
-    const { pagination, eventsState } = this.props;
+    const { events } = this.props;
     return (
       <div className="container">
         <div className="events-container">
@@ -129,23 +140,23 @@ class Events extends React.Component {
               <div className="row my-events">
                 <div className="col-8 events-count">
                   <h5>
-                      My Events | {this.props.alertState === 'loading' ?
-                      spinner : pagination ? pagination.totalCount : ''}
+                      My Events {this.props.alert === 'loading' ?
+                      spinner : ''}
                   </h5>
                 </div>
               </div>
               <div
-                className={this.props.alertState &&
-                  this.props.alertState !== 'loading' ?
+                className={this.props.alert &&
+                  this.props.alert !== 'loading' ?
                 '' : 'hidden'}
               >
                 <div className="alert alert-info" role="alert">
-                  <strong>{this.props.alertState}</strong>
+                  <strong>{this.props.alert}</strong>
                 </div>
               </div>
               <div
-                className={`${this.props.eventsState.length === 0 &&
-                this.props.alertState === null ? '' : 'hidden'}`}
+                className={`${this.props.events.length === 0 &&
+                this.props.alert === null ? '' : 'hidden'}`}
               >
                 <h5>
                   You have no registered events yet. Visit&nbsp;
@@ -159,9 +170,9 @@ class Events extends React.Component {
                 </h5>
               </div>
               <div className="row">
-                {this.props.eventsState.map(event => (
+                {this.props.events.map(event => (
                   <div className="col-md-6" key={event.id}>
-                    <Event
+                    <EventCardComponent
                       event={event}
                       history={this.props.history}
                     />
@@ -170,15 +181,18 @@ class Events extends React.Component {
               </div>
               <div className="text-center">
                 {
-                  this.props.alertState === 'loading' && eventsState.length ?
+                  this.props.alert === 'loading' && events.length ?
                     <h6 className="bottom-loader">loading...</h6> : ''
                 }
               </div>
             </div>
           </div>
         </div>
-        <EditEvent history={this.props.history} />
-        <DeleteEvent history={this.props.history} />
+        <EditEventComponent history={this.props.history} />
+        <DeleteEventComponent
+          history={this.props.history}
+          onDeleteEvent={this.onDeleteEvent}
+        />
       </div>
     );
   }
@@ -186,10 +200,9 @@ class Events extends React.Component {
 
 const mapStateToProps = state => ({
   token: state.token,
-  eventsState: state.eventsState,
-  alertState: state.alertState,
-  pagination: state.pagination,
+  events: state.events,
+  alert: state.alert,
 });
 
-export default connect(mapStateToProps)(Events);
+export default connect(mapStateToProps)(EventsComponent);
 

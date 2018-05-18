@@ -1,4 +1,5 @@
 import { dispatch } from '../Reducers';
+import constants from '../constants';
 
 /**
  * CenterActions component class
@@ -9,9 +10,9 @@ class CenterActions {
    * @param { array } centers
    * @returns { void }
    */
-  static updateCentersState(centers) {
+  static setCenters(centers) {
     dispatch({
-      type: 'UPDATE_CENTERS_STATE',
+      type: constants.SET_CENTERS,
       payload: centers,
     });
   }
@@ -21,9 +22,9 @@ class CenterActions {
    * @param { object } center
    * @returns { void }
    */
-  static addToCentersState(center) {
+  static addToCenters(center) {
     dispatch({
-      type: 'ADD_TO_CENTERS_STATE',
+      type: constants.ADD_TO_CENTERS,
       payload: center,
     });
   }
@@ -33,20 +34,10 @@ class CenterActions {
    * @param { object } center
    * @returns { void }
    */
-  static editCentersState(center) {
+  static updateCenters(center) {
     dispatch({
-      type: 'EDIT_CENTERS_STATE',
+      type: constants.UPDATE_CENTERS,
       payload: center,
-    });
-  }
-
-  /**
-   * action to empty centers
-   * @returns { void }
-   */
-  static emptyCentersState() {
-    dispatch({
-      type: 'EMPTY_CENTERS_STATE',
     });
   }
 
@@ -55,9 +46,9 @@ class CenterActions {
    * @param { object } center
    * @returns { void }
    */
-  static updateCenterState(center) {
+  static setCenter(center) {
     dispatch({
-      type: 'UPDATE_CENTER_STATE',
+      type: constants.SET_CENTER,
       payload: center,
     });
   }

@@ -9,14 +9,14 @@ import DialApi from './../DialApi';
 import constants from '../constants';
 
 /**
- * NavTab component class
+ * NavBarComponent component class
  */
-class NavTab extends React.Component {
+class NavBarComponent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
     history: Proptypes.object,
     location: Proptypes.object,
-    centerSearch: Proptypes.array,
+    searchResults: Proptypes.array,
   }
 
   /**
@@ -25,7 +25,10 @@ class NavTab extends React.Component {
    * @returns { void }
    */
   static onSearchSuccessful(centers) {
-    OtherActions.updateCenterSearch(centers);
+    if (centers.length) return OtherActions.setSearchResults(centers);
+    return OtherActions.setSearchResults([{
+      name: 'Sorry! We could not find a match.',
+    }]);
   }
 
   /**
@@ -36,7 +39,7 @@ class NavTab extends React.Component {
   static onSearchFail(response) {
     if (!response) {
       OtherActions
-        .updateAlertState(constants.NO_CONNECTION);
+        .setAlert(constants.NO_CONNECTION);
     }
   }
 
@@ -74,7 +77,7 @@ class NavTab extends React.Component {
    * @returns { void }
    */
   onFocus() {
-    if (!(this.props.location.pathname === '/centers')) {
+    if (this.searchField.value) {
       this.searchList.classList.remove('hidden');
     }
   }
@@ -116,11 +119,11 @@ class NavTab extends React.Component {
   searchCenter(e) {
     this.searchList.classList.remove('hidden');
     const { value } = e.target;
-    if (!value) return OtherActions.updateCenterSearch([]);
+    if (!value) return OtherActions.setSearchResults([]);
     return DialApi.updateSearch(
       value,
-      NavTab.onSearchSuccessful,
-      NavTab.onSearchFail,
+      NavBarComponent.onSearchSuccessful,
+      NavBarComponent.onSearchFail,
     );
   }
 
@@ -140,10 +143,8 @@ class NavTab extends React.Component {
    */
   render() {
     const { location, token } = this.props;
-    // const eventsManager = JSON.parse(localStorage.getItem('eventsManager'));
     let user = null;
     try {
-      // user = jwtDecode(eventsManager.appToken);
       user = jwtDecode(token);
     } catch (error) {
       user = null;
@@ -249,7 +250,7 @@ class NavTab extends React.Component {
               this.props.location.pathname === '/centers' ? null :
               <form
                 className="form-inline ml-auto my-lg-0"
-                onSubmit={NavTab.searchSubmit}
+                onSubmit={NavBarComponent.searchSubmit}
               >
                 <div className="search-entry">
                   <input
@@ -258,6 +259,7 @@ class NavTab extends React.Component {
                     placeholder="search centers"
                     aria-describedby="navbar-search"
                     onKeyUp={(e) => { this.searchCenter(e); }}
+                    ref={(input) => { this.searchField = input; }}
                     onFocus={this.onFocus}
                   />
                   <ul
@@ -265,13 +267,17 @@ class NavTab extends React.Component {
                     ref={(input) => { this.searchList = input; }}
                   >
                     {
-                      this.props.centerSearch.map(center => (
+                      this.props.searchResults.map(center => (
                         <li
-                          className="list-group-item window-exclude"
-                          key={center.id}
-                          onClick={() => this.navToCenter(center.id)}
+                          className={`list-group-item window-exclude
+                           ${!center.id ? 'text-center' : ''}`}
+                          key={center.id || center.name}
+                          onClick={() => {
+                            if (center.id) this.navToCenter(center.id);
+                          }}
                         >
-                          {`${center.name} - ${center.address}`}
+                          {`${center.name}${center.address ?
+                            ` -${center.address}` : ''}`}
                         </li>
                       ))
                     }
@@ -302,7 +308,7 @@ class NavTab extends React.Component {
 
 const mapStateToProps = state => ({
   token: state.token,
-  centerSearch: state.centerSearch,
+  searchResults: state.searchResults,
 });
 
-export default withRouter(connect(mapStateToProps)(NavTab));
+export default withRouter(connect(mapStateToProps)(NavBarComponent));

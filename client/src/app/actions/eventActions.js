@@ -1,4 +1,5 @@
 import { dispatch } from '../Reducers';
+import constants from '../constants';
 
 /**
  * EventActions component class
@@ -9,9 +10,9 @@ class EventActions {
    * @param { array } events
    * @returns { void }
    */
-  static updateEventsState(events) {
+  static setEvents(events) {
     dispatch({
-      type: 'UPDATE_EVENTS_STATE',
+      type: constants.SET_EVENTS,
       payload: events,
     });
   }
@@ -21,9 +22,9 @@ class EventActions {
    * @param { object } events
    * @returns { void }
    */
-  static addToEventsState(events) {
+  static addToEvents(events) {
     dispatch({
-      type: 'ADD_TO_EVENTS_STATE',
+      type: constants.ADD_TO_EVENTS,
       payload: events,
     });
   }
@@ -33,9 +34,9 @@ class EventActions {
    * @param { object } event
    * @returns { void }
    */
-  static editEventsState(event) {
+  static updateEvents(event) {
     dispatch({
-      type: 'EDIT_EVENTS_STATE',
+      type: constants.UPDATE_EVENTS,
       payload: event,
     });
   }
@@ -45,9 +46,9 @@ class EventActions {
    * @param { number } id
    * @returns { void }
    */
-  static deleteFromEventsState(id) {
+  static deleteFromEvents(id) {
     dispatch({
-      type: 'DELETE_FROM_EVENTS_STATE',
+      type: constants.DELETE_FROM_EVENTS,
       payload: id,
     });
   }
@@ -57,9 +58,9 @@ class EventActions {
    * @param { object } event
    * @returns { void }
    */
-  static updateEventState(event) {
+  static setEvent(event) {
     dispatch({
-      type: 'UPDATE_EVENT_STATE',
+      type: constants.SET_EVENT,
       payload: event,
     });
   }

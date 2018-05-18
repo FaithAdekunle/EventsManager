@@ -4,8 +4,8 @@ import jwtDecode from 'jwt-decode';
 import { connect } from 'react-redux';
 import Pagination from 'rc-pagination';
 import 'rc-pagination/assets/index.css';
-import Center from './CenterComponent.jsx';
-import AddOrEditCenter from './AddOrEditCenter.jsx';
+import CenterCardComponent from './CenterCardComponent.jsx';
+import AddOrEditCenterComponent from './AddOrEditCenterComponent.jsx';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
 import constants from '../../constants';
@@ -14,7 +14,7 @@ import DialApi from '../../DialApi';
 /**
  * Centers component class
  */
-class Centers extends React.Component {
+class CentersComponent extends React.Component {
   static propTypes = {
     centers: Proptypes.array,
     alert: Proptypes.string,
@@ -44,7 +44,7 @@ class Centers extends React.Component {
   constructor() {
     super();
     this.offset = 0;
-    this.limit = 3;
+    this.limit = 9;
     this.filter = '';
     this.capacity = 1;
     this.facility = '';
@@ -55,6 +55,7 @@ class Centers extends React.Component {
     this.load = this.load.bind(this);
     this.onLoadSuccessful = this.onLoadSuccessful.bind(this);
     this.loadNextPage = this.loadNextPage.bind(this);
+    this.onCenterAdded = this.onCenterAdded.bind(this);
   }
 
   /**
@@ -76,9 +77,9 @@ class Centers extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    OtherActions.updateAlertState(null);
-    OtherActions.updatePagination(null);
-    CenterActions.emptyCentersState();
+    OtherActions.setAlert(null);
+    OtherActions.setPagination(null);
+    CenterActions.setCenters([]);
   }
 
   /**
@@ -95,10 +96,10 @@ class Centers extends React.Component {
         if (this.mainLoader) {
           this.mainLoader.classList.remove('success-background');
         }
-        OtherActions.updateAlertState(response.data.error);
+        OtherActions.setAlert(response.data.error);
       }, 500);
     } else {
-      OtherActions.updateAlertState(constants.NO_CONNECTION);
+      OtherActions.setAlert(constants.NO_CONNECTION);
     }
   }
 
@@ -108,6 +109,7 @@ class Centers extends React.Component {
    * @returns { void }
    */
   onLoadSuccessful(data) {
+    const { centers } = data;
     this.loaded = true;
     if (this.fieldset) this.fieldset.disabled = false;
     if (this.mainLoader) this.mainLoader.style.width = '100%';
@@ -115,8 +117,9 @@ class Centers extends React.Component {
       if (this.mainLoader) {
         this.mainLoader.classList.remove('success-background');
       }
-      CenterActions.updateCentersState(data.centers);
-      OtherActions.updatePagination(data.metaData.pagination);
+      CenterActions.setCenters(centers);
+      if (centers.length === 0) OtherActions.setAlert(constants.NO_CENTERS);
+      OtherActions.setPagination(data.metaData.pagination);
     }, 500);
   }
 
@@ -131,8 +134,8 @@ class Centers extends React.Component {
     this.capacity = this.capacityField.value || 1;
     this.facility = this.facilityField.value || '';
     this.offset = 0;
-    CenterActions.emptyCentersState();
-    OtherActions.updatePagination(null);
+    CenterActions.setCenters([]);
+    OtherActions.setPagination(null);
     DialApi.updateCenters(
       this.beforeLoad,
       this.onLoadSuccessful,
@@ -146,15 +149,30 @@ class Centers extends React.Component {
   }
 
   /**
-   * excecutes before fetching centers
+   * runs when new center is added
    * @returns { void }
    */
-  beforeLoad() {
-    this.loaded = false;
-    this.mainLoader.classList.add('success-background');
-    this.fieldset.disabled = true;
-    OtherActions.updateAlertState(null);
-    this.load();
+  onCenterAdded() {
+    this.loadNextPage(1);
+  }
+
+  /**
+   * displays loader bar
+   * @param { integer } nextPage
+   * @returns { void }
+   */
+  loadNextPage(nextPage) {
+    this.offset = this.limit * (nextPage - 1);
+    DialApi.updateCenters(
+      this.beforeLoad,
+      this.onLoadSuccessful,
+      this.onLoadFail,
+      this.offset,
+      this.limit,
+      this.filter,
+      this.facility,
+      this.capacity,
+    );
   }
 
   /**
@@ -178,22 +196,16 @@ class Centers extends React.Component {
   }
 
   /**
-   * displays loader bar
-   * @param { integer } nextPage
+   * excecutes before fetching centers
    * @returns { void }
    */
-  loadNextPage(nextPage) {
-    this.offset = this.limit * (nextPage - 1);
-    DialApi.updateCenters(
-      this.beforeLoad,
-      this.onLoadSuccessful,
-      this.onLoadFail,
-      this.offset,
-      this.limit,
-      this.filter,
-      this.facility,
-      this.capacity,
-    );
+  beforeLoad() {
+    window.scrollTo(0, 0);
+    this.loaded = false;
+    this.mainLoader.classList.add('success-background');
+    this.fieldset.disabled = true;
+    OtherActions.setAlert(null);
+    this.load();
   }
 
   /**
@@ -202,7 +214,7 @@ class Centers extends React.Component {
    */
   render() {
     const { pagination, token, alert } = this.props;
-    const { NO_CONNECTION, ADD_CENTER } = constants;
+    const { NO_CONNECTION, NO_CENTERS } = constants;
     let userIsAdmin = false;
     try {
       userIsAdmin = (jwtDecode(token)).isAdmin;
@@ -217,13 +229,6 @@ class Centers extends React.Component {
         />
         <div className="centers-container">
           <div className="fill-width">
-            {
-              alert === NO_CONNECTION || alert === ADD_CENTER ? (
-                <div className="alert alert-info" role="alert">
-                  <strong>{alert}</strong>
-                </div>
-              ) : ''
-            }
             <fieldset ref={(input) => { this.fieldset = input; }}>
               <form onSubmit={this.onSubmit}>
                 <div className="row">
@@ -272,7 +277,7 @@ class Centers extends React.Component {
                           <div className="col-md-6">
                             <button
                               className="btn btn-primary btn-block"
-                              onClick={Centers.openCenterModal}
+                              onClick={CentersComponent.openCenterModal}
                             >
                               Add Center
                             </button>
@@ -285,6 +290,13 @@ class Centers extends React.Component {
               </form>
             </fieldset>
             {
+              alert === NO_CONNECTION || alert === NO_CENTERS ? (
+                <div className="alert alert-info" role="alert">
+                  <strong>{alert}</strong>
+                </div>
+              ) : ''
+            }
+            {
               this.props.centers.length > 0 ? (
                 <div className="row">
                   {
@@ -293,7 +305,10 @@ class Centers extends React.Component {
                         className="col-md-6 col-lg-4 single-center"
                         key={center.id}
                       >
-                        <Center center={center} history={this.props.history} />
+                        <CenterCardComponent
+                          center={center}
+                          history={this.props.history}
+                        />
                       </div>
                       ))
                 }
@@ -315,7 +330,14 @@ class Centers extends React.Component {
               ) : ''
             }
           </div>
-          <AddOrEditCenter history={this.props.history} />
+          {
+            userIsAdmin ? (
+              <AddOrEditCenterComponent
+                history={this.props.history}
+                onCenterAdded={this.onCenterAdded}
+              />
+            ) : ''
+          }
         </div>
       </React.Fragment>
     );
@@ -324,9 +346,9 @@ class Centers extends React.Component {
 
 const mapStateToProps = state => ({
   token: state.token,
-  centers: state.centersState,
-  alert: state.alertState,
-  pagination: state.pagination,
+  centers: state.centers,
+  alert: state.alert,
+  pagination: state.paginationMetadata,
 });
 
-export default connect(mapStateToProps)(Centers);
+export default connect(mapStateToProps)(CentersComponent);

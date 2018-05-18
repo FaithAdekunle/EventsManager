@@ -1,5 +1,4 @@
 import axios from 'axios';
-import CenterActions from './actions/centerActions';
 import Helpers from './Helpers';
 
 
@@ -112,22 +111,20 @@ module.exports = class DialApi {
 
   /**
    * action to delete an event
-   * @param { object } center
-   * @param { number } id
-   * @param { number } index
    * @param { string } token
-   * @param { function } onDeleteSuccessful
-   * @param { function } onDeleteFail
+   * @param { object } event
+   * @param { function } onDeclineSuccessful
+   * @param { function } onDeclineFail
    * @returns { void }
    */
-  static declineEvent(center, id, index, token) {
+  static declineEvent(token, event, onDeclineSuccessful, onDeclineFail) {
     return axios
-      .put(`${Helpers.host}/events/${id}/decline?token=${token}`)
+      .put(`${Helpers.host}/events/${event.id}/decline?token=${token}`)
       .then(() => {
-        const update = { ...center };
-        center.events[index].isAccepted = false;
-        CenterActions.updateCenterState(update);
-      });
+        event.isAccepted = false;
+        onDeclineSuccessful(event);
+      })
+      .catch(response => onDeclineFail(response));
   }
 
   /**
@@ -193,7 +190,7 @@ module.exports = class DialApi {
   static addCenter(credentials, token, onCenterAddSuccessful, onCenterAddFail) {
     return axios
       .post(`${Helpers.host}/centers?token=${token}`, credentials)
-      .then(({ data }) => onCenterAddSuccessful(data.center))
+      .then(() => onCenterAddSuccessful())
       .catch(({ response }) => onCenterAddFail(response));
   }
 

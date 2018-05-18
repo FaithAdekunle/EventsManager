@@ -8,10 +8,10 @@ import constants from '../../constants';
 /**
  * SignIn component class
  */
-class SignUp extends React.Component {
+class SignUpComponent extends React.Component {
   static propTypes = {
     history: PropTypes.object,
-    alertState: PropTypes.string,
+    alert: PropTypes.string,
   }
 
   /**
@@ -32,7 +32,7 @@ class SignUp extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    OtherActions.updateAlertState(null);
+    OtherActions.setAlert(null);
   }
 
   /**
@@ -41,7 +41,7 @@ class SignUp extends React.Component {
    * @returns { void }
    */
   onSignupSuccessful(data) {
-    OtherActions.updateToken(data.token);
+    OtherActions.setToken(data.token);
     this.props.history.push('/events');
   }
 
@@ -54,9 +54,9 @@ class SignUp extends React.Component {
     this.changeFormState(false);
     if (!response) {
       OtherActions
-        .updateAlertState(constants.NO_CONNECTION);
+        .setAlert(constants.NO_CONNECTION);
     } else {
-      OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+      OtherActions.setAlert(Array.isArray(response.data.error) ?
         response.data.error[0] : response.data.error);
     }
   }
@@ -74,6 +74,10 @@ class SignUp extends React.Component {
       password: this.password.value,
       confirmPassword: this.passwordconfirm.value,
     };
+    if (credentials.password !== credentials.confirmPassword) {
+      return OtherActions
+        .setAlert(constants.PASSWORD_MISMATCH);
+    }
     return DialApi
       .signup(
         this.beforeSignUp,
@@ -131,10 +135,10 @@ class SignUp extends React.Component {
                     />
                   </h3>
                   <div
-                    className={this.props.alertState ?
+                    className={this.props.alert ?
                         'form-error' : 'no-visible'}
                   >
-                    {this.props.alertState}
+                    {this.props.alert}
                   </div>
                 </div>
                 <div className="card-body">
@@ -213,6 +217,6 @@ class SignUp extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({ alertState: state.alertState });
+const mapStateToProps = state => ({ alert: state.alert });
 
-export default connect(mapStateToProps)(SignUp);
+export default connect(mapStateToProps)(SignUpComponent);

@@ -8,11 +8,12 @@ import DialApi from '../../DialApi';
 /**
  * DeleteEvent component class
  */
-class DeleteEvent extends React.Component {
+class DeleteEventComponent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
     eventState: Proptypes.object,
     history: Proptypes.object,
+    onDeleteEvent: Proptypes.func,
   }
 
   /**
@@ -22,7 +23,7 @@ class DeleteEvent extends React.Component {
   static nullEvent() {
     const modal = $('#deleteModal');
     modal.modal('hide');
-    EventActions.updateEventState(null);
+    EventActions.setEvent(null);
   }
 
   /**
@@ -30,9 +31,10 @@ class DeleteEvent extends React.Component {
    */
   constructor() {
     super();
-    this.deleteEvent = this.deleteEvent.bind(this);
+    this.Component = this.deleteEvent.bind(this);
     this.onDeleteSuccesful = this.onDeleteSuccesful.bind(this);
     this.onDeleteFail = this.onDeleteFail.bind(this);
+    this.deleteEvent = this.deleteEvent.bind(this);
   }
 
   /**
@@ -40,8 +42,8 @@ class DeleteEvent extends React.Component {
    * @returns { void }
    */
   componentDidUpdate() {
-    const event = this.props.eventState;
-    if (event && event.action === 'delete') {
+    const { eventState } = this.props;
+    if (eventState && eventState.action === 'delete') {
       const modal = $('#deleteModal');
       modal.modal({
         show: true,
@@ -52,15 +54,24 @@ class DeleteEvent extends React.Component {
   }
 
   /**
+   * executes before component unmounts
+   * @returns { void }
+   */
+  componentWillUnmount() {
+    DeleteEventComponent.nullEvent();
+  }
+
+  /**
    * executes after event has been deleted succesfully
    * @param { object } response
    * @returns { void }
    */
   onDeleteSuccesful() {
-    EventActions.deleteFromEventsState(this.props.eventState.event);
+    EventActions.deleteFromEvents(this.props.eventState.event);
     this.confirm.classList.remove('hidden');
     this.deleting.classList.add('hidden');
-    DeleteEvent.nullEvent();
+    this.props.onDeleteEvent();
+    DeleteEventComponent.nullEvent();
   }
 
   /**
@@ -73,15 +84,15 @@ class DeleteEvent extends React.Component {
     this.deleting.classList.add('hidden');
     if (!response) {
       alert('Looks like you\'re offline. Check internet connection.');
-      return DeleteEvent.nullEvent();
+      return DeleteEventComponent.nullEvent();
     }
     if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();
-      DeleteEvent.nullEvent();
+      DeleteEventComponent.nullEvent();
       return this.props.history.push('/signin');
     }
     window.alert(response.data.error);
-    return DeleteEvent.nullEvent();
+    return DeleteEventComponent.nullEvent();
   }
 
   /**
@@ -128,7 +139,7 @@ class DeleteEvent extends React.Component {
                   </button>
                   <button
                     className="btn btn-primary"
-                    onClick={DeleteEvent.nullEvent}
+                    onClick={DeleteEventComponent.nullEvent}
                   >
                     No
                   </button>
@@ -150,7 +161,7 @@ class DeleteEvent extends React.Component {
 
 const mapStateToProps = state => ({
   token: state.token,
-  eventState: state.eventState,
+  eventState: state.event,
 });
 
-export default connect(mapStateToProps)(DeleteEvent);
+export default connect(mapStateToProps)(DeleteEventComponent);

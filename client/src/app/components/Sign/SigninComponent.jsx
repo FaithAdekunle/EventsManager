@@ -8,10 +8,10 @@ import constants from '../../constants';
 /**
  * SignIn component class
  */
-class SignIn extends React.Component {
+class SignInComponent extends React.Component {
   static propTypes = {
     history: PropTypes.object,
-    alertState: PropTypes.string,
+    alert: PropTypes.string,
   }
 
   /**
@@ -32,7 +32,7 @@ class SignIn extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    OtherActions.updateAlertState(null);
+    OtherActions.setAlert(null);
   }
 
   /**
@@ -41,7 +41,7 @@ class SignIn extends React.Component {
    * @returns { void }
    */
   onUserLoginSuccessful(data) {
-    OtherActions.updateToken(data.token);
+    OtherActions.setToken(data.token);
     this.props.history.push('/events');
   }
 
@@ -54,9 +54,9 @@ class SignIn extends React.Component {
     this.changeFormState(false);
     if (!response) {
       OtherActions
-        .updateAlertState(constants.NO_CONNECTION);
+        .setAlert(constants.NO_CONNECTION);
     } else {
-      OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+      OtherActions.setAlert(Array.isArray(response.data.error) ?
         response.data.error[0] : response.data.error);
     }
   }
@@ -129,10 +129,10 @@ class SignIn extends React.Component {
                     />
                   </h3>
                   <div
-                    className={this.props.alertState ?
+                    className={this.props.alert ?
                         'form-error' : 'no-visible'}
                   >
-                    {this.props.alertState}
+                    {this.props.alert}
                   </div>
                 </div>
                 <div className="card-body">
@@ -186,6 +186,6 @@ class SignIn extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({ alertState: state.alertState });
+const mapStateToProps = state => ({ alert: state.alert });
 
-export default connect(mapStateToProps)(SignIn);
+export default connect(mapStateToProps)(SignInComponent);

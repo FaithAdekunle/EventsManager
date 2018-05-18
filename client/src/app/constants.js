@@ -1,11 +1,23 @@
 const constants = {
   NO_CONNECTION: `Looks like you're offline. 
   Check internet connection.`,
-  ADD_CENTER: 'Center create successful',
-  ADD_EVENT: 'Event create successful',
-  EDIT_EVENT: 'Event edit successful',
-  EDIT_CENTER: 'Center edit successful',
-  DECLINE_EVENT: 'Decline event successful',
+  NO_CENTERS: 'Sorry! We could not find any centers',
+  PASSWORD_MISMATCH: 'Password and Confirm password must match',
+  SET_TOKEN: 'SET_TOKEN',
+  REMOVE_TOKEN: 'REMOVE_TOKEN',
+  SET_EVENTS: 'SET_EVENTS',
+  UPDATE_EVENTS: 'UPDATE_EVENTS',
+  ADD_TO_EVENTS: 'ADD_TO_EVENTS',
+  DELETE_FROM_EVENTS: 'DELETE_FROM_EVENTS',
+  SET_EVENT: 'SET_EVENT',
+  SET_IMAGES: 'SET_IMAGES',
+  SET_CENTERS: 'SET_CENTERS',
+  ADD_TO_CENTERS: 'ADD_TO_CENTERS',
+  DELETE_FROM_CENTERS: 'DELETE_FROM_CENTERS',
+  SET_CENTER: 'SET_CENTER',
+  SET_SEARCH_RESULTS: 'SET_SEARCH_RESULTS',
+  SET_ALERT: 'SET_ALERT',
+  SET_PAGINATION_METADATA: 'SET_PAGINATION_METADATA',
 };
 
 export default constants;

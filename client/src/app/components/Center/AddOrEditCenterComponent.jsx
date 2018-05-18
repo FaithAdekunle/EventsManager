@@ -17,7 +17,8 @@ class AddOrEditCenter extends React.Component {
     history: Proptypes.object,
     alert: Proptypes.string,
     token: Proptypes.string,
-    selectedImages: Proptypes.array,
+    images: Proptypes.array,
+    onCenterAdded: Proptypes.func,
   }
 
   /**
@@ -41,7 +42,7 @@ class AddOrEditCenter extends React.Component {
    */
   componentDidMount() {
     if (this.props.center) {
-      OtherActions.updateSelectedImages(this.props.center.images);
+      OtherActions.setImages(this.props.center.images);
     }
   }
 
@@ -50,8 +51,7 @@ class AddOrEditCenter extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    OtherActions.updateSelectedImages([]);
-    OtherActions.updateAlertState(null);
+    this.closeModal();
   }
 
   /**
@@ -61,10 +61,9 @@ class AddOrEditCenter extends React.Component {
    */
   onSuccessful(center) {
     if (center) {
-      CenterActions.updateCenterState(center);
+      CenterActions.setCenter(center);
     } else {
-      OtherActions.updateAlertState(constants.ADD_CENTER);
-      setTimeout(() => OtherActions.updateAlertState(null), 10000);
+      this.props.onCenterAdded();
     }
     this.closeModal();
   }
@@ -78,13 +77,13 @@ class AddOrEditCenter extends React.Component {
     this.fieldset.disabled = false;
     if (!response) {
       return OtherActions
-        .updateAlertState(constants.NO_CONNECTION);
+        .setAlert(constants.NO_CONNECTION);
     }
     if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();
       return this.props.history.push('/signin');
     }
-    return OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+    return OtherActions.setAlert(Array.isArray(response.data.error) ?
       response.data.error[0] : response.data.error);
   }
 
@@ -94,16 +93,14 @@ class AddOrEditCenter extends React.Component {
    * @returns { void }
    */
   closeModal() {
-    const { NO_CONNECTION, ADD_CENTER } = constants;
-    if (this.props.alert !== NO_CONNECTION && this.props.alert !== ADD_CENTER) {
-      OtherActions.updateAlertState(null);
-    }
+    const { NO_CONNECTION } = constants;
+    if (this.props.alert !== NO_CONNECTION) OtherActions.setAlert(null);
     this.facilities = {};
     this.images.value = null;
     this.fieldset.disabled = false;
+    OtherActions.setImages([]);
     if (this.props.center) {
       const { center } = this.props;
-      OtherActions.updateSelectedImages(center.images);
       this.centerName.value = center.name;
       this.centerAddress.value = center.address;
       this.centerDescription.value = center.description;
@@ -115,7 +112,6 @@ class AddOrEditCenter extends React.Component {
         return null;
       });
     } else {
-      OtherActions.updateSelectedImages([]);
       this.form.reset();
     }
     Helpers.facilities.map((facility) => {
@@ -136,7 +132,7 @@ class AddOrEditCenter extends React.Component {
     const reader = new FileReader();
     const readFiles = (index = 0, selectedImages = []) => {
       if (index >= files.length) {
-        return OtherActions.updateSelectedImages(selectedImages);
+        return OtherActions.setImages(selectedImages);
       }
       reader.onloadend = (e) => {
         selectedImages.push(e.target.result);
@@ -155,7 +151,6 @@ class AddOrEditCenter extends React.Component {
    */
   updateFacilities(e) {
     this.facilities[e.target.value] = e.target.checked;
-    console.log(e.target.value, this.facilities);
   }
 
   /**
@@ -184,26 +179,26 @@ class AddOrEditCenter extends React.Component {
     e.preventDefault();
     const facilities = this.computeFacilities();
     if (!facilities) {
-      return OtherActions.updateAlertState('select one or more facilities');
+      return OtherActions.setAlert('select one or more facilities');
     }
-    const { files } = this.images;
-    if (files.length === 0 && this.props.selectedImages.length === 0) {
-      return OtherActions.updateAlertState('Choose one or more image(s)');
+    const files = [...this.images.files];
+    if (files.length === 0 && this.props.images.length === 0) {
+      return OtherActions.setAlert('Choose one or more image(s)');
     }
     this.fieldset.disabled = true;
     let images = '';
-    for (let i = 0; i < 4; i += 1) {
-      if (files[i]) {
+    await Promise.all(files.map(async (file, index) => {
+      if (index <= 3) {
         const formData = new FormData();
         formData.append('upload_preset', Helpers.cloudinaryPreset);
-        formData.append('file', files[i]);
+        formData.append('file', file);
         const response = await axios.post(Helpers.cloudinaryUrl, formData);
-        images += `${images.length > 0 ?
-          '###:###:###' : ''}${response.data.url}`;
+        const image = response.data.url;
+        images += `${images.length > 0 ? '###:###:###' : ''}${image}`;
       }
-    }
+    }));
     if (images.length === 0) {
-      images = this.props.selectedImages.join('###:###:###');
+      images = this.props.images.join('###:###:###');
     }
     const credentials = {
       name: this.centerName.value,
@@ -237,7 +232,7 @@ class AddOrEditCenter extends React.Component {
    * @returns { component } to be rendered on the page
    */
   render() {
-    const { center, alert, selectedImages } = this.props;
+    const { center, alert, images } = this.props;
     return (
       <React.Fragment>
         <div
@@ -285,7 +280,7 @@ class AddOrEditCenter extends React.Component {
                   <div className="modal-body">
                     <div className="row form-group">
                       {
-                        selectedImages.map(image => (
+                        images.map(image => (
                           <div
                             className="col-3"
                             key={image}
@@ -306,7 +301,7 @@ class AddOrEditCenter extends React.Component {
                           htmlFor="images"
                           className="col-form-label"
                         >
-                          Upload Images
+                          Upload 1 - 4 Images
                         </label>
                       </div>
                       <div className="col-md-9">
@@ -501,9 +496,9 @@ class AddOrEditCenter extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  alert: state.alertState,
+  alert: state.alert,
   token: state.token,
-  selectedImages: state.selectedImages,
+  images: state.images,
 });
 
 export default connect(mapStateToProps)(AddOrEditCenter);
