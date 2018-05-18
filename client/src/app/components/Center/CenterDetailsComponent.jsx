@@ -6,14 +6,14 @@ import Helpers from '../../Helpers';
 import DialApi from '../../DialApi';
 import OtherActions from '../../actions/otherActions';
 import CenterActions from '../../actions/centerActions';
-import CenterEvents from './CenterEvents.jsx';
+import CenterEventsComponent from './CenterEventsComponent.jsx';
 import constants from '../../constants';
-import AddOrEditCenter from './AddOrEditCenter.jsx';
+import AddOrEditCenterComponent from './AddOrEditCenterComponent.jsx';
 
 /**
  * CenterDetails component class
  */
-class CenterDetails extends React.Component {
+class CenterDetailsComponent extends React.Component {
   static propTypes = {
     center: Proptypes.object,
     history: Proptypes.object,
@@ -40,7 +40,7 @@ class CenterDetails extends React.Component {
    * @returns { void }
    */
   static closeSubmitModal() {
-    OtherActions.updateAlertState(null);
+    OtherActions.setAlert(null);
     const submitModal = $('#submitModal');
     submitModal.modal('hide');
   }
@@ -66,6 +66,7 @@ class CenterDetails extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
+    window.scrollTo(0, 0);
     DialApi.getCenter(
       this.props.match.params.id,
       this.beforeCenterLoad,
@@ -75,13 +76,29 @@ class CenterDetails extends React.Component {
   }
 
   /**
+   * @param { object } prevProps
+   * executes after component updates
+   * @returns { void }
+   */
+  componentDidUpdate(prevProps) {
+    if (this.props.match.params.id !== prevProps.match.params.id) {
+      DialApi.getCenter(
+        this.props.match.params.id,
+        this.beforeCenterLoad,
+        this.onCenterLoadSuccessful,
+        this.onCenterLoadFail,
+      );
+    }
+  }
+
+  /**
    * executes before component unmounts
    * @returns { void }
    */
   componentWillUnmount() {
-    CenterDetails.closeSubmitModal();
-    OtherActions.updateAlertState(null);
-    CenterActions.updateCenterState(null);
+    CenterDetailsComponent.closeSubmitModal();
+    OtherActions.setAlert(null);
+    CenterActions.setCenter(null);
   }
 
   /**
@@ -90,7 +107,7 @@ class CenterDetails extends React.Component {
    * @returns { void }
    */
   onEventSubmitSuccessful() {
-    CenterDetails.closeSubmitModal();
+    CenterDetailsComponent.closeSubmitModal();
     this.props.history.push('/events');
   }
 
@@ -103,7 +120,7 @@ class CenterDetails extends React.Component {
     if (!response) {
       this.fieldset.disabled = false;
       return OtherActions
-        .updateAlertState(`Looks like you're offline. 
+        .setAlert(`Looks like you're offline. 
         Check internet connection.`);
     }
     if ([401, 404].includes(response.status)) {
@@ -111,7 +128,7 @@ class CenterDetails extends React.Component {
       return this.props.history.push('/signin');
     }
     this.fieldset.disabled = false;
-    return OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+    return OtherActions.setAlert(Array.isArray(response.data.error) ?
       response.data.error[0] : response.data.error);
   }
 
@@ -125,7 +142,7 @@ class CenterDetails extends React.Component {
     this.loader.style.width = '100%';
     setTimeout(() => {
       this.loader.classList.remove('success-background');
-      CenterActions.updateCenterState(data.center);
+      CenterActions.setCenter(data.center);
     }, 500);
   }
 
@@ -140,10 +157,10 @@ class CenterDetails extends React.Component {
     setTimeout(() => {
       this.loader.classList.remove('success-background');
       if (response) {
-        OtherActions.updateAlertState(response.data.error);
+        OtherActions.setAlert(response.data.error);
       } else {
         OtherActions
-          .updateAlertState(constants.NO_CONNECTION);
+          .setAlert(constants.NO_CONNECTION);
       }
     }, 500);
   }
@@ -153,7 +170,7 @@ class CenterDetails extends React.Component {
    * @returns { void }
    */
   openEditModal() {
-    OtherActions.updateSelectedImages(this.props.center.images);
+    OtherActions.setImages(this.props.center.images);
     const modal = $('#centerModal');
     modal.modal({
       show: true,
@@ -193,7 +210,7 @@ class CenterDetails extends React.Component {
   beforeCenterLoad() {
     this.loaded = false;
     this.loader.classList.add('success-background');
-    CenterActions.updateCenterState(null);
+    CenterActions.setCenter(null);
     this.load();
   }
 
@@ -345,7 +362,7 @@ class CenterDetails extends React.Component {
                                 type="button"
                                 className="btn btn-primary btn-lg
                                 btn-block see-more"
-                                onClick={CenterDetails.openSubmitModal}
+                                onClick={CenterDetailsComponent.openSubmitModal}
                               >
                               Book this center
                               </button>
@@ -364,7 +381,7 @@ class CenterDetails extends React.Component {
                               >
                               Edit this center
                               </button>
-                              <AddOrEditCenter
+                              <AddOrEditCenterComponent
                                 history={this.props.history}
                                 center={center}
                               />
@@ -396,8 +413,9 @@ class CenterDetails extends React.Component {
                         <div className="text-primary text-center">
                           Booked dates
                         </div>
-                        <CenterEvents
+                        <CenterEventsComponent
                           id={parseInt(this.props.match.params.id, 10)}
+                          history={this.props.history}
                         />
                       </div>
                     </div>
@@ -415,7 +433,7 @@ class CenterDetails extends React.Component {
                             <button
                               type="button"
                               className="close"
-                              onClick={CenterDetails.closeSubmitModal}
+                              onClick={CenterDetailsComponent.closeSubmitModal}
                               data-dismiss="modal"
                             >
                               &times;
@@ -564,8 +582,7 @@ class CenterDetails extends React.Component {
 
 const mapStateToProps = state => ({
   token: state.token,
-  center: state.centerState,
-  alert: state.alertState,
+  center: state.center,
+  alert: state.alert,
 });
-export default connect(mapStateToProps)(CenterDetails);
-
+export default connect(mapStateToProps)(CenterDetailsComponent);

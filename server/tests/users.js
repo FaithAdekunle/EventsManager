@@ -191,7 +191,7 @@ module.exports = describe('Tests for User endpoints', () => {
         .post('/api/v1/users/login')
         .send(bodies.userBodies.WRONG_USER_PASSWORD)
         .end((err, res) => {
-          res.should.have.status(400);
+          res.should.have.status(404);
           res.should.be.a('object');
           res.body.should.have
             .property('error')
@@ -206,7 +206,7 @@ module.exports = describe('Tests for User endpoints', () => {
         .post('/api/v1/users/login')
         .send(bodies.userBodies.WRONG_USER_EMAIL)
         .end((err, res) => {
-          res.should.have.status(400);
+          res.should.have.status(404);
           res.should.be.a('object');
           res.body.should.have
             .property('error')

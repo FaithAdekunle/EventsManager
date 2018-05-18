@@ -1,15 +1,14 @@
 import React from 'react';
 import Proptypes from 'prop-types';
-import { connect } from 'react-redux';
+import EventActions from '../../actions/eventActions';
 
 /**
  * Event component class
  */
-class Event extends React.Component {
+class EventCardComponent extends React.Component {
   static propTypes = {
     event: Proptypes.object,
     history: Proptypes.object,
-    updateEventState: Proptypes.func,
   }
 
   /**
@@ -28,7 +27,7 @@ class Event extends React.Component {
    */
   openEditModal() {
     if (this.props.event.isAccepted) {
-      this.props.updateEventState({
+      EventActions.setEvent({
         action: 'edit',
         event: this.props.event,
       });
@@ -40,7 +39,7 @@ class Event extends React.Component {
    * @returns { void }
    */
   openDeleteModal() {
-    this.props.updateEventState({
+    EventActions.setEvent({
       action: 'delete',
       event: this.props.event,
     });
@@ -75,7 +74,7 @@ class Event extends React.Component {
               className="navTo delete-event"
               onClick={() => this.openDeleteModal()}
             >
-              <i className="fa fa-times navTo" aria-hidden="true" />
+              <i className="fa fa-trash navTo" aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -125,15 +124,4 @@ class Event extends React.Component {
   }
 }
 
-const mapStateToProps = null;
-
-const mapDispatchToProps = dispatch => ({
-  updateEventState: (event) => {
-    dispatch({
-      type: 'UPDATE_EVENT_STATE',
-      payload: event,
-    });
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Event);
+export default EventCardComponent;

@@ -232,7 +232,7 @@ module.exports = class CenterController {
       },
     };
     const parameters = {};
-    parameters.order = ['name'];
+    parameters.order = [['id', 'DESC']];
     parameters.where = where;
     parameters.offset = offset;
     if (!Number.isNaN(limit)) parameters.limit = limit;

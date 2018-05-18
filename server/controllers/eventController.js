@@ -195,7 +195,7 @@ module.exports = class EventController {
             },
           })
           .then(() =>
-            res.json(Helpers.getResponse(req.params.id, 'deteted', true)))
+            res.json(Helpers.getResponse(req.params.id, 'deleted', true)))
           .catch(() =>
             res.status(500).json(Helpers.getResponse('Internal server error')));
       })

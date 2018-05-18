@@ -5,11 +5,12 @@ import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/otherActions';
 import Helpers from '../../Helpers';
 import DialApi from '../../DialApi';
+import { constants } from '../../constants';
 
 /**
  * EditEvent component class
  */
-class EditEvent extends React.Component {
+class EditEventComponent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
     alert: Proptypes.string,
@@ -46,13 +47,22 @@ class EditEvent extends React.Component {
   }
 
   /**
+   * executes before component unmounts
+   * @returns { void }
+   */
+  componentWillUnmount() {
+    EventActions.setEvent(null);
+    OtherActions.setAlert(null);
+  }
+
+  /**
    * executes after event has been created/edited succesfully
    * @param { object } event
    * @returns { void }
    */
   onEventEditSuccessful(event) {
     this.spinner.classList.add('hidden');
-    EventActions.editEventsState(event);
+    EventActions.updateEvents(event);
     this.nullEvent();
   }
 
@@ -65,7 +75,7 @@ class EditEvent extends React.Component {
     this.fieldset.disabled = false;
     this.spinner.classList.add('hidden');
     if (!response) {
-      return OtherActions.updateAlertState(`Looks like you're offline. 
+      return OtherActions.setAlert(`Looks like you're offline. 
       Check internet connection.`);
     }
     if ([401, 404].includes(response.status)) {
@@ -73,7 +83,7 @@ class EditEvent extends React.Component {
       OtherActions.removeToken();
       return this.props.history.push('/signin');
     }
-    return OtherActions.updateAlertState(Array.isArray(response.data.error) ?
+    return OtherActions.setAlert(Array.isArray(response.data.error) ?
       response.data.error[0] : response.data.error);
   }
 
@@ -124,16 +134,15 @@ class EditEvent extends React.Component {
    */
   nullEvent() {
     const { alert } = this.props;
-    this.form.reset();
     this.fieldset.disabled = false;
     const modal = $('#editModal');
     modal.modal('hide');
     if (alert) {
-      if (!alert.includes('Check internet connection')) {
-        OtherActions.updateAlertState(null);
+      if (alert !== constants.NO_CONNECTION) {
+        OtherActions.setAlert(null);
       }
     }
-    EventActions.updateEventState(null);
+    EventActions.setEvent(null);
   }
 
   /**
@@ -308,8 +317,8 @@ class EditEvent extends React.Component {
 
 const mapStateToProps = state => ({
   token: state.token,
-  alert: state.alertState,
-  eventState: state.eventState,
+  alert: state.alert,
+  eventState: state.event,
 });
 
-export default connect(mapStateToProps)(EditEvent);
+export default connect(mapStateToProps)(EditEventComponent);

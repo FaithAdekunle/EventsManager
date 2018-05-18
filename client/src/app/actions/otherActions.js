@@ -1,4 +1,5 @@
 import { dispatch } from '../Reducers';
+import constants from '../constants';
 
 /**
  * OtherActions component class
@@ -9,9 +10,9 @@ class OtherActions {
    * @param { string } token
    * @returns { void }
    */
-  static updateToken(token) {
+  static setToken(token) {
     dispatch({
-      type: 'UPDATE_TOKEN',
+      type: constants.SET_TOKEN,
       payload: token,
     });
   }
@@ -23,19 +24,7 @@ class OtherActions {
    */
   static removeToken() {
     dispatch({
-      type: 'REMOVE_TOKEN',
-    });
-  }
-
-  /**
-   * action to update page state
-   * @param { object } pageState
-   * @returns { void }
-   */
-  static updatePageState(pageState) {
-    dispatch({
-      type: 'UPDATE_PAGE_STATE',
-      payload: pageState,
+      type: constants.REMOVE_TOKEN,
     });
   }
 
@@ -44,9 +33,9 @@ class OtherActions {
    * @param { array } result
    * @returns { void }
    */
-  static updateCenterSearch(result) {
+  static setSearchResults(result) {
     dispatch({
-      type: 'UPDATE_CENTER_SEARCH',
+      type: constants.SET_SEARCH_RESULTS,
       payload: result,
     });
   }
@@ -56,9 +45,9 @@ class OtherActions {
    * @param { string } msg
    * @returns { void }
    */
-  static updateAlertState(msg) {
+  static setAlert(msg) {
     dispatch({
-      type: 'UPDATE_ALERT_STATE',
+      type: constants.SET_ALERT,
       payload: msg,
     });
   }
@@ -68,9 +57,9 @@ class OtherActions {
    * @param { array } images
    * @returns { void }
    */
-  static updateSelectedImages(images) {
+  static setImages(images) {
     dispatch({
-      type: 'UPDATE_SELECTED_IMAGES',
+      type: constants.SET_IMAGES,
       payload: images,
     });
   }
@@ -80,9 +69,9 @@ class OtherActions {
    * @param { object } pagination
    * @returns { void }
    */
-  static updatePagination(pagination) {
+  static setPagination(pagination) {
     dispatch({
-      type: 'UPDATE_PAGINATION_STATE',
+      type: constants.SET_PAGINATION_METADATA,
       payload: pagination,
     });
   }

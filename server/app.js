@@ -31,7 +31,14 @@ class App {
       '/bundle.js',
       (req, res) => res.sendFile(
         'bundle.js',
-        { root: path.resolve('./client/dist/app') },
+        { root: path.resolve('./client/dist') },
+      ),
+    );
+    app.get(
+      '/main.css',
+      (req, res) => res.sendFile(
+        'main.css',
+        { root: path.resolve('./client/dist') },
       ),
     );
     app.use('/images', express.static(path.resolve('./client/src/images')));

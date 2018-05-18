@@ -177,7 +177,7 @@ module.exports = class userController {
       .then((user) => {
         if (!user) {
           return res
-            .status(400)
+            .status(404)
             .json(Helpers
               .getResponse('email and password combination invalid'));
         }
@@ -185,7 +185,7 @@ module.exports = class userController {
           .compare(req.body.password, user.password, (error, response) => {
             if (!response) {
               return res
-                .status(400)
+                .status(404)
                 .json(Helpers
                   .getResponse('email and password combination invalid'));
             }

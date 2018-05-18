@@ -5,25 +5,27 @@ import jwtDecode from 'jwt-decode';
 import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/otherActions';
 import DialApi from '../../DialApi';
+import constants from '../../constants';
 
 /**
  * CenterEvents component class
  */
-class CenterEvents extends React.Component {
+class CenterEventsComponent extends React.Component {
   static propTypes = {
     id: Proptypes.number,
     events: Proptypes.array,
     token: Proptypes.string,
+    history: Proptypes.object,
   }
 
   /**
    * adds 'hover-date' class to target
    * @param { object } e
-   * @param { boolean } userIsAdmin
+   * @param { boolean } eventCanBeDeclined
    * @returns { void }
    */
-  static onMouseEnterDate(e, userIsAdmin) {
-    if (userIsAdmin) e.target.classList.add('hover-date');
+  static onMouseEnterDate(e, eventCanBeDeclined) {
+    if (eventCanBeDeclined) e.target.classList.add('hover-date');
   }
 
   /**
@@ -33,6 +35,15 @@ class CenterEvents extends React.Component {
    */
   static onMouseLeaveDate(e) {
     e.target.classList.remove('hover-date');
+  }
+
+  /**
+   * declines event
+   * @param {object} event
+   * @returns { void }
+   */
+  static onDeclineSuccessful(event) {
+    EventActions.updateEvents(event);
   }
 
   /**
@@ -58,7 +69,7 @@ class CenterEvents extends React.Component {
    * @returns { void }
    */
   componentWillMount() {
-    EventActions.updateEventsState([]);
+    EventActions.setEvents([]);
   }
 
   /**
@@ -81,7 +92,7 @@ class CenterEvents extends React.Component {
    * @returns { void }
    */
   componentWillUnmount() {
-    EventActions.updateEventsState([]);
+    EventActions.setEvents([]);
   }
 
   /**
@@ -95,8 +106,8 @@ class CenterEvents extends React.Component {
     this.loader.style.width = '100%';
     setTimeout(() => {
       this.loader.classList.remove('success-background');
-      OtherActions.updateAlertState(null);
-      EventActions.addToEventsState(events);
+      OtherActions.setAlert(null);
+      EventActions.addToEvents(events);
     }, 200);
   }
 
@@ -108,9 +119,7 @@ class CenterEvents extends React.Component {
   onLoadFail(response) {
     if (this.offset > 0) this.offset -= this.increase;
     if (!response) {
-      OtherActions
-        .updateAlertState(`Looks like you're offline. 
-        Check internet connection.`);
+      OtherActions.setAlert(constants.NO_CONNECTION);
     }
   }
 
@@ -136,11 +145,27 @@ class CenterEvents extends React.Component {
 
   /**
    * declines event
-   * @param {integer} id
+   * @param {object} response
    * @returns { void }
    */
-  declineEvent(id) {
-    return this.offset + id;
+  onDeclineFail(response) {
+    if ([401, 404].includes(response.status)) {
+      this.props.history.push('/signin');
+    }
+  }
+
+  /**
+   * declines event
+   * @param {object} event
+   * @returns { void }
+   */
+  declineEvent(event) {
+    DialApi.declineEvent(
+      this.props.token,
+      event,
+      CenterEventsComponent.onDeclineSuccessful,
+      this.onDeclineFail,
+    );
   }
 
   /**
@@ -208,9 +233,9 @@ class CenterEvents extends React.Component {
               <li
                 className={`${!event.isAccepted ?
                 'declined' : ''} list-group-item`}
-                onMouseEnter={e => CenterEvents
-                  .onMouseEnterDate(e, userIsAdmin)}
-                onMouseLeave={CenterEvents.onMouseLeaveDate}
+                onMouseEnter={e => CenterEventsComponent
+                  .onMouseEnterDate(e, userIsAdmin && event.isAccepted)}
+                onMouseLeave={CenterEventsComponent.onMouseLeaveDate}
                 key={event.id}
               >
                 {
@@ -219,11 +244,11 @@ class CenterEvents extends React.Component {
                   `${event.start} - ${event.end}`
                 }
                 {
-                  userIsAdmin ? (
+                  userIsAdmin && event.isAccepted ? (
                     <i
                       className="fa fa-times pull-right"
                       aria-hidden="true"
-                      onClick={() => this.declineEvent(event.id)}
+                      onClick={() => this.declineEvent(event)}
                     />
                   ) : ''
                 }
@@ -237,8 +262,8 @@ class CenterEvents extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  events: state.eventsState,
+  events: state.events,
   token: state.token,
 });
 
-export default connect(mapStateToProps)(CenterEvents);
+export default connect(mapStateToProps)(CenterEventsComponent);

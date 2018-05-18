@@ -3,14 +3,15 @@ import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import DialApi from './../DialApi';
 import OtherActions from './../actions/otherActions';
+import constants from '../constants';
 
 /**
  * Home component class
  */
-class Home extends React.Component {
+class HomePageComponent extends React.Component {
   static propTypes = {
     history: Proptypes.object,
-    alertState: Proptypes.string,
+    alert: Proptypes.string,
     token: Proptypes.string,
   }
 
@@ -25,6 +26,22 @@ class Home extends React.Component {
     this.beforeSignUp = this.beforeSignUp.bind(this);
     this.onSignupFail = this.onSignupFail.bind(this);
     this.onSignupSuccessful = this.onSignupSuccessful.bind(this);
+  }
+
+  /**
+   * executes after component mounts
+   * @returns { void }
+   */
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  }
+
+  /**
+   * executes before component unmounts
+   * @returns { void }
+   */
+  componentWillUnmount() {
+    OtherActions.setAlert(null);
   }
 
   /**
@@ -58,7 +75,7 @@ class Home extends React.Component {
     };
     if (credentials.password !== credentials.confirmPassword) {
       return OtherActions
-        .updateAlertState('Password and Confirm password must be equal');
+        .setAlert(constants.PASSWORD_MISMATCH);
     }
     return DialApi
       .signup(
@@ -137,13 +154,16 @@ class Home extends React.Component {
                 </button>
               </div>
               <div className="col-md-6 col-lg-4 offset-lg-1">
-                <div
-                  className={this.props.alertState ?
-                        'form-error' : 'no-visible'}
-                >
-                  {this.props.alertState}
-                </div>
                 <div className="card">
+                  <div className="card-header">
+                    <h6>Sign up to register events</h6>
+                    <div
+                      className={this.props.alert ?
+                        'form-error' : 'no-visible'}
+                    >
+                      {this.props.alert}
+                    </div>
+                  </div>
                   <div className="card-body">
                     <fieldset
                       ref={(input) => { this.form = input; }}
@@ -209,7 +229,7 @@ class Home extends React.Component {
                               id="submit"
                               type="submit"
                               className="btn btn-block btn-primary"
-                              value="Sign up to register your event."
+                              value="Sign up"
                             />
                             <span
                               className="input-group-addon hidden"
@@ -318,8 +338,8 @@ class Home extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  alertState: state.alertState,
+  alert: state.alert,
   token: state.token,
 });
 
-export default connect(mapStateToProps)(Home);
+export default connect(mapStateToProps)(HomePageComponent);

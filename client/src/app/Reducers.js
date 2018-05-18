@@ -1,5 +1,6 @@
 import { createStore, combineReducers } from 'redux';
-import storeComponent from './StoreComponent.jsx';
+import Store from './Store.js';
+import constants from './constants';
 
 /**
  * defines class for state reducers
@@ -7,19 +8,19 @@ import storeComponent from './StoreComponent.jsx';
 class Reducers {
   /**
    * constructor
-   * @param {object} state
+   * @param {object} store
    */
-  constructor(state) {
-    this.state = state;
+  constructor(store) {
+    this.store = store;
     this.tokenReducer = this.tokenReducer.bind(this);
     this.alertReducer = this.alertReducer.bind(this);
     this.eventsReducer = this.eventsReducer.bind(this);
     this.centersReducer = this.centersReducer.bind(this);
-    this.centerSearchReducer = this.centerSearchReducer.bind(this);
+    this.searchResultsReducer = this.searchResultsReducer.bind(this);
     this.centerReducer = this.centerReducer.bind(this);
     this.eventReducer = this.eventReducer.bind(this);
     this.imagesReducer = this.imagesReducer.bind(this);
-    this.paginationReducer = this.paginationReducer.bind(this);
+    this.paginationMetadataReducer = this.paginationMetadataReducer.bind(this);
   }
 
   /**
@@ -28,15 +29,15 @@ class Reducers {
    * @param { object } action
    * @returns { string | null } new or old token state property or null
    */
-  tokenReducer(state = this.state.token, action) {
+  tokenReducer(state = this.store.token, action) {
     switch (action.type) {
-      case 'UPDATE_TOKEN':
+      case constants.SET_TOKEN:
         const eventsManager = {
           appToken: action.payload,
         };
         localStorage.setItem('eventsManager', JSON.stringify(eventsManager));
         return action.payload;
-      case 'REMOVE_TOKEN':
+      case constants.REMOVE_TOKEN:
         localStorage.removeItem('eventsManager');
         return null;
       default:
@@ -50,21 +51,21 @@ class Reducers {
    * @param { object } action
    * @returns { array } new or old eventsState state property
    */
-  eventsReducer(state = this.state.eventsState, action) {
+  eventsReducer(state = this.store.events, action) {
     switch (action.type) {
-      case 'UPDATE_EVENTS_STATE':
+      case constants.SET_EVENTS:
         return action.payload;
-      case 'ADD_TO_EVENTS_STATE':
+      case constants.ADD_TO_EVENTS:
         return [
           ...state,
           ...action.payload,
         ];
-      case 'EDIT_EVENTS_STATE':
+      case constants.UPDATE_EVENTS:
         return state.map((event) => {
           if (event.id === action.payload.id) return action.payload;
           return event;
         });
-      case 'DELETE_FROM_EVENTS_STATE':
+      case constants.DELETE_FROM_EVENTS:
         const index = state.findIndex(event => event.id === action.payload.id);
         return [
           ...state.slice(0, index),
@@ -81,9 +82,9 @@ class Reducers {
    * @param { object } action
    * @returns { object } new or old eventState state property
    */
-  eventReducer(state = this.state.eventState, action) {
+  eventReducer(state = this.store.event, action) {
     switch (action.type) {
-      case 'UPDATE_EVENT_STATE':
+      case constants.SET_EVENT:
         return action.payload;
       default:
         return state;
@@ -96,9 +97,9 @@ class Reducers {
    * @param { object } action
    * @returns { array } new or old selectedImages state property
    */
-  imagesReducer(state = this.state.selectedImages, action) {
+  imagesReducer(state = this.store.images, action) {
     switch (action.type) {
-      case 'UPDATE_SELECTED_IMAGES':
+      case constants.SET_IMAGES:
         return action.payload;
       default:
         return state;
@@ -111,22 +112,15 @@ class Reducers {
    * @param { object } action
    * @returns { array } new or old centerState state property
    */
-  centersReducer(state = this.state.centersState, action) {
+  centersReducer(state = this.store.centers, action) {
     switch (action.type) {
-      case 'UPDATE_CENTERS_STATE':
+      case constants.SET_CENTERS:
         return action.payload;
-      case 'ADD_TO_CENTERS_STATE':
+      case constants.ADD_TO_CENTERS:
         return [
           action.payload,
           ...state,
         ];
-      case 'EDIT_CENTERS_STATE':
-        return state.map((center) => {
-          if (center.id === action.payload.id) return action.payload;
-          return center;
-        });
-      case 'EMPTY_CENTERS_STATE':
-        return [];
       default:
         return state;
     }
@@ -138,9 +132,9 @@ class Reducers {
    * @param { object } action
    * @returns { object | null } new centerState object or null
    */
-  centerReducer(state = this.state.centerState, action) {
+  centerReducer(state = this.store.center, action) {
     switch (action.type) {
-      case 'UPDATE_CENTER_STATE':
+      case constants.SET_CENTER:
         return action.payload;
       default:
         return state;
@@ -153,9 +147,9 @@ class Reducers {
    * @param { object } action
    * @returns { object | null } new or old centerSearch state property
    */
-  centerSearchReducer(state = this.state.centerSearch, action) {
+  searchResultsReducer(state = this.store.searchResults, action) {
     switch (action.type) {
-      case 'UPDATE_CENTER_SEARCH':
+      case constants.SET_SEARCH_RESULTS:
         return [...action.payload];
       default:
         return state;
@@ -168,9 +162,9 @@ class Reducers {
    * @param { object } action
    * @returns { string } new or old alertState state property
    */
-  alertReducer(state = this.state.alertState, action) {
+  alertReducer(state = this.store.alert, action) {
     switch (action.type) {
-      case 'UPDATE_ALERT_STATE':
+      case constants.SET_ALERT:
         return action.payload;
       default:
         return state;
@@ -183,9 +177,9 @@ class Reducers {
    * @param { object } action
    * @returns { string } new or old alertState pagination metadata
    */
-  paginationReducer(state = this.state.pagination, action) {
+  paginationMetadataReducer(state = this.store.paginationMetadata, action) {
     switch (action.type) {
-      case 'UPDATE_PAGINATION_STATE':
+      case constants.SET_PAGINATION_METADATA:
         return action.payload;
       default:
         return state;
@@ -193,16 +187,16 @@ class Reducers {
   }
 }
 
-const appStore = new Reducers(storeComponent);
-const store = createStore(combineReducers({
+const appStore = new Reducers(Store);
+const state = createStore(combineReducers({
   token: appStore.tokenReducer,
-  eventsState: appStore.eventsReducer,
-  centersState: appStore.centersReducer,
-  centerState: appStore.centerReducer,
-  centerSearch: appStore.centerSearchReducer,
-  eventState: appStore.eventReducer,
-  alertState: appStore.alertReducer,
-  selectedImages: appStore.imagesReducer,
-  pagination: appStore.paginationReducer,
+  events: appStore.eventsReducer,
+  centers: appStore.centersReducer,
+  center: appStore.centerReducer,
+  searchResults: appStore.searchResultsReducer,
+  event: appStore.eventReducer,
+  alert: appStore.alertReducer,
+  images: appStore.imagesReducer,
+  paginationMetadata: appStore.paginationMetadataReducer,
 }));
-module.exports = store;
+module.exports = state;

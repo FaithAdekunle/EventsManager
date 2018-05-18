@@ -4,7 +4,7 @@ import Proptypes from 'prop-types';
 /**
  * Center component class
  */
-class Center extends React.Component {
+class CenterCardComponent extends React.Component {
   static propTypes = {
     center: Proptypes.object,
     history: Proptypes.object,
@@ -73,4 +73,4 @@ class Center extends React.Component {
   }
 }
 
-export default Center;
+export default CenterCardComponent;

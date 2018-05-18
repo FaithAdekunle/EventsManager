@@ -2,11 +2,11 @@ import React from 'react';
 import { Switch, Redirect, Route, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import jwtDecode from 'jwt-decode';
-import Home from './HomeComponent.jsx';
-import EventCenters from './Center/EventCentersComponent.jsx';
-import Signin from './Sign/SigninComponent.jsx';
-import Signup from './Sign/SignupComponent.jsx';
-import UserEvents from './Event/UserEventsComponent.jsx';
+import HomePageComponent from './HomePageComponent.jsx';
+import CentersWrapperComponent from './Center/CentersWrapperComponent.jsx';
+import SigninComponent from './Sign/SigninComponent.jsx';
+import SignupComponent from './Sign/SignupComponent.jsx';
+import EventsWrapperComponent from './Event/EventsWrapperComponent.jsx';
 
 const Main = (properties) => {
   const { token } = properties;
@@ -26,7 +26,7 @@ const Main = (properties) => {
               token ? (
                 <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
               ) : (
-                <Home {...props} />
+                <HomePageComponent {...props} />
               )
             )
           }
@@ -38,7 +38,7 @@ const Main = (properties) => {
               token ? (
                 <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
               ) : (
-                <Signin {...props} />
+                <SigninComponent {...props} />
               )
             )
           }
@@ -50,7 +50,7 @@ const Main = (properties) => {
               token ? (
                 <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
               ) : (
-                <Signup {...props} />
+                <SignupComponent {...props} />
               )
             )
           }
@@ -59,7 +59,7 @@ const Main = (properties) => {
           path="/events"
           render={props => (
               token && !userIsAdmin ? (
-                <UserEvents {...props} />
+                <EventsWrapperComponent {...props} />
               ) : (
                 <Redirect to="/signin" />
               )
@@ -68,7 +68,7 @@ const Main = (properties) => {
         />
         <Route
           path="/centers"
-          component={EventCenters}
+          component={CentersWrapperComponent}
         />
         <Redirect from="*" to="/home" />
       </Switch>
