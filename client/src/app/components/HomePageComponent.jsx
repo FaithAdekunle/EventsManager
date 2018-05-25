@@ -8,7 +8,7 @@ import constants from '../constants';
 /**
  * Home component class
  */
-class HomePageComponent extends React.Component {
+export class HomePageComponent extends React.Component {
   static propTypes = {
     history: Proptypes.object,
     alert: Proptypes.string,
@@ -33,7 +33,7 @@ class HomePageComponent extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollTo(0, 0);
   }
 
   /**
@@ -169,11 +169,11 @@ class HomePageComponent extends React.Component {
                       ref={(input) => { this.form = input; }}
                       disabled={this.props.token}
                     >
-                      <form onSubmit={this.onSubmit}>
+                      <form id="signUpForm" onSubmit={this.onSubmit}>
                         <div className="form-group">
                           <label htmlFor="fullname">Full name</label>
                           <input
-                            required
+                            // required
                             type="text"
                             ref={(input) => { this.fullname = input; }}
                             className="form-control"
@@ -184,7 +184,7 @@ class HomePageComponent extends React.Component {
                             Email address
                           </label>
                           <input
-                            required
+                            // required
                             type="email"
                             ref={(input) => { this.email = input; }}
                             className="form-control"
@@ -195,7 +195,7 @@ class HomePageComponent extends React.Component {
                             Password
                           </label>
                           <input
-                            required
+                            // required
                             minLength="8"
                             type="password"
                             ref={(input) => { this.password = input; }}

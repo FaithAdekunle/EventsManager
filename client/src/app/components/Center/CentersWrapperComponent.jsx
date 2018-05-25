@@ -4,7 +4,7 @@ import CenterDetailsComponent from './CenterDetailsComponent.jsx';
 import CentersComponent from './CentersComponent.jsx';
 
 
-const CentersWrapperComponent = () => (
+export const CentersWrapperComponent = () => (
   <React.Fragment>
     <Switch>
       <Route

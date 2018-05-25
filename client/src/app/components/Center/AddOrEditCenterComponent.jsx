@@ -11,7 +11,7 @@ import DialApi from '../../DialApi';
 /**
  * AddOrEditCenter component class
  */
-class AddOrEditCenter extends React.Component {
+export class AddOrEditCenterComponent extends React.Component {
   static propTypes = {
     center: Proptypes.object,
     history: Proptypes.object,
@@ -501,4 +501,4 @@ const mapStateToProps = state => ({
   images: state.images,
 });
 
-export default connect(mapStateToProps)(AddOrEditCenter);
+export default connect(mapStateToProps)(AddOrEditCenterComponent);

@@ -8,7 +8,7 @@ import constants from '../../constants';
 /**
  * SignIn component class
  */
-class SignInComponent extends React.Component {
+export class SignInComponent extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     alert: PropTypes.string,

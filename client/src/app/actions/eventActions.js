@@ -43,13 +43,13 @@ class EventActions {
 
   /**
    * action to delete event
-   * @param { number } id
+   * @param { object } event
    * @returns { void }
    */
-  static deleteFromEvents(id) {
+  static deleteFromEvents(event) {
     dispatch({
       type: constants.DELETE_FROM_EVENTS,
-      payload: id,
+      payload: event,
     });
   }
 

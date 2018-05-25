@@ -4,11 +4,12 @@ import { connect } from 'react-redux';
 import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/otherActions';
 import DialApi from '../../DialApi';
+import constants from '../../constants';
 
 /**
  * DeleteEvent component class
  */
-class DeleteEventComponent extends React.Component {
+export class DeleteEventComponent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
     eventState: Proptypes.object,
@@ -83,7 +84,7 @@ class DeleteEventComponent extends React.Component {
     this.confirm.classList.remove('hidden');
     this.deleting.classList.add('hidden');
     if (!response) {
-      alert('Looks like you\'re offline. Check internet connection.');
+      alert(constants.NO_CONNECTION);
       return DeleteEventComponent.nullEvent();
     }
     if ([401, 404].includes(response.status)) {

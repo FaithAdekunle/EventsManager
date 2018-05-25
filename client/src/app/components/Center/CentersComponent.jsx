@@ -3,7 +3,6 @@ import Proptypes from 'prop-types';
 import jwtDecode from 'jwt-decode';
 import { connect } from 'react-redux';
 import Pagination from 'rc-pagination';
-import 'rc-pagination/assets/index.css';
 import CenterCardComponent from './CenterCardComponent.jsx';
 import AddOrEditCenterComponent from './AddOrEditCenterComponent.jsx';
 import OtherActions from '../../actions/otherActions';
@@ -14,7 +13,7 @@ import DialApi from '../../DialApi';
 /**
  * Centers component class
  */
-class CentersComponent extends React.Component {
+export class CentersComponent extends React.Component {
   static propTypes = {
     centers: Proptypes.array,
     alert: Proptypes.string,
@@ -44,7 +43,7 @@ class CentersComponent extends React.Component {
   constructor() {
     super();
     this.offset = 0;
-    this.limit = 9;
+    this.limit = 3;
     this.filter = '';
     this.capacity = 1;
     this.facility = '';
@@ -88,7 +87,6 @@ class CentersComponent extends React.Component {
    * @returns { void }
    */
   onLoadFail(response) {
-    if (this.offset > 0) this.offset -= this.increase;
     if (this.fieldset) this.fieldset.disabled = false;
     if (response) {
       if (this.mainLoader) this.mainLoader.style.width = '100%';

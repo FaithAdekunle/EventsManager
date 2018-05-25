@@ -5,12 +5,12 @@ import EventActions from '../../actions/eventActions';
 import OtherActions from '../../actions/otherActions';
 import Helpers from '../../Helpers';
 import DialApi from '../../DialApi';
-import { constants } from '../../constants';
+import constants from '../../constants';
 
 /**
  * EditEvent component class
  */
-class EditEventComponent extends React.Component {
+export class EditEventComponent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
     alert: Proptypes.string,
@@ -75,8 +75,7 @@ class EditEventComponent extends React.Component {
     this.fieldset.disabled = false;
     this.spinner.classList.add('hidden');
     if (!response) {
-      return OtherActions.setAlert(`Looks like you're offline. 
-      Check internet connection.`);
+      return OtherActions.setAlert(constants.NO_CONNECTION);
     }
     if ([401, 404].includes(response.status)) {
       this.nullEvent();

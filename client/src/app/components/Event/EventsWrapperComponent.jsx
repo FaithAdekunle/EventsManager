@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Redirect, Route } from 'react-router-dom';
 import EventsComponent from './EventsComponent.jsx';
 
-const EventsWrapperComponent = () => (
+export const EventsWrapperComponent = () => (
   <React.Fragment>
     <Switch>
       <Route exact path="/events" component={EventsComponent} />

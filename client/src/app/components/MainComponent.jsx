@@ -8,7 +8,7 @@ import SigninComponent from './Sign/SigninComponent.jsx';
 import SignupComponent from './Sign/SignupComponent.jsx';
 import EventsWrapperComponent from './Event/EventsWrapperComponent.jsx';
 
-const Main = (properties) => {
+export const MainComponent = (properties) => {
   const { token } = properties;
   let userIsAdmin = false;
   try {
@@ -80,4 +80,4 @@ const mapStateToProps = state => ({
   token: state.token,
 });
 
-export default withRouter(connect(mapStateToProps)(Main));
+export default withRouter(connect(mapStateToProps)(MainComponent));

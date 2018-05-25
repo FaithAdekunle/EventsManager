@@ -30,18 +30,6 @@ class CenterActions {
   }
 
   /**
-   * action to edit centers
-   * @param { object } center
-   * @returns { void }
-   */
-  static updateCenters(center) {
-    dispatch({
-      type: constants.UPDATE_CENTERS,
-      payload: center,
-    });
-  }
-
-  /**
    * action to update center state
    * @param { object } center
    * @returns { void }

@@ -27,7 +27,7 @@ module.exports = class EventController {
     if (!moment(value, 'DD-MM-YYYY').isValid()) {
       throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
     }
-    if (!moment(value, 'DD-MM-YYYY').isAfter(moment())) {
+    if (moment(value, 'DD-MM-YYYY').isBefore(moment())) {
       throw new Error(`${field} date is past`);
     }
   }

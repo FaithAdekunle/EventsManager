@@ -58,14 +58,5 @@ class Helpers {
     const dateSplit = date.split('-');
     return `${dateSplit[2]}/${dateSplit[1]}/${dateSplit[0]}`;
   }
-
-  /**
-   * sorts array of objects in ascending order by name property
-   * @param { array } array
-   * @returns { array } objects sorted by name property in ascending order
-   */
-  static sortByName(array) {
-    return array.sort((item1, item2) => item1.name > item2.name);
-  }
 }
 export default Helpers;
