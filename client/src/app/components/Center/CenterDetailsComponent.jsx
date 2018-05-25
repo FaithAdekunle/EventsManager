@@ -13,7 +13,7 @@ import AddOrEditCenterComponent from './AddOrEditCenterComponent.jsx';
 /**
  * CenterDetails component class
  */
-class CenterDetailsComponent extends React.Component {
+export class CenterDetailsComponent extends React.Component {
   static propTypes = {
     center: Proptypes.object,
     history: Proptypes.object,
@@ -120,8 +120,7 @@ class CenterDetailsComponent extends React.Component {
     if (!response) {
       this.fieldset.disabled = false;
       return OtherActions
-        .setAlert(`Looks like you're offline. 
-        Check internet connection.`);
+        .setAlert(constants.NO_CONNECTION);
     }
     if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();

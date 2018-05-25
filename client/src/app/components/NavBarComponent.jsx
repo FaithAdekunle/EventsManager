@@ -11,7 +11,7 @@ import constants from '../constants';
 /**
  * NavBarComponent component class
  */
-class NavBarComponent extends React.Component {
+export class NavBarComponent extends React.Component {
   static propTypes = {
     token: Proptypes.string,
     history: Proptypes.object,
@@ -161,7 +161,7 @@ class NavBarComponent extends React.Component {
           <React.Fragment>
             <li className="nav-item pull-right">
               <a
-                className="nav-link navTo text-white"
+                className="nav-link navTo text-white signout"
                 onClick={this.signout}
               >
                 Sign out
@@ -184,13 +184,13 @@ class NavBarComponent extends React.Component {
             </a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
               <a
-                className="dropdown-item navTo"
+                className="dropdown-item navTo myEvents"
                 onClick={() => this.navTo('/events')}
               >
                 My Events
               </a>
               <div className="dropdown-divider" />
-              <a className="dropdown-item navTo" onClick={this.signout}>
+              <a className="dropdown-item navTo signout" onClick={this.signout}>
                 Sign out
               </a>
             </div>
@@ -201,7 +201,7 @@ class NavBarComponent extends React.Component {
         firstLink = (
           <li className="nav-item">
             <a
-              className="nav-link text-white navTo"
+              className="nav-link text-white navTo signin"
               onClick={() => this.navTo('/signin')}
             >
               Sign in
@@ -213,7 +213,7 @@ class NavBarComponent extends React.Component {
         secondLink = (
           <li className="nav-item">
             <a
-              className="nav-link text-white navTo"
+              className="nav-link text-white navTo signup"
               onClick={() => this.navTo('/signup')}
             >
               Sign up
@@ -229,7 +229,7 @@ class NavBarComponent extends React.Component {
            navbar-light bg-dark"
         >
           <a
-            className="navbar-brand text-white mr-auto navTo"
+            className="navbar-brand text-white mr-auto navTo home"
             onClick={() => this.navTo('/home')}
           >
             EventsManager
@@ -249,13 +249,13 @@ class NavBarComponent extends React.Component {
             {
               this.props.location.pathname === '/centers' ? null :
               <form
-                className="form-inline ml-auto my-lg-0"
+                className="form-inline ml-auto my-lg-0 search-form"
                 onSubmit={NavBarComponent.searchSubmit}
               >
                 <div className="search-entry">
                   <input
                     type="text"
-                    className="form-control window-exclude"
+                    className="form-control window-exclude search-centers"
                     placeholder="search centers"
                     aria-describedby="navbar-search"
                     onKeyUp={(e) => { this.searchCenter(e); }}
@@ -277,7 +277,7 @@ class NavBarComponent extends React.Component {
                           }}
                         >
                           {`${center.name}${center.address ?
-                            ` -${center.address}` : ''}`}
+                            ` - ${center.address}` : ''}`}
                         </li>
                       ))
                     }
@@ -288,7 +288,7 @@ class NavBarComponent extends React.Component {
             <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
               <li className="nav-item">
                 <a
-                  className="nav-link text-white navTo"
+                  className="nav-link text-white navTo centers-link"
                   onClick={() => this.navTo('/centers')}
                 >
                   Centers

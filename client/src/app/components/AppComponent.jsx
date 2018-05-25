@@ -1,15 +1,15 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import NavBarComponent from './NavBarComponent.jsx';
-import Main from './MainComponent.jsx';
+import MainComponent from './MainComponent.jsx';
 
 
-const App = () => (
+const AppComponent = () => (
   <BrowserRouter>
     <React.Fragment>
       <NavBarComponent />
-      <Main />
+      <MainComponent />
     </React.Fragment>
   </BrowserRouter>
 );
-export default App;
+export default AppComponent;

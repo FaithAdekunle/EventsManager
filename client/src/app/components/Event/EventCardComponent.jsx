@@ -65,7 +65,7 @@ class EventCardComponent extends React.Component {
           <h6 className={!event.isAccepted ? 'declined' : ''}>{event.name}</h6>
           <div>
             <a
-              className="navTo"
+              className="navTo edit-event"
               onClick={() => this.openEditModal()}
             >
               <i className="fa fa-pencil navTo" aria-hidden="true" />
@@ -82,26 +82,26 @@ class EventCardComponent extends React.Component {
         <div className="row event-prop">
           <div className="col-6">
             <span>Type:&nbsp;
-              <strong className="text-muted">{event.type}</strong>
+              <strong className="text-muted type">{event.type}</strong>
             </span>
           </div>
           <div className="col-6">
             <span>Guests:&nbsp;
-              <strong className="text-muted">
+              <strong className="text-muted guests">
                 {event.guests}
               </strong>
             </span>
           </div>
           <div className="col-6">
             <span>Start:&nbsp;
-              <strong className="text-muted">
+              <strong className="text-muted start">
                 {event.start}
               </strong>
             </span>
           </div>
           <div className="col-6">
             <span>End:&nbsp;
-              <strong className="text-muted">
+              <strong className="text-muted end">
                 {event.end}
               </strong>
             </span>
@@ -112,7 +112,7 @@ class EventCardComponent extends React.Component {
           {
             event.center ? (
               <a className="navTo" onClick={this.navToCenter}>
-                <strong>
+                <strong className="event-center">
                   {event.center.name}
                 </strong>
               </a>

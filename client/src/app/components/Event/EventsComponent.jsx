@@ -7,11 +7,12 @@ import DeleteEventComponent from './DeleteEventComponent.jsx';
 import OtherActions from '../../actions/otherActions';
 import EventActions from '../../actions/eventActions';
 import DialApi from '../../DialApi';
+import constants from '../../constants';
 
 /**
  * Events component class
  */
-class EventsComponent extends React.Component {
+export class EventsComponent extends React.Component {
   static propTypes = {
     history: Proptypes.object,
     events: Proptypes.array,
@@ -38,7 +39,7 @@ class EventsComponent extends React.Component {
    * @returns { void }
    */
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollTo(0, 0);
     window.addEventListener('scroll', this.loadNext, false);
     OtherActions.setAlert('loading');
     DialApi
@@ -73,8 +74,7 @@ class EventsComponent extends React.Component {
     if (this.offset >= this.limit) this.offset -= this.limit;
     if (!response) {
       return OtherActions
-        .setAlert(`Looks like you're offline. 
-        Check internet connection.`);
+        .setAlert(constants.NO_CONNECTION);
     }
     if ([401, 404].includes(response.status)) {
       OtherActions.removeToken();

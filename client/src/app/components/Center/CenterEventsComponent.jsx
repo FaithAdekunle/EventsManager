@@ -10,7 +10,7 @@ import constants from '../../constants';
 /**
  * CenterEvents component class
  */
-class CenterEventsComponent extends React.Component {
+export class CenterEventsComponent extends React.Component {
   static propTypes = {
     id: Proptypes.number,
     events: Proptypes.array,
@@ -232,7 +232,7 @@ class CenterEventsComponent extends React.Component {
             events.map(event => (
               <li
                 className={`${!event.isAccepted ?
-                'declined' : ''} list-group-item`}
+                'declined' : ''} list-group-item listItem`}
                 onMouseEnter={e => CenterEventsComponent
                   .onMouseEnterDate(e, userIsAdmin && event.isAccepted)}
                 onMouseLeave={CenterEventsComponent.onMouseLeaveDate}
