@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { SignInComponent } from
-  '../../src/app/components/Sign/SignInComponent.jsx';
+  '../../src/app/components/Sign/SigninComponent.jsx';
 import DialApi from '../../src/app/DialApi';
 import OtherActions from '../../src/app/actions/otherActions';
 import constants from '../../src/app/constants';
