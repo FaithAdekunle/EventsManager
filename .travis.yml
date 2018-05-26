@@ -9,6 +9,5 @@ env:
   - EMAIL=adegold71@gmail.com
   - PASSWORD=faithright
   - CODECOV_TOKEN=cce1e7a8-0ee3-4dac-a618-25a12eca8297
-after_success:
-  - codeclimate-test-reporter < coverage/lcov.info
+script: travis_wait npm run test
   
