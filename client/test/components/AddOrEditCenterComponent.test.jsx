@@ -2,7 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { AddOrEditCenterComponent } from
   '../../src/app/components/Center/AddOrEditCenterComponent.jsx';
-import DialApi from '../../src/app/DialApi';
 import OtherActions from '../../src/app/actions/otherActions';
 import CenterActions from '../../src/app/actions/centerActions';
 import constants from '../../src/app/constants';
@@ -37,8 +36,6 @@ describe('center details component', () => {
   const setAlertSpy = jest.spyOn(OtherActions, 'setAlert');
   const setImagesSpy = jest.spyOn(OtherActions, 'setImages');
   const setCenterSpy = jest.spyOn(CenterActions, 'setCenter');
-  const editCenterSpy = jest.spyOn(DialApi, 'editCenter');
-  const addCenterSpy = jest.spyOn(DialApi, 'addCenter');
 
   test('add or edit center successful', () => {
     instance.onSuccessful(center);
@@ -88,26 +85,6 @@ describe('center details component', () => {
     };
     instance.submitCenter(e);
     expect(setAlertSpy).toHaveBeenCalledWith('Choose one or more image(s)');
-  });
-
-  test('edit center', () => {
-    wrapper.setProps({ images: ['image1', 'image2'] });
-    const e = {
-      preventDefault() {},
-    };
-    instance.submitCenter(e);
-    // expect(editCenterSpy).toHaveBeenCalled();
-    console.log(editCenterSpy.mock.calls);
-  });
-
-  test('add center', () => {
-    wrapper.setProps({ center: null });
-    const e = {
-      preventDefault() {},
-    };
-    instance.submitCenter(e);
-    // expect(addCenterSpy).toBeCalled();
-    console.log(addCenterSpy.mock.calls);
   });
 
   test('add or edit center with no facilities', () => {
