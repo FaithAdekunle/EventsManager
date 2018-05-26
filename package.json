@@ -30,7 +30,7 @@
     "start:dev": "npm run build && node ./server/dist/index.js --ignore ./client",
     "build": "webpack --config webpack.prod.js && babel server -d server/dist --copy-files --ignore server/dist,server/tests/",
     "postinstall": "npm run build",
-    "testServer": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/index.js --require babel-core/register && npm run coverage",
+    "testServer": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha --timeout 10000 --exit ./server/tests/index.js --require babel-core/register && npm run coverage && codeclimate-test-reporter < coverage/lcov.info",
     "testClient": "jest && codecov",
     "test": "npm run testServer && npm run testClient",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
