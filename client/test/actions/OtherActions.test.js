@@ -1,29 +1,29 @@
-import state from '../../src/app/Reducers';
+import store from '../../src/app/Reducers';
 import OtherActions from '../../src/app/actions/otherActions';
 
 describe('other actions', () => {
   test('set token', () => {
     OtherActions.setToken('token');
-    expect(state.getState().token).toBe('token');
+    expect(store.getState().token).toBe('token');
   });
 
   test('remove token', () => {
     OtherActions.removeToken('token');
-    expect(state.getState().token).toBe(null);
+    expect(store.getState().token).toBe(null);
   });
 
   test('set alert', () => {
     OtherActions.setAlert('alert');
-    expect(state.getState().alert).toBe('alert');
+    expect(store.getState().alert).toBe('alert');
   });
 
   test('set images', () => {
     OtherActions.setImages(['image']);
-    expect(state.getState().images[0]).toBe('image');
+    expect(store.getState().images[0]).toBe('image');
   });
 
   test('set pagination', () => {
     OtherActions.setPagination('pagination');
-    expect(state.getState().paginationMetadata).toBe('pagination');
+    expect(store.getState().paginationMetadata).toBe('pagination');
   });
 });

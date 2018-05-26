@@ -1,4 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import Sequelize from 'sequelize';
+import dotenv from 'dotenv';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import testHelper from './testHelper';
@@ -9,6 +11,14 @@ chai.use(chaiHttp);
 chai.should();
 
 module.exports = describe('Tests for Centers endpoints', () => {
+  before((done) => {
+    dotenv.config({ path: '.env' });
+    const database = process.env.TEST_DATABASE;
+    const sequelize = new Sequelize(database);
+    sequelize
+      .query('DELETE FROM centers')
+      .then(() => done());
+  });
   describe('POST api/v1/centers', () => {
     it('should return error for missing name field', (done) => {
       chai

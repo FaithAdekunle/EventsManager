@@ -1,5 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
+import Sequelize from 'sequelize';
+import dotenv from 'dotenv';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import bodies from './bodies';
@@ -10,6 +12,20 @@ chai.use(chaiHttp);
 chai.should();
 
 module.exports = describe('Tests for User endpoints', () => {
+  before((done) => {
+    dotenv.config({ path: '.env' });
+    const database = process.env.TEST_DATABASE;
+    const sequelize = new Sequelize(database);
+    sequelize
+      .query('DELETE FROM users')
+      .then(() => sequelize
+        .query(`INSERT INTO "users" ("id","fullName","email","password",
+        "isAdmin","createdAt","updatedAt") VALUES (DEFAULT,'admin test',
+        'admin_test@admin.com',
+        '$2a$10$1HIRrNV2eDDpRkmSz6Qv/.cTdM0Jv9NALD8oYr2TRSdi/aIwmW2lu',true,
+        '2018-04-12 18:27:26.813 +00:00','2018-04-12 18:27:26.813 +00:00')`)
+        .then(() => done()));
+  });
   describe('POST api/v1/users', () => {
     it('shoud return error for missing fullname field', (done) => {
       chai
