@@ -8,9 +8,9 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import '../style/index.sass';
 import AppComponent from './components/AppComponent.jsx';
-import { state } from './Reducers';
+import store from './Reducers';
 
 render(
-  <Provider store={state}><AppComponent /></Provider>,
+  <Provider store={store}><AppComponent /></Provider>,
   window.document.getElementById('container'),
 );

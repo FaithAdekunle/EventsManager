@@ -188,7 +188,7 @@ class Reducers {
 }
 
 const appStore = new Reducers(Store);
-const state = createStore(combineReducers({
+const store = createStore(combineReducers({
   token: appStore.tokenReducer,
   events: appStore.eventsReducer,
   centers: appStore.centersReducer,
@@ -199,4 +199,4 @@ const state = createStore(combineReducers({
   images: appStore.imagesReducer,
   paginationMetadata: appStore.paginationMetadataReducer,
 }));
-module.exports = state;
+module.exports = store;
