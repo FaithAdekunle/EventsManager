@@ -54,10 +54,18 @@ export class HomePageComponent extends React.Component {
 
   /**
    * executes after failed signin attempt
+   * @param { object } response
    * @returns { void }
    */
-  onSignupFail() {
+  onSignupFail(response) {
     this.changeFormState(false);
+    if (!response) {
+      OtherActions
+        .setAlert(constants.NO_CONNECTION);
+    } else {
+      OtherActions.setAlert(Array.isArray(response.data.error) ?
+        response.data.error[0] : response.data.error);
+    }
   }
 
   /**

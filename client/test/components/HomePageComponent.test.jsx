@@ -4,6 +4,7 @@ import { HomePageComponent } from
   '../../src/app/components/HomePageComponent.jsx';
 import DialApi from '../../src/app/DialApi';
 import OtherActions from '../../src/app/actions/otherActions';
+import constants from '../../src/app/constants';
 
 describe('HomePageComponent', () => {
   const locations = [];
@@ -12,8 +13,6 @@ describe('HomePageComponent', () => {
       locations.push(destination);
     },
   };
-  const changeFormStateSpy = jest
-    .spyOn(HomePageComponent.prototype, 'changeFormState');
   const componentDidMountSpy = jest
     .spyOn(HomePageComponent.prototype, 'componentDidMount');
   const componentWillUnmountSpy = jest
@@ -58,9 +57,15 @@ describe('HomePageComponent', () => {
     expect(locations.includes('/events')).toBe(true);
   });
 
-  test('failed signup', () => {
+  test('failed signup without response', () => {
     instance.onSignupFail();
-    expect(changeFormStateSpy).toHaveBeenCalledWith(false);
+    expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
+  });
+
+  test('failed signup with error response', () => {
+    const response = { data: { error: 'error' } };
+    instance.onSignupFail(response);
+    expect(setAlertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
   test('component unmounts', () => {

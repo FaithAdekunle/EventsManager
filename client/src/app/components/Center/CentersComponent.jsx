@@ -235,6 +235,7 @@ export class CentersComponent extends React.Component {
                       <div className="col-md-5">
                         <input
                           type="text"
+                          id="filter"
                           className="form-control filter"
                           placeholder="Name or Address"
                           ref={(input) => { this.filterField = input; }}
@@ -243,6 +244,7 @@ export class CentersComponent extends React.Component {
                       <div className="col-md-4">
                         <input
                           type="text"
+                          id="facility"
                           className="form-control filter"
                           placeholder="Facility"
                           ref={(input) => { this.facilityField = input; }}
@@ -251,6 +253,7 @@ export class CentersComponent extends React.Component {
                       <div className="col-md-3">
                         <input
                           type="number"
+                          id="capacity"
                           className="form-control filter"
                           min="1"
                           max="2147483647"

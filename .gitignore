@@ -7,3 +7,5 @@ server/.DS_Store
 .env
 .vscode
 package-lock.json
+selenium-debug.log
+reports
