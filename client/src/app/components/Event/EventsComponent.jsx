@@ -146,8 +146,7 @@ export class EventsComponent extends React.Component {
                 </div>
               </div>
               <div
-                className={this.props.alert &&
-                  this.props.alert !== 'loading' ?
+                className={this.props.alert === constants.NO_CONNECTION ?
                 '' : 'hidden'}
               >
                 <div className="alert alert-info" role="alert">
