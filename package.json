@@ -27,7 +27,7 @@
     "node": "v7.7.3"
   },
   "scripts": {
-    "start": "npm run webpack:prod & node ./server/dist/index.js --ignore ./client",
+    "start": "npm run webpack:prod && node ./server/dist/index.js --ignore ./client",
     "start:dev": "npm run webpack:dev & nodemon ./server/dist/index.js --ignore ./client",
     "build": "babel server -d server/dist --copy-files --ignore server/dist,server/tests/",
     "postinstall": "npm run build",

@@ -43,7 +43,7 @@ export class CentersComponent extends React.Component {
   constructor() {
     super();
     this.offset = 0;
-    this.limit = 3;
+    this.limit = 9;
     this.filter = '';
     this.capacity = 1;
     this.facility = '';
