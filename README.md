@@ -25,7 +25,7 @@ $ npm install
 STEP 6: Create database for the application
 > PgAdmin is recommended for this. See [`how`](https://www.enterprisedb.com/resources/webinars/how-create-postgres-database-using-pgadmin).
 
-STEP 7: Create a `.env` file in the project root directory and add variables and keys as described in [`.env.example`](https://github.com/FaithAdekunle/EventsManager/blob/c43b2854c4342f88fe445e6bc18395bf1b0a051e/.env.example)
+STEP 7: Create a `.env` file in the project root directory and add variables and keys as described in [`.env.example`](https://github.com/FaithAdekunle/EventsManager/blob/feature/%23158056774/readme/.env.example)
 
 STEP 8: Start the application
 ```
@@ -86,7 +86,7 @@ See API documentation [`here`](https://andela-events-manager.herokuapp.com/docs)
 + [`Faith Adekunle`](https://github.com/FaithAdekunle)
 
 ## License
-This project is licensed under the MIT License - see the [`LICENSE.md`](https://github.com/FaithAdekunle/EventsManager/blob/c43b2854c4342f88fe445e6bc18395bf1b0a051e/LICENSE.md) file for details
+This project is licensed under the MIT License - see the [`LICENSE.md`](https://github.com/FaithAdekunle/EventsManager/blob/feature/%23158056774/readme/LICENSE.md) file for details
 
 ## Contribution
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the author of this repository before making a change.
