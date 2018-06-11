@@ -36,11 +36,13 @@ ShallowWrapper {
           render={[Function]}
         />
         <Route
+          exact={true}
           path="/events"
           render={[Function]}
         />
         <Route
           component={[Function]}
+          exact={true}
           path="/centers"
         />
         <Route
@@ -73,11 +75,13 @@ ShallowWrapper {
             render={[Function]}
           />,
           <Route
+            exact={true}
             path="/events"
             render={[Function]}
           />,
           <Route
             component={[Function]}
+            exact={true}
             path="/centers"
           />,
           <Route
@@ -132,6 +136,7 @@ ShallowWrapper {
           "key": undefined,
           "nodeType": "class",
           "props": Object {
+            "exact": true,
             "path": "/events",
             "render": [Function],
           },
@@ -145,6 +150,7 @@ ShallowWrapper {
           "nodeType": "class",
           "props": Object {
             "component": [Function],
+            "exact": true,
             "path": "/centers",
           },
           "ref": null,
@@ -191,11 +197,13 @@ ShallowWrapper {
             render={[Function]}
           />
           <Route
+            exact={true}
             path="/events"
             render={[Function]}
           />
           <Route
             component={[Function]}
+            exact={true}
             path="/centers"
           />
           <Route
@@ -228,11 +236,13 @@ ShallowWrapper {
               render={[Function]}
             />,
             <Route
+              exact={true}
               path="/events"
               render={[Function]}
             />,
             <Route
               component={[Function]}
+              exact={true}
               path="/centers"
             />,
             <Route
@@ -287,6 +297,7 @@ ShallowWrapper {
             "key": undefined,
             "nodeType": "class",
             "props": Object {
+              "exact": true,
               "path": "/events",
               "render": [Function],
             },
@@ -300,6 +311,7 @@ ShallowWrapper {
             "nodeType": "class",
             "props": Object {
               "component": [Function],
+              "exact": true,
               "path": "/centers",
             },
             "ref": null,
