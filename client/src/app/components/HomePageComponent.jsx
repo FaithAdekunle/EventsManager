@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import DialApi from './../DialApi';
-import OtherActions from './../actions/otherActions';
+import OtherActions from './../actions/OtherActions';
 import constants from '../constants';
 
 /**
@@ -46,9 +46,11 @@ export class HomePageComponent extends React.Component {
 
   /**
    * executes after user signs in succesfully
+   * @param { object } response
    * @returns { void }
    */
-  onSignupSuccessful() {
+  onSignupSuccessful(response) {
+    OtherActions.setToken(response.token);
     this.props.history.push('/events');
   }
 
@@ -161,7 +163,7 @@ export class HomePageComponent extends React.Component {
                   See for yourself
                 </button>
               </div>
-              <div className="col-md-6 col-lg-4 offset-lg-1">
+              <div className="col-md-6 col-lg-4 offset-lg-1 home-page-signup">
                 <div className="card">
                   <div className="card-header">
                     <h6>Sign up to register events</h6>

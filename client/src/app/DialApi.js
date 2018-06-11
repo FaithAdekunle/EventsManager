@@ -46,7 +46,7 @@ module.exports = class DialApi {
   ) {
     beforeLoad();
     return axios
-      .get(`${Helpers.host}/${centerId}/events?upcoming=true&offset=` +
+      .get(`${Helpers.host}/centers/${centerId}/events?upcoming=true&offset=` +
       `${offset}${limit !== 0 ? `&limit=${limit}` : ''}`)
       .then(({ data }) => onLoadSuccessful(data.events))
       .catch(({ response }) => onLoadFail(response));

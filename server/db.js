@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
 import dotenv from 'dotenv';
-import UserModel from './models/userModel';
-import EventModel from './models/eventModel';
-import CenterModel from './models/centerModel';
+import UserModel from './models/UserModel';
+import EventModel from './models/EventModel';
+import CenterModel from './models/CenterModel';
 
 dotenv.config({ path: '.env' });
 

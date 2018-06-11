@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { SignUpComponent } from
   '../../src/app/components/Sign/SignupComponent.jsx';
 import DialApi from '../../src/app/DialApi';
-import OtherActions from '../../src/app/actions/otherActions';
+import OtherActions from '../../src/app/actions/OtherActions';
 import constants from '../../src/app/constants';
 
 describe('Sign up component', () => {
@@ -28,62 +28,59 @@ describe('Sign up component', () => {
     .spyOn(wrapper.instance(), 'componentWillUnmount');
   let alert = wrapper.find('.form-error');
 
-  test('no props.alert', () => {
-    expect(alert.exists()).toBe(false);
-  });
-
-  test('props.alert', () => {
+  it('should display alert to user', () => {
     wrapper.setProps({ alert: 'this is a test' });
     alert = wrapper.find('.form-error');
     expect(alert.exists()).toBe(true);
     expect(alert.text()).toBe('this is a test');
   });
 
-  test('nav to signup page', () => {
+  it('should add signin path to locations array', () => {
     navToSignIn.simulate('click');
     expect(locations.includes('/signin')).toBe(true);
   });
 
-  test('submit signup form with invalid data', () => {
+  it('should call action to alert user of invalid form data', () => {
     email.instance().value = 'test@test.com';
     password.instance().value = 'testpassword';
     confirmPassword.instance().value = 'testpasswordconfirm';
     fullname.instance().value = 'test name';
     signupForm.simulate('submit');
-    expect(setAlertSpy).toHaveBeenCalled();
+    expect(setAlertSpy)
+      .toHaveBeenCalledWith('Password and Confirm password must match');
   });
 
-  test('submit signup form with valid data', () => {
+  it('should call submit event handler on signup form', () => {
     confirmPassword.instance().value = 'testpassword';
     signupForm.simulate('submit');
     expect(signupSpy).toHaveBeenCalled();
   });
 
-  test('successful signup', () => {
-    const data = { token: 'token' };
-    instance.onSignupSuccessful(data);
-    expect(setTokenSpy).toHaveBeenCalledWith(data.token);
+  it('should add events path to locations array', () => {
+    const response = { token: 'token' };
+    instance.onSignupSuccessful(response);
+    expect(setTokenSpy).toHaveBeenCalledWith(response.token);
     expect(locations.includes('/events')).toBe(true);
   });
 
-  test('bad connection alert', () => {
+  it('should call action to alert user of poor connection', () => {
     instance.onSignupFail();
     expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
   });
 
-  test('array of error responses', () => {
+  it('should call action alert user of first of error responses', () => {
     const response = { data: { error: ['error1', 'error2'] } };
     instance.onSignupFail(response);
     expect(setAlertSpy).toHaveBeenCalledWith(response.data.error[0]);
   });
 
-  test('single error responses', () => {
+  it('should call action to alert user of error response', () => {
     const response = { data: { error: 'error' } };
     instance.onSignupFail(response);
     expect(setAlertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
-  test('component unmounts', () => {
+  it('should call componentWillUnmount method before unmounting', () => {
     wrapper.unmount();
     expect(componentWillUnmountSpy).toHaveBeenCalled();
   });

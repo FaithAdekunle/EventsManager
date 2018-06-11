@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { DeleteEventComponent } from
   '../../src/app/components/Event/DeleteEventComponent.jsx';
-import EventActions from '../../src/app/actions/eventActions';
-import OtherActions from '../../src/app/actions/otherActions';
+import EventActions from '../../src/app/actions/EventActions';
+import OtherActions from '../../src/app/actions/OtherActions';
 import DialApi from '../../src/app/DialApi';
 import constants from '../../src/app/constants';
 
@@ -48,45 +48,48 @@ describe('delete event component', () => {
   const no = wrapper.find('.btn-primary');
   const instance = wrapper.instance();
 
-  test('component updates', () => {
+  it('should call componentDidUpdate method when component updates', () => {
     wrapper.setProps({ history, onDeleteEvent });
     expect(componentDidUpdateSpy).toHaveBeenCalled();
   });
 
-  test('click No', () => {
+  it('should call action to set event state to null', () => {
     no.simulate('click');
     expect(setEventSpy).toHaveBeenCalledWith(null);
   });
 
-  test('click Yes', () => {
+  it('should confirm event delete', () => {
     yes.simulate('click');
     expect(deleteEventSpy).toHaveBeenCalled();
   });
 
-  test('failed delete with bad connection', () => {
+  it('should call action to alert user of poor connection', () => {
     instance.onDeleteFail();
     expect(alertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
   });
 
-  test('unauthorized delete attempt', () => {
-    const response = { status: 401 };
-    instance.onDeleteFail(response);
-    expect(removeTokenSpy).toHaveBeenCalled();
-    expect(locations.includes('/signin')).toBe(true);
-  });
+  it(
+    'should add signin path to locations array for unauthorized delete',
+    () => {
+      const response = { status: 401 };
+      instance.onDeleteFail(response);
+      expect(removeTokenSpy).toHaveBeenCalled();
+      expect(locations.includes('/signin')).toBe(true);
+    },
+  );
 
-  test('failed delete with error response', () => {
+  it('should call action to alert user of error response', () => {
     const response = { data: { error: 'error' } };
     instance.onDeleteFail(response);
     expect(alertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
-  test('sucessful event delete', () => {
+  it('should call action to remove deleted event from state', () => {
     instance.onDeleteSuccesful(eventState.event);
     expect(deleteFromEventsSpy).toHaveBeenCalled();
   });
 
-  test('component unmount', () => {
+  it('should call componentWillUnmount method before unmounting', () => {
     wrapper.unmount();
     expect(componentWillUnmountSpy).toHaveBeenCalled();
   });

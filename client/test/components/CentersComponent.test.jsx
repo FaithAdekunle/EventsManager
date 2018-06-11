@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { CentersComponent } from
   '../../src/app/components/Center/CentersComponent.jsx';
 import DialApi from '../../src/app/DialApi';
-import OtherActions from '../../src/app/actions/otherActions';
+import OtherActions from '../../src/app/actions/OtherActions';
 import constants from '../../src/app/constants';
 
 describe('centers component', () => {
@@ -17,40 +17,51 @@ describe('centers component', () => {
   const setAlertSpy = jest.spyOn(OtherActions, 'setAlert');
   const setPaginationSpy = jest.spyOn(OtherActions, 'setPagination');
 
-  test('new center added', () => {
+  it('should call action to update centers when new center is added', () => {
     instance.onCenterAdded();
     expect(updateCentersSpy).toHaveBeenCalled();
   });
 
-  test('submit center search form', () => {
-    const searchCenterForm = wrapper.find('form');
-    searchCenterForm.simulate('submit');
-    expect(updateCentersSpy).toHaveBeenCalledTimes(2);
-  });
+  it(
+    'should call action to update centers when user searches for centers',
+    () => {
+      const searchCenterForm = wrapper.find('form');
+      searchCenterForm.simulate('submit');
+      expect(updateCentersSpy).toHaveBeenCalledTimes(2);
+    },
+  );
 
-  test('centers load fail with no error response', () => {
+  it('should call action to alert user of poor connection', () => {
     instance.onLoadFail();
     expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
   });
 
-  test('centers load fail with error response', () => {
+  it('should call action to alert user of error response', () => {
     const response = { data: { error: 'error' } };
     instance.onLoadFail(response);
     expect(setAlertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
-  test('centers load successful', () => {
-    const data = {
+  it('should display alert to user', () => {
+    wrapper.setProps({ alert: constants.NO_CONNECTION });
+    const alert = wrapper.find('.alert.alert-info>strong');
+    expect(alert.exists()).toBe(true);
+    expect(alert.text()).toBe(constants.NO_CONNECTION);
+  });
+
+  it('call action to set pagination metadata when centers are loaded', () => {
+    const response = {
       centers: [],
       metaData: {
         pagination: 'pagination',
       },
     };
-    instance.onLoadSuccessful(data);
-    expect(setPaginationSpy).toHaveBeenLastCalledWith(data.metaData.pagination);
+    instance.onLoadSuccessful(response);
+    expect(setPaginationSpy)
+      .toHaveBeenLastCalledWith(response.metaData.pagination);
   });
 
-  test('component unmounts', () => {
+  it('should call componentWillUnmount method before unmounting', () => {
     wrapper.unmount();
     expect(componentWilLUnmountSpy).toHaveBeenCalled();
   });

@@ -5,8 +5,8 @@ import { EventsWrapperComponent } from
 
 describe('events wrapper component', () => {
   const wrapper = shallow(<EventsWrapperComponent />);
-  test('unmount comonent', () => {
-    wrapper.unmount();
+  it('should mount component', () => {
+    expect(wrapper).toMatchSnapshot();
   });
 });
 

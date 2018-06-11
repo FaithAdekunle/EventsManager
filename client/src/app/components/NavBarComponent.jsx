@@ -4,7 +4,7 @@ import jwtDecode from 'jwt-decode';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import Helpers from '../Helpers';
-import OtherActions from './../actions/otherActions';
+import OtherActions from './../actions/OtherActions';
 import DialApi from './../DialApi';
 import constants from '../constants';
 
@@ -45,11 +45,11 @@ export class NavBarComponent extends React.Component {
 
   /**
    * prevents default form submit
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  static searchSubmit(e) {
-    e.preventDefault();
+  static searchSubmit(event) {
+    event.preventDefault();
   }
 
   /**
@@ -84,11 +84,11 @@ export class NavBarComponent extends React.Component {
 
   /**
    * hides search results
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  onWindowClick(e) {
-    if ([...e.target.classList].includes('window-exclude')) return null;
+  onWindowClick(event) {
+    if ([...event.target.classList].includes('window-exclude')) return null;
     if (this.searchList) return this.searchList.classList.add('hidden');
     return null;
   }
@@ -108,17 +108,17 @@ export class NavBarComponent extends React.Component {
    */
   signout() {
     OtherActions.removeToken();
-    this.navTo('/home');
+    this.navTo('/');
   }
 
   /**
    * search center
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  searchCenter(e) {
+  searchCenter(event) {
     this.searchList.classList.remove('hidden');
-    const { value } = e.target;
+    const { value } = event.target;
     if (!value) return OtherActions.setSearchResults([]);
     return DialApi.updateSearch(
       value,
@@ -151,13 +151,13 @@ export class NavBarComponent extends React.Component {
     }
     const fullName = user ? user.fullName : null;
     const userIsAdmin = user ? user.isAdmin : false;
-    let firstLink = '';
-    let secondLink = '';
-    let thirdLink = '';
-    let fourthLink = '';
+    let signout = '';
+    let dropdown = '';
+    let signin = '';
+    let signup = '';
     if (user) {
       if (userIsAdmin) {
-        fourthLink = (
+        signout = (
           <React.Fragment>
             <li className="nav-item pull-right">
               <a
@@ -170,7 +170,7 @@ export class NavBarComponent extends React.Component {
           </React.Fragment>
         );
       } else {
-        thirdLink = (
+        dropdown = (
           <li className="nav-item dropdown">
             <a
               className="nav-link dropdown-toggle text-white navTo"
@@ -198,7 +198,7 @@ export class NavBarComponent extends React.Component {
       }
     } else {
       if (location.pathname !== '/signin') {
-        firstLink = (
+        signin = (
           <li className="nav-item">
             <a
               className="nav-link text-white navTo signin"
@@ -210,7 +210,7 @@ export class NavBarComponent extends React.Component {
         );
       }
       if (location.pathname !== '/signup') {
-        secondLink = (
+        signup = (
           <li className="nav-item">
             <a
               className="nav-link text-white navTo signup"
@@ -230,7 +230,7 @@ export class NavBarComponent extends React.Component {
         >
           <a
             className="navbar-brand text-white mr-auto navTo home"
-            onClick={() => this.navTo('/home')}
+            onClick={() => this.navTo('/')}
           >
             EventsManager
           </a>
@@ -258,7 +258,7 @@ export class NavBarComponent extends React.Component {
                     className="form-control window-exclude search-centers"
                     placeholder="search centers"
                     aria-describedby="navbar-search"
-                    onKeyUp={(e) => { this.searchCenter(e); }}
+                    onKeyUp={(event) => { this.searchCenter(event); }}
                     ref={(input) => { this.searchField = input; }}
                     onFocus={this.onFocus}
                   />
@@ -294,10 +294,10 @@ export class NavBarComponent extends React.Component {
                   Centers
                 </a>
               </li>
-              {firstLink}
-              {secondLink}
-              {thirdLink}
-              {fourthLink}
+              {signin}
+              {signup}
+              {dropdown}
+              {signout}
             </ul>
           </div>
         </nav>

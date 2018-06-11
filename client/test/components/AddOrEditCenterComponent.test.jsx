@@ -2,8 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { AddOrEditCenterComponent } from
   '../../src/app/components/Center/AddOrEditCenterComponent.jsx';
-import OtherActions from '../../src/app/actions/otherActions';
-import CenterActions from '../../src/app/actions/centerActions';
+import OtherActions from '../../src/app/actions/OtherActions';
+import CenterActions from '../../src/app/actions/CenterActions';
 import constants from '../../src/app/constants';
 
 describe('center details component', () => {
@@ -36,67 +36,96 @@ describe('center details component', () => {
   const setAlertSpy = jest.spyOn(OtherActions, 'setAlert');
   const setImagesSpy = jest.spyOn(OtherActions, 'setImages');
   const setCenterSpy = jest.spyOn(CenterActions, 'setCenter');
+  const nameField = wrapper.find('input#name');
+  const addressField = wrapper.find('input#address');
+  const capacityField = wrapper.find('input#capacity');
+  const costField = wrapper.find('input#cost');
+  const descriptionField = wrapper.find('textarea#description');
 
-  test('add or edit center successful', () => {
+  it('should prefill form fields with center details', () => {
+    expect(nameField.get(0).props.defaultValue).toBe(center.name);
+    expect(addressField.get(0).props.defaultValue).toBe(center.address);
+    expect(capacityField.get(0).props.defaultValue).toBe(center.capacity);
+    expect(costField.get(0).props.defaultValue).toBe(center.cost);
+    expect(descriptionField.get(0).props.defaultValue).toBe(center.description);
+  });
+
+  it('should call action to set center after adding or editing center', () => {
     instance.onSuccessful(center);
     expect(setCenterSpy).toHaveBeenCalled();
   });
 
-  test('add or edit fail with no response', () => {
+  it('should call action to alert user for poor connection', () => {
     instance.onFail();
     expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
   });
 
-  test('add or edit fail with error response', () => {
+  it('should call action to alert user of error response', () => {
     const response = { data: { error: 'error' } };
     instance.onFail(response);
     expect(setAlertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
-  test('unauthorized add or edit', () => {
-    const response = { status: 401 };
-    instance.onFail(response);
-    expect(locations.includes('/signin')).toBe(true);
+  it('should display alert to user', () => {
+    wrapper.setProps({ alert: 'this is a test' });
+    const alertWrapper = wrapper.find('.form-error');
+    expect(alertWrapper.exists()).toBe(true);
+    expect(alertWrapper.text()).toBe('this is a test');
   });
 
-  test('update facilities', () => {
-    const e = {
+  it(
+    'should add signin path to locations array after unauthorized add or edit',
+    () => {
+      const response = { status: 401 };
+      instance.onFail(response);
+      expect(locations.includes('/signin')).toBe(true);
+    },
+  );
+
+  it('should add Chairs to selected facilities', () => {
+    const event = {
       target: {
         value: 'Chairs',
         checked: true,
       },
     };
-    instance.updateFacilities(e);
+    instance.updateFacilities(event);
     expect(instance.facilities.Chairs).toBe(true);
   });
 
-  test('compute checked facilities', () => {
-    expect(instance.computeFacilities()).toBe('Tables###:###:###Chairs');
-  });
+  it(
+    'should compute string of checked facilities from facilities object',
+    () => {
+      expect(instance.computeFacilities()).toBe('Tables###:###:###Chairs');
+    },
+  );
 
-  test('update selected images', () => {
+  it('should call action to set images state with selected images', () => {
     instance.updateImages();
     expect(setImagesSpy).toHaveBeenCalled();
   });
 
-  test('add or edit center with no images', () => {
-    const e = {
+  it('should call action to alert admin to choose one or more images', () => {
+    const event = {
       preventDefault() {},
     };
-    instance.submitCenter(e);
+    instance.submitCenter(event);
     expect(setAlertSpy).toHaveBeenCalledWith('Choose one or more image(s)');
   });
 
-  test('add or edit center with no facilities', () => {
-    instance.facilities = {};
-    const e = {
-      preventDefault() {},
-    };
-    instance.submitCenter(e);
-    expect(setAlertSpy).toHaveBeenCalledWith('select one or more facilities');
-  });
+  it(
+    'should call action to alert admin to select one or more facilities',
+    () => {
+      instance.facilities = {};
+      const event = {
+        preventDefault() {},
+      };
+      instance.submitCenter(event);
+      expect(setAlertSpy).toHaveBeenCalledWith('select one or more facilities');
+    },
+  );
 
-  test('component unmounts', () => {
+  it('should call componentWillUnmount method', () => {
     wrapper.unmount();
     expect(componentWilLUnmountSpy).toHaveBeenCalled();
   });

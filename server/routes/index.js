@@ -1,8 +1,8 @@
 import express from 'express';
-import EventController from '../controllers/eventController';
-import CenterController from '../controllers/centerController';
-import UserController from '../controllers/userController';
-import Middlewares from '../middlewares';
+import EventController from '../controllers/EventController';
+import CenterController from '../controllers/CenterController';
+import UserController from '../controllers/UserController';
+import Middlewares from '../Middlewares';
 
 
 const router = express.Router();
@@ -17,7 +17,7 @@ module.exports = class AppRouter {
     router.post(
       '/api/v1/events',
       EventController.eventValidations(),
-      EventController.checkFailedValidations,
+      Middlewares.checkFailedValidations,
       EventController.checkAndSanitizeDateFields,
       Middlewares.verifyUserToken,
       Middlewares.checkAvailability,
@@ -29,7 +29,7 @@ module.exports = class AppRouter {
       '/api/v1/events/:id',
       Middlewares.sanitizeParams,
       EventController.eventValidations(),
-      EventController.checkFailedValidations,
+      Middlewares.checkFailedValidations,
       EventController.checkAndSanitizeDateFields,
       Middlewares.verifyUserToken,
       Middlewares.checkAvailability,
@@ -44,7 +44,7 @@ module.exports = class AppRouter {
     );
 
     router.get(
-      '/api/v1/:centerId/events',
+      '/api/v1/centers/:centerId/events',
       Middlewares.sanitizeParams,
       EventController.fetchCenterEvents,
     );
@@ -70,7 +70,7 @@ module.exports = class AppRouter {
     router.post(
       '/api/v1/centers',
       CenterController.centerValidations(),
-      CenterController.checkFailedValidations,
+      Middlewares.checkFailedValidations,
       CenterController.splitFacilitiesAndImages,
       Middlewares.verifyAdmin,
       CenterController.addCenter,
@@ -81,7 +81,7 @@ module.exports = class AppRouter {
       '/api/v1/centers/:id',
       Middlewares.sanitizeParams,
       CenterController.centerValidations(),
-      CenterController.checkFailedValidations,
+      Middlewares.checkFailedValidations,
       CenterController.splitFacilitiesAndImages,
       Middlewares.verifyAdmin,
       CenterController.modifyCenter,
@@ -104,7 +104,7 @@ module.exports = class AppRouter {
     router.post(
       '/api/v1/users',
       UserController.userValidations(),
-      UserController.checkFailedValidations,
+      Middlewares.checkFailedValidations,
       UserController.toLowerCase,
       UserController.hashPassword,
       UserController.signUp,
@@ -114,7 +114,7 @@ module.exports = class AppRouter {
     router.post(
       '/api/v1/users/login',
       UserController.signInValidations(),
-      UserController.checkFailedValidations,
+      Middlewares.checkFailedValidations,
       UserController.toLowerCase,
       UserController.signIn,
     );

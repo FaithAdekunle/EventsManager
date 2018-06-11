@@ -3,8 +3,8 @@ import { mount } from 'enzyme';
 import { CenterDetailsComponent } from
   '../../src/app/components/Center/CenterDetailsComponent.jsx';
 import DialApi from '../../src/app/DialApi';
-import OtherActions from '../../src/app/actions/otherActions';
-import CenterActions from '../../src/app/actions/centerActions';
+import OtherActions from '../../src/app/actions/OtherActions';
+import CenterActions from '../../src/app/actions/CenterActions';
 import constants from '../../src/app/constants';
 
 describe('center details component', () => {
@@ -40,42 +40,42 @@ describe('center details component', () => {
   const addEventSpy = jest.spyOn(DialApi, 'addEvent');
   const setCenterSpy = jest.spyOn(CenterActions, 'setCenter');
 
-  test('open book center modal', () => {
+  it('should open modal to book center', () => {
     CenterDetailsComponent.openSubmitModal();
     expect($Spy).toHaveBeenCalledWith('#submitModal');
     expect(modalSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('open edit center modal', () => {
+  it('should open modal to edit center', () => {
     instance.openEditModal();
     expect(setImagesSpy).toHaveBeenCalled();
     expect($Spy).toHaveBeenCalledWith('#centerModal');
     expect(modalSpy).toHaveBeenCalledTimes(2);
   });
 
-  test('component updates', () => {
+  it('should call componentDidUpdate method when component updates', () => {
     wrapper.setProps({ match: { params: { id: 2 } }, history });
     expect(componentDidUpdateSpy).toHaveBeenCalled();
   });
 
-  test('center load successful', () => {
-    const data = { center: 'center' };
-    instance.onCenterLoadSuccessful(data);
-    expect(setCenterSpy).toHaveBeenCalledWith(data.center);
+  it('should call action to set center state', () => {
+    const response = { center: 'center' };
+    instance.onCenterLoadSuccessful(response);
+    expect(setCenterSpy).toHaveBeenCalledWith(response.center);
   });
 
-  test('center load fail with no response', () => {
+  it('should call action to set alert state for poor connection', () => {
     instance.onCenterLoadFail();
     expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
   });
 
-  test('center load fail with error response', () => {
+  it('should call action to set alert state to error response', () => {
     const response = { data: { error: 'error' } };
     instance.onCenterLoadFail(response);
     expect(setAlertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
-  test('book center', () => {
+  it('should call action to add new event when center is booked', () => {
     instance.fieldset = {};
     instance.eventName = { value: '' };
     instance.eventType = { value: '' };
@@ -90,30 +90,40 @@ describe('center details component', () => {
     expect(addEventSpy).toHaveBeenCalled();
   });
 
-  test('book center successful', () => {
+  it('should add events path to locations array when center is booked', () => {
     wrapper.setProps({ history });
     instance.onEventSubmitSuccessful();
     expect(locations.includes('/events')).toBe(true);
   });
 
-  test('book center failed with no response', () => {
+  it('sshould call action to alert user for poor connection', () => {
     instance.onEventSubmitFail();
-    expect(setAlertSpy).toHaveBeenCalledTimes(4);
+    expect(setAlertSpy).toHaveBeenLastCalledWith(constants.NO_CONNECTION);
   });
 
-  test('book center failed with error response', () => {
+  it('should call action to alert user of error response', () => {
     const response = { data: { error: 'error1' } };
     instance.onEventSubmitFail(response);
     expect(setAlertSpy).toHaveBeenCalledWith(response.data.error);
   });
 
-  test('unauthorized center booking', () => {
-    const response = { status: 401 };
-    instance.onEventSubmitFail(response);
-    expect(locations.includes('/signin')).toBe(true);
+  it('should display alert to user', () => {
+    wrapper.setProps({ alert: constants.NO_CONNECTION });
+    const alert = wrapper.find('.alert.alert-info');
+    expect(alert.exists()).toBe(true);
+    expect(alert.text()).toBe(constants.NO_CONNECTION);
   });
 
-  test('component unmounts', () => {
+  it(
+    'should add signin path to locations array for unauthorized center booking',
+    () => {
+      const response = { status: 401 };
+      instance.onEventSubmitFail(response);
+      expect(locations.includes('/signin')).toBe(true);
+    },
+  );
+
+  it('should call componentWillUnmount method befor unmounting', () => {
     wrapper.unmount();
     expect(componentWilLUnmountSpy).toHaveBeenCalled();
   });

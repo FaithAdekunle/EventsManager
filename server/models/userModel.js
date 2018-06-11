@@ -1,5 +1,7 @@
-// define model for user
-module.exports = class UserModel {
+/**
+ * class for user model
+ */
+class UserModel {
 /**
  * constructor
  * @param {object} sequelize
@@ -37,4 +39,6 @@ module.exports = class UserModel {
     });
     return user;
   }
-};
+}
+
+export default UserModel;

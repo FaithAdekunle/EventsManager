@@ -2,8 +2,8 @@ import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import jwtDecode from 'jwt-decode';
-import EventActions from '../../actions/eventActions';
-import OtherActions from '../../actions/otherActions';
+import EventActions from '../../actions/EventActions';
+import OtherActions from '../../actions/OtherActions';
 import DialApi from '../../DialApi';
 import constants from '../../constants';
 
@@ -30,11 +30,11 @@ export class CenterEventsComponent extends React.Component {
 
   /**
    * removess 'hover-date' class from target
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  static onMouseLeaveDate(e) {
-    e.target.classList.remove('hover-date');
+  static onMouseLeaveDate(event) {
+    event.target.classList.remove('hover-date');
   }
 
   /**
@@ -125,11 +125,11 @@ export class CenterEventsComponent extends React.Component {
 
   /**
    * onScroll event handler
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  onScroll(e) {
-    const list = e.target;
+  onScroll(event) {
+    const list = event.target;
     if (list.scrollHeight - list.scrollTop === list.clientHeight &&
     !this.noMoreEvents) {
       this.offset += this.increase;

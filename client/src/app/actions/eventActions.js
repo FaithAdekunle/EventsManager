@@ -1,5 +1,7 @@
-import { dispatch } from '../Reducers';
+import Reducers from '../Reducers';
 import constants from '../constants';
+
+const { dispatch } = Reducers;
 
 /**
  * EventActions component class

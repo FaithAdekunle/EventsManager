@@ -4,8 +4,8 @@ import jwtDecode from 'jwt-decode';
 import { connect } from 'react-redux';
 import Helpers from '../../Helpers';
 import DialApi from '../../DialApi';
-import OtherActions from '../../actions/otherActions';
-import CenterActions from '../../actions/centerActions';
+import OtherActions from '../../actions/OtherActions';
+import CenterActions from '../../actions/CenterActions';
 import CenterEventsComponent from './CenterEventsComponent.jsx';
 import constants from '../../constants';
 import AddOrEditCenterComponent from './AddOrEditCenterComponent.jsx';
@@ -133,15 +133,15 @@ export class CenterDetailsComponent extends React.Component {
 
   /**
    * executes after centers have been fetched
-   * @param { object } data
+   * @param { object } response
    * @returns { void }
    */
-  onCenterLoadSuccessful(data) {
+  onCenterLoadSuccessful(response) {
     this.loaded = true;
     this.loader.style.width = '100%';
     setTimeout(() => {
       this.loader.classList.remove('success-background');
-      CenterActions.setCenter(data.center);
+      CenterActions.setCenter(response.center);
     }, 500);
   }
 
@@ -263,8 +263,7 @@ export class CenterDetailsComponent extends React.Component {
           />
           <div
             className={`container alert alert-info
-             ${(alert === constants.NO_CONNECTION ||
-              alert === 'center not found') && !center ? '' : 'hidden'}`}
+             ${!center && alert ? '' : 'hidden'}`}
             role="alert"
           >
             {alert}

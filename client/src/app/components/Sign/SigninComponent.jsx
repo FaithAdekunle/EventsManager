@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import OtherActions from '../../actions/otherActions';
+import OtherActions from '../../actions/OtherActions';
 import DialApi from '../../DialApi';
 import constants from '../../constants';
 
@@ -37,11 +37,11 @@ export class SignInComponent extends React.Component {
 
   /**
    * executes after user logs in succesfully
-   * @param { object } data
+   * @param { object } response
    * @returns { void }
    */
-  onUserLoginSuccessful(data) {
-    OtherActions.setToken(data.token);
+  onUserLoginSuccessful(response) {
+    OtherActions.setToken(response.token);
     this.props.history.push('/events');
   }
 

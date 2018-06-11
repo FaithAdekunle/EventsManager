@@ -1,8 +1,8 @@
 import React from 'react';
 import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
-import EventActions from '../../actions/eventActions';
-import OtherActions from '../../actions/otherActions';
+import EventActions from '../../actions/EventActions';
+import OtherActions from '../../actions/OtherActions';
 import Helpers from '../../Helpers';
 import DialApi from '../../DialApi';
 import constants from '../../constants';

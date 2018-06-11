@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import Pagination from 'rc-pagination';
 import CenterCardComponent from './CenterCardComponent.jsx';
 import AddOrEditCenterComponent from './AddOrEditCenterComponent.jsx';
-import OtherActions from '../../actions/otherActions';
-import CenterActions from '../../actions/centerActions';
+import OtherActions from '../../actions/OtherActions';
+import CenterActions from '../../actions/CenterActions';
 import constants from '../../constants';
 import DialApi from '../../DialApi';
 
@@ -103,11 +103,11 @@ export class CentersComponent extends React.Component {
 
   /**
    * executes after centers have been fetched
-   * @param { object } data
+   * @param { object } response
    * @returns { void }
    */
-  onLoadSuccessful(data) {
-    const { centers } = data;
+  onLoadSuccessful(response) {
+    const { centers } = response;
     this.loaded = true;
     if (this.fieldset) this.fieldset.disabled = false;
     if (this.mainLoader) this.mainLoader.style.width = '100%';
@@ -117,17 +117,17 @@ export class CentersComponent extends React.Component {
       }
       CenterActions.setCenters(centers);
       if (centers.length === 0) OtherActions.setAlert(constants.NO_CENTERS);
-      OtherActions.setPagination(data.metaData.pagination);
+      OtherActions.setPagination(response.metaData.pagination);
     }, 500);
   }
 
   /**
    * submits the filter form
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  onSubmit(e) {
-    e.preventDefault();
+  onSubmit(event) {
+    event.preventDefault();
     this.filter = this.filterField.value || '';
     this.capacity = this.capacityField.value || 1;
     this.facility = this.facilityField.value || '';

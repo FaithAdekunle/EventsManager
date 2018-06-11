@@ -2,7 +2,7 @@
 const APP_BASE_PATH = 'http://localhost:7777';
 
 module.exports = {
-  'CenterDetails Page': (browser) => {
+  editCenter: (browser) => {
     browser
 
       // sign in as admin
@@ -25,6 +25,9 @@ module.exports = {
       .assert.hidden('.modal-content')
 
       // edit center
+      .execute(() => {
+        scrollTo(0, document.body.scrollHeight);
+      })
       .click('button.btn.btn-primary.btn-block')
       .pause(1000)
       .assert.visible('.modal-content')

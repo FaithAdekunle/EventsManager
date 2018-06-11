@@ -5,8 +5,8 @@ import { CentersWrapperComponent } from
 
 describe('centers wrapper component', () => {
   const wrapper = shallow(<CentersWrapperComponent />);
-  test('unmount comonent', () => {
-    wrapper.unmount();
+  it('should mount component', () => {
+    expect(wrapper).toMatchSnapshot();
   });
 });
 

@@ -1,5 +1,7 @@
-// define model for center
-module.exports = class CenterModel {
+/**
+ * class for center model
+ */
+class CenterModel {
 /**
  * constructor
  * @param {object} sequelize
@@ -51,4 +53,6 @@ module.exports = class CenterModel {
     });
     return center;
   }
-};
+}
+
+export default CenterModel;

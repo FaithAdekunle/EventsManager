@@ -3,8 +3,8 @@ import Proptypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import Helpers from '../../Helpers';
-import OtherActions from '../../actions/otherActions';
-import CenterActions from '../../actions/centerActions';
+import OtherActions from '../../actions/OtherActions';
+import CenterActions from '../../actions/CenterActions';
 import constants from '../../constants';
 import DialApi from '../../DialApi';
 
@@ -134,8 +134,8 @@ export class AddOrEditCenterComponent extends React.Component {
       if (index >= files.length) {
         return OtherActions.setImages(selectedImages);
       }
-      reader.onloadend = (e) => {
-        selectedImages.push(e.target.result);
+      reader.onloadend = (event) => {
+        selectedImages.push(event.target.result);
         index += 1;
         readFiles(index, selectedImages);
       };
@@ -146,11 +146,11 @@ export class AddOrEditCenterComponent extends React.Component {
 
   /**
    * updates this.facilities
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  updateFacilities(e) {
-    this.facilities[e.target.value] = e.target.checked;
+  updateFacilities(event) {
+    this.facilities[event.target.value] = event.target.checked;
   }
 
   /**
@@ -172,11 +172,11 @@ export class AddOrEditCenterComponent extends React.Component {
 
   /**
    * adds new center
-   * @param { object } e
+   * @param { object } event
    * @returns { void }
    */
-  async submitCenter(e) {
-    e.preventDefault();
+  async submitCenter(event) {
+    event.preventDefault();
     const facilities = this.computeFacilities();
     if (!facilities) {
       return OtherActions.setAlert('select one or more facilities');
@@ -193,7 +193,7 @@ export class AddOrEditCenterComponent extends React.Component {
         formData.append('upload_preset', Helpers.cloudinaryPreset);
         formData.append('file', file);
         const response = await axios.post(Helpers.cloudinaryUrl, formData);
-        const image = response.data.url;
+        const image = response.data.secure_url;
         images += `${images.length > 0 ? '###:###:###' : ''}${image}`;
       }
     }));

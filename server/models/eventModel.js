@@ -1,5 +1,7 @@
-// define model for event
-module.exports = class EventModel {
+/**
+ * class for event model
+ */
+class EventModel {
 /**
  * constructor
  * @param {object} sequelize
@@ -44,4 +46,6 @@ module.exports = class EventModel {
     });
     return event;
   }
-};
+}
+
+export default EventModel;

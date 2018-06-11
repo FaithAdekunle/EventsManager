@@ -1,12 +1,34 @@
 import jwt from 'jsonwebtoken';
+import { validationResult } from 'express-validator/check';
 import moment from 'moment';
 import dotenv from 'dotenv';
-import Helpers from './helpers';
+import Helpers from './Helpers';
 import db from './db';
 
 dotenv.config({ path: '.env' });
 
-module.exports = class Middlewares {
+/**
+ * class for middlewares
+ */
+class Middlewares {
+  /**
+   * checks if there are any failed validations
+   * @param {object} req
+   * @param {object} res
+   * @param {function} next
+   * @returns {object | function} next()
+   */
+  static checkFailedValidations(req, res, next) {
+    let response = [];
+    const errors = validationResult(req).array();
+    errors.map((error) => {
+      if (error.msg !== 'Invalid value') response.push(error.msg);
+      return null;
+    });
+    if (response.length === 0) return next();
+    if (response.length === 1) [response] = response;
+    return res.status(400).json(Helpers.getResponse(response));
+  }
   /**
     * ensures incoming id in url is valid
     * @param {object} req
@@ -162,5 +184,7 @@ module.exports = class Middlewares {
         return next();
       });
   }
-};
+}
+
+export default Middlewares;
 
