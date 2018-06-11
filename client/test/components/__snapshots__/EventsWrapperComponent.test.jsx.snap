@@ -23,6 +23,10 @@ ShallowWrapper {
           exact={true}
           path="/events"
         />
+        <Route
+          component={[Function]}
+          path="*"
+        />
       </Switch>,
     },
     "ref": null,
@@ -31,26 +35,46 @@ ShallowWrapper {
       "key": undefined,
       "nodeType": "class",
       "props": Object {
-        "children": <Route
-          component={[Function]}
-          exact={true}
-          path="/events"
-        />,
+        "children": Array [
+          <Route
+            component={[Function]}
+            exact={true}
+            path="/events"
+          />,
+          <Route
+            component={[Function]}
+            path="*"
+          />,
+        ],
       },
       "ref": null,
-      "rendered": Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "class",
-        "props": Object {
-          "component": [Function],
-          "exact": true,
-          "path": "/events",
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "component": [Function],
+            "exact": true,
+            "path": "/events",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
         },
-        "ref": null,
-        "rendered": null,
-        "type": [Function],
-      },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "component": [Function],
+            "path": "*",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+      ],
       "type": [Function],
     },
     "type": Symbol(react.fragment),
@@ -67,6 +91,10 @@ ShallowWrapper {
             exact={true}
             path="/events"
           />
+          <Route
+            component={[Function]}
+            path="*"
+          />
         </Switch>,
       },
       "ref": null,
@@ -75,26 +103,46 @@ ShallowWrapper {
         "key": undefined,
         "nodeType": "class",
         "props": Object {
-          "children": <Route
-            component={[Function]}
-            exact={true}
-            path="/events"
-          />,
+          "children": Array [
+            <Route
+              component={[Function]}
+              exact={true}
+              path="/events"
+            />,
+            <Route
+              component={[Function]}
+              path="*"
+            />,
+          ],
         },
         "ref": null,
-        "rendered": Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "class",
-          "props": Object {
-            "component": [Function],
-            "exact": true,
-            "path": "/events",
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "component": [Function],
+              "exact": true,
+              "path": "/events",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
           },
-          "ref": null,
-          "rendered": null,
-          "type": [Function],
-        },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "component": [Function],
+              "path": "*",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+        ],
         "type": [Function],
       },
       "type": Symbol(react.fragment),
