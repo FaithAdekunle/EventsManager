@@ -2,6 +2,7 @@ import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import CenterDetailsComponent from './CenterDetailsComponent.jsx';
 import CentersComponent from './CentersComponent.jsx';
+import NotFoundComponent from '../NotFoundComponent.jsx';
 
 
 export const CentersWrapperComponent = () => (
@@ -16,6 +17,10 @@ export const CentersWrapperComponent = () => (
         exact
         path="/centers/:id"
         component={CenterDetailsComponent}
+      />
+      <Route
+        path="*"
+        component={NotFoundComponent}
       />
     </Switch>
   </React.Fragment>

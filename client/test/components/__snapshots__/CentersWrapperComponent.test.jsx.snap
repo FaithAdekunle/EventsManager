@@ -28,6 +28,10 @@ ShallowWrapper {
           exact={true}
           path="/centers/:id"
         />
+        <Route
+          component={[Function]}
+          path="*"
+        />
       </Switch>,
     },
     "ref": null,
@@ -46,6 +50,10 @@ ShallowWrapper {
             component={[Function]}
             exact={true}
             path="/centers/:id"
+          />,
+          <Route
+            component={[Function]}
+            path="*"
           />,
         ],
       },
@@ -77,6 +85,18 @@ ShallowWrapper {
           "rendered": null,
           "type": [Function],
         },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "component": [Function],
+            "path": "*",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
       ],
       "type": [Function],
     },
@@ -99,6 +119,10 @@ ShallowWrapper {
             exact={true}
             path="/centers/:id"
           />
+          <Route
+            component={[Function]}
+            path="*"
+          />
         </Switch>,
       },
       "ref": null,
@@ -117,6 +141,10 @@ ShallowWrapper {
               component={[Function]}
               exact={true}
               path="/centers/:id"
+            />,
+            <Route
+              component={[Function]}
+              path="*"
             />,
           ],
         },
@@ -143,6 +171,18 @@ ShallowWrapper {
               "component": [Function],
               "exact": true,
               "path": "/centers/:id",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": [Function],
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "component": [Function],
+              "path": "*",
             },
             "ref": null,
             "rendered": null,
