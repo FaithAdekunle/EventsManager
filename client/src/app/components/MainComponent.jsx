@@ -57,7 +57,6 @@ export const MainComponent = (properties) => {
           }
         />
         <Route
-          exact
           path="/events"
           render={props => (
               token && !userIsAdmin ? (
@@ -69,7 +68,6 @@ export const MainComponent = (properties) => {
           }
         />
         <Route
-          exact
           path="/centers"
           component={CentersWrapperComponent}
         />
