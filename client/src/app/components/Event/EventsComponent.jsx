@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 import EventCardComponent from './EventCardComponent.jsx';
 import EditEventComponent from './EditEventComponent.jsx';
 import DeleteEventComponent from './DeleteEventComponent.jsx';
-import OtherActions from '../../actions/otherActions';
-import EventActions from '../../actions/eventActions';
+import OtherActions from '../../actions/OtherActions';
+import EventActions from '../../actions/EventActions';
 import DialApi from '../../DialApi';
 import constants from '../../constants';
 
@@ -85,13 +85,13 @@ export class EventsComponent extends React.Component {
 
   /**
    * executes after attempt to fetch events fail
-   * @param { object } data
+   * @param { object } response
    * @returns { void }
    */
-  onFetchEventsSuccessful(data) {
+  onFetchEventsSuccessful(response) {
     OtherActions.setAlert(null);
-    this.totalCount = data.metaData.pagination.totalCount;
-    EventActions.addToEvents(data.events);
+    this.totalCount = response.metaData.pagination.totalCount;
+    EventActions.addToEvents(response.events);
   }
 
   /**

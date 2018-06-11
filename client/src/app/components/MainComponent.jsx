@@ -7,6 +7,7 @@ import CentersWrapperComponent from './Center/CentersWrapperComponent.jsx';
 import SigninComponent from './Sign/SigninComponent.jsx';
 import SignupComponent from './Sign/SignupComponent.jsx';
 import EventsWrapperComponent from './Event/EventsWrapperComponent.jsx';
+import NotFoundComponent from './NotFoundComponent.jsx';
 
 export const MainComponent = (properties) => {
   const { token } = properties;
@@ -17,11 +18,11 @@ export const MainComponent = (properties) => {
     userIsAdmin = false;
   }
   return (
-    <React.Fragment>
+    <div className="main">
       <Switch>
         <Route
           exact
-          path="/home"
+          path="/"
           render={props => (
               token ? (
                 <Redirect to={`${userIsAdmin ? '/centers' : '/events'}`} />
@@ -56,6 +57,7 @@ export const MainComponent = (properties) => {
           }
         />
         <Route
+          exact
           path="/events"
           render={props => (
               token && !userIsAdmin ? (
@@ -67,12 +69,16 @@ export const MainComponent = (properties) => {
           }
         />
         <Route
+          exact
           path="/centers"
           component={CentersWrapperComponent}
         />
-        <Redirect from="*" to="/home" />
+        <Route
+          path="*"
+          component={NotFoundComponent}
+        />
       </Switch>
-    </React.Fragment>
+    </div>
   );
 };
 

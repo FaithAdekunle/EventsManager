@@ -5,7 +5,7 @@ import AppComponent from
 
 describe('App component', () => {
   const wrapper = shallow(<AppComponent />);
-  test('unmount comonent', () => {
-    wrapper.unmount();
+  it('should mount component', () => {
+    expect(wrapper).toMatchSnapshot();
   });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import Proptypes from 'prop-types';
-import EventActions from '../../actions/eventActions';
+import EventActions from '../../actions/EventActions';
 
 /**
  * Event component class

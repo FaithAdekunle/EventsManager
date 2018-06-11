@@ -39,31 +39,27 @@ describe('event card component', () => {
   const openEditModal = jest.spyOn(wrapper.instance(), 'openEditModal');
   const openDeleteModal = jest.spyOn(wrapper.instance(), 'openDeleteModal');
 
-  test('event card details', () => {
-    expect(eventName.exists()).toBe(true);
-    expect(eventType.exists()).toBe(true);
-    expect(eventGuests.exists()).toBe(true);
-    expect(eventStart.exists()).toBe(true);
-    expect(eventEnd.exists()).toBe(true);
-    expect(eventCenter.exists()).toBe(true);
+  it('should display event details', () => {
+    expect(eventName.text()).toBe(event.name);
+    expect(eventType.text()).toBe(event.type);
+    expect(eventGuests.text()).toBe(event.guests);
+    expect(eventStart.text()).toBe(event.start);
+    expect(eventEnd.text()).toBe(event.end);
+    expect(eventCenter.text()).toBe(event.center.name);
   });
 
-  test('nav to event center', () => {
+  it('should add centers/1 path to locations array', () => {
     eventCenter.simulate('click');
     expect(locations.includes('/centers/1')).toBe(true);
   });
 
-  test('open edit modal', () => {
+  it('should open event edit modal', () => {
     editEvent.simulate('click');
     expect(openEditModal).toHaveBeenCalled();
   });
 
-  test('open delete modal', () => {
+  it('should open event delete modal', () => {
     deleteEvent.simulate('click');
     expect(openDeleteModal).toHaveBeenCalled();
-  });
-
-  test('unmount component', () => {
-    wrapper.unmount();
   });
 });

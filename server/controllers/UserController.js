@@ -1,13 +1,16 @@
-import { body, validationResult } from 'express-validator/check';
+import { body } from 'express-validator/check';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import db from '../db';
-import Helpers from '../helpers';
+import Helpers from '../Helpers';
 
 dotenv.config({ path: '.env' });
 
-module.exports = class userController {
+/**
+ * class for user controllers
+ */
+class UserController {
 /**
  * provides validation for incoming request body for user signup
  * @returns { array } an array of functions to parse request
@@ -50,27 +53,6 @@ module.exports = class userController {
         .exists()
         .withMessage('invalid password'),
     ];
-  }
-
-  /**
-   * checks if there are any failed validations
- * @param {object} req
- * @param {object} res
- * @param {function} next
- * @returns {object | function} next()
- */
-  static checkFailedValidations(req, res, next) {
-    if (validationResult(req).isEmpty()) {
-      return next();
-    }
-    let response = [];
-    const errors = validationResult(req).array();
-    errors.map((error) => {
-      if (error.msg !== 'Invalid value') response.push(error.msg);
-      return null;
-    });
-    if (response.length === 1) [response] = response;
-    return res.status(400).json(Helpers.getResponse(response));
   }
 
   /**
@@ -149,7 +131,7 @@ module.exports = class userController {
         };
         return db.user.create(newUser)
           .then((createdUser) => {
-            const token = userController.generateToken(createdUser);
+            const token = UserController.generateToken(createdUser);
             return res.status(201)
               .json(Helpers.getResponse(token, 'token', true));
           })
@@ -189,9 +171,11 @@ module.exports = class userController {
                 .json(Helpers
                   .getResponse('email and password combination invalid'));
             }
-            const token = userController.generateToken(user);
+            const token = UserController.generateToken(user);
             return res.json(Helpers.getResponse(token, 'token', true));
           });
       });
   }
-};
+}
+
+export default UserController;

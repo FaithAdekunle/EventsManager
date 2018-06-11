@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { NavBarComponent } from
   '../../src/app/components/NavBarComponent.jsx';
 import DialApi from '../../src/app/DialApi';
-import OtherActions from '../../src/app/actions/otherActions';
+import OtherActions from '../../src/app/actions/OtherActions';
 import constants from '../../src/app/constants';
 
 describe('NavBarComponent', () => {
@@ -18,8 +18,6 @@ describe('NavBarComponent', () => {
   const updateSearchSpy = jest.spyOn(DialApi, 'updateSearch');
   const setSearchResultsSpy = jest.spyOn(OtherActions, 'setSearchResults');
   const removeTokenSpy = jest.spyOn(OtherActions, 'removeToken');
-  const componentDidMountSpy = jest
-    .spyOn(NavBarComponent.prototype, 'componentDidMount');
   const setAlertSpy = jest.spyOn(OtherActions, 'setAlert');
   const wrapper = mount(<NavBarComponent
     location={location}
@@ -29,7 +27,7 @@ describe('NavBarComponent', () => {
   const onFocusSpy = jest.spyOn(wrapper.instance(), 'onFocus');
   const searchSubmitSpy = jest.spyOn(NavBarComponent, 'searchSubmit');
   let foundCenter;
-  const home = wrapper.find('.home');
+  const homeLink = wrapper.find('.home');
   const centersLink = wrapper.find('.centers-link');
   let searchCenters = wrapper.find('.search-centers');
   const searchResult = wrapper.find('.search-result');
@@ -38,13 +36,9 @@ describe('NavBarComponent', () => {
   describe('navbar for unauthenticated user', () => {
     const signInLink = wrapper.find('.signin');
     const signUpLink = wrapper.find('.signup');
-    test('navbar component', () => {
-      expect(componentDidMountSpy).toHaveBeenCalled();
-    });
 
-    test('display for unauthenticated user', () => {
-      expect(home.exists()).toBe(true);
-      expect(centersLink.exists()).toBe(true);
+    it('should display links for unauthenticated user', () => {
+      expect(homeLink.exists()).toBe(true);
       expect(searchCenters.exists()).toBe(true);
       expect(searchCenters.hasClass('hidden')).toBe(false);
       expect(searchResult.exists()).toBe(true);
@@ -52,48 +46,48 @@ describe('NavBarComponent', () => {
       expect(signUpLink.exists()).toBe(true);
     });
 
-    test('keyup event on .search-centers with no entry', () => {
+    it('should call action to set search results', () => {
       searchCenters.simulate('keyup');
       expect(setSearchResultsSpy).toHaveBeenCalled();
     });
 
-    test('keyup event on .search-centers with entry', () => {
+    it('should call action to update search results', () => {
       searchCenters.instance().value = 'search';
       searchCenters.simulate('keyup');
       expect(updateSearchSpy).toHaveBeenCalled();
     });
 
-    test('focus event on .search-centers with entry', () => {
+    it('should call onFocus event handler', () => {
       searchCenters.simulate('focus');
       expect(onFocusSpy).toHaveBeenCalled();
     });
 
-    test('submit event on .search-form', () => {
+    it('should call onSubmit event handler', () => {
       searchForm.simulate('submit');
       expect(searchSubmitSpy).toHaveBeenCalled();
     });
 
-    test('nav to centers page', () => {
+    it('should add centers path to locations array', () => {
       centersLink.simulate('click');
       expect(locations.includes('/centers')).toBe(true);
     });
 
-    test('nav to signin page', () => {
+    it('should add signin path to locations array', () => {
       signInLink.simulate('click');
       expect(locations.includes('/signin')).toBe(true);
     });
 
-    test('nav to signup page', () => {
+    it('should add sugnup path to locations array', () => {
       signUpLink.simulate('click');
       expect(locations.includes('/signup')).toBe(true);
     });
 
-    test('nav to home page', () => {
-      home.simulate('click');
-      expect(locations.includes('/home')).toBe(true);
+    it('should add home path to locations array', () => {
+      homeLink.simulate('click');
+      expect(locations.includes('/')).toBe(true);
     });
 
-    test('serch results found', () => {
+    it('should display search results', () => {
       wrapper.setProps({
         searchResults: [
           {
@@ -106,9 +100,10 @@ describe('NavBarComponent', () => {
       wrapper.update();
       foundCenter = wrapper.find('.window-exclude.list-group-item');
       expect(foundCenter.exists()).toBe(true);
+      expect(foundCenter.text()).toBe('Test Center - Test Center Address');
     });
 
-    test('nav to center details page', () => {
+    it('should add centers/1 path to locations array', () => {
       foundCenter.simulate('click');
       expect(locations.includes('/centers/1')).toBe(true);
     });
@@ -129,7 +124,7 @@ describe('NavBarComponent', () => {
     const dropDownLink = wrapper.find('#navbarDropdown');
     const myEventsLink = wrapper.find('.myEvents');
     const signoutLink = wrapper.find('.signout');
-    test('display for authenticated user', () => {
+    it('should display links for authenticated user', () => {
       expect(signInLink.exists()).toBe(false);
       expect(signUpLink.exists()).toBe(false);
       expect(dropDownLink.exists()).toBe(true);
@@ -137,15 +132,15 @@ describe('NavBarComponent', () => {
       expect(signoutLink.exists()).toBe(true);
     });
 
-    test('nav to events page', () => {
+    it('should add events path to locations array', () => {
       myEventsLink.simulate('click');
       expect(locations.includes('/events')).toBe(true);
     });
 
-    test('sign out', () => {
+    it('should add home path to locations array', () => {
       signoutLink.simulate('click');
       expect(removeTokenSpy).toHaveBeenCalled();
-      expect(locations.includes('/home')).toBe(true);
+      expect(locations.includes('/')).toBe(true);
     });
   });
 
@@ -159,24 +154,24 @@ describe('NavBarComponent', () => {
     });
     const myEventsLink = wrapper.find('.myEvents');
     const signoutLink = wrapper.find('.signout');
-    test('display for authenticated user', () => {
+    it('should display links for authenticated admin', () => {
       expect(myEventsLink.exists()).toBe(false);
       expect(signoutLink.exists()).toBe(true);
     });
 
-    test('sign out', () => {
+    it('should add home path to locations array', () => {
       signoutLink.simulate('click');
       expect(removeTokenSpy).toHaveBeenCalled();
-      expect(locations.includes('/home')).toBe(true);
+      expect(locations.includes('/')).toBe(true);
     });
 
-    test('no centers found', () => {
+    it('should display message for no search results', () => {
       wrapper.setProps({ searchResults: [{ name: 'no centers found' }] });
       foundCenter = wrapper.find('.window-exclude.list-group-item');
       expect(foundCenter.text()).toBe('no centers found');
     });
 
-    test('on centers page', () => {
+    it('should not display search form', () => {
       wrapper.setProps({
         location: { pathname: '/centers' },
       });
@@ -186,23 +181,16 @@ describe('NavBarComponent', () => {
   });
 
   describe('navbar search for centers', () => {
-    test('search centers fail', () => {
+    it('should call action to alert user of poor connection', () => {
       NavBarComponent.onSearchFail();
       expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
     });
 
-    test('empty search result', () => {
+    it('should call action to set search results', () => {
       NavBarComponent.onSearchSuccessful([]);
       expect(setSearchResultsSpy).toHaveBeenCalledTimes(2);
-    });
-
-    test('non empty search result', () => {
       NavBarComponent.onSearchSuccessful(['center1']);
       expect(setSearchResultsSpy).toHaveBeenCalledTimes(3);
-    });
-
-    test('unmount component', () => {
-      wrapper.unmount();
     });
   });
 });

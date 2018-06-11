@@ -592,10 +592,10 @@
         }
       }
     },
-    "/:centerId/events":{
+    "/centers/{centerId}/events":{
       "get": {
         "tags": [
-          "Events"
+          "Centers"
         ],
         "summary": "Fetches existing center events",
         "produces": [
@@ -603,7 +603,7 @@
         ],
         "parameters": [
           { 
-            "name": "id",
+            "name": "centerId",
             "in": "path",
             "description": "id of the center whose events should be fetched",
             "required": true,

@@ -1,10 +1,13 @@
-import { body, validationResult } from 'express-validator/check';
+import { body } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import { Op } from 'sequelize';
 import db from '../db';
-import Helpers from '../helpers';
+import Helpers from '../Helpers';
 
-module.exports = class CenterController {
+/**
+ * class for center controllers
+ */
+class CenterController {
   /**
    * provides validation for incoming request body for creating/editing centers
    * @returns { array } an array of functions to parse request
@@ -47,31 +50,16 @@ module.exports = class CenterController {
   /**
    * checks if there are any failed validations
    * @param {object} req
-   * @param {object} res
-   * @param {function} next
+   * @param {object} parseOrStringify
    * @returns {object | function} next()
    */
-  static checkFailedValidations(req, res, next) {
-    let response = [];
-    const errors = validationResult(req).array();
-    errors.map((error) => {
-      if (error.msg !== 'Invalid value') response.push(error.msg);
-      return null;
-    });
-    if (response.length === 0) {
-      return next();
-    }
-    if (response.length === 1) [response] = response;
-    return res.status(400).json(Helpers.getResponse(response));
-  }
-
-  static jsonHandle = (obj, parse = true) => {
-    if (parse) {
-      if (obj.images) obj.images = JSON.parse(obj.images);
-      if (obj.facilities) obj.facilities = JSON.parse(obj.facilities);
+  static jsonHandle = (req, parseOrStringify = true) => {
+    if (parseOrStringify) {
+      if (req.images) req.images = JSON.parse(req.images);
+      if (req.facilities) req.facilities = JSON.parse(req.facilities);
     } else {
-      if (obj.images) obj.images = JSON.stringify(obj.images);
-      if (obj.facilities) obj.facilities = JSON.stringify(obj.facilities);
+      if (req.images) req.images = JSON.stringify(req.images);
+      if (req.facilities) req.facilities = JSON.stringify(req.facilities);
     }
   };
 
@@ -276,4 +264,6 @@ module.exports = class CenterController {
         return res.json(Helpers.getResponse(center, 'center', true));
       });
   }
-};
+}
+
+export default CenterController;

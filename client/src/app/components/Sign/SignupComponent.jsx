@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import OtherActions from '../../actions/otherActions';
+import OtherActions from '../../actions/OtherActions';
 import DialApi from '../../DialApi';
 import constants from '../../constants';
 
@@ -37,11 +37,11 @@ export class SignUpComponent extends React.Component {
 
   /**
    * executes after user signs up succesfully
-   * @param { object } data
+   * @param { object } response
    * @returns { void }
    */
-  onSignupSuccessful(data) {
-    OtherActions.setToken(data.token);
+  onSignupSuccessful(response) {
+    OtherActions.setToken(response.token);
     this.props.history.push('/events');
   }
 

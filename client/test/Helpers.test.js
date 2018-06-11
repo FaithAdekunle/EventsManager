@@ -1,7 +1,7 @@
 import Helpers from '../src/app/Helpers';
 
 describe('Helpers', () => {
-  test('get first name', () => {
+  test('get first name from full name', () => {
     expect(Helpers.getFirstName('faith adekunle')).toBe('Faith');
   });
 

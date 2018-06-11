@@ -1,14 +1,17 @@
 import moment from 'moment';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import { body, validationResult } from 'express-validator/check';
+import { body } from 'express-validator/check';
 import { sanitize } from 'express-validator/filter';
 import db from '../db';
-import Helpers from '../helpers';
+import Helpers from '../Helpers';
 
 dotenv.config({ path: '.env' });
 
-module.exports = class EventController {
+/**
+ * class for event controllers
+ */
+class EventController {
   static transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -24,10 +27,14 @@ module.exports = class EventController {
    * @returns { void }
    */
   static validateDateField(value, field) {
+    const isThisDay = moment(value).date() === new Date().getDate();
+    const isThisMonth = moment(value).month() === new Date().getMonth();
+    const isThisYear = moment(value).year() === new Date().getFullYear();
+    const isToday = isThisDay && isThisMonth && isThisYear;
     if (!moment(value, 'DD-MM-YYYY').isValid()) {
       throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
     }
-    if (moment(value, 'DD-MM-YYYY').isBefore(moment())) {
+    if (!(isToday || moment(value, 'DD-MM-YYYY').isAfter(moment()))) {
       throw new Error(`${field} date is past`);
     }
   }
@@ -63,26 +70,6 @@ module.exports = class EventController {
       sanitize('guests').toInt(),
       body('guests').custom(value => Helpers.sanitizeInteger(value, 'guests')),
     ];
-  }
-
-  /**
-   * checks if there are any failed validations
-   * @param {object} req
-   * @param {object} res
-   * @param {function} next
-   * @returns {object | function} next()
-   */
-  static checkFailedValidations(req, res, next) {
-    if (validationResult(req).isEmpty()) return next();
-    const errors = validationResult(req).array();
-    let response = [];
-    errors.map((error) => {
-      if (error.msg !== 'Invalid value') response.push(error.msg);
-      return null;
-    });
-    if (response.length === 0) return next();
-    if (response.length === 1) [response] = response;
-    return res.status(400).json(Helpers.getResponse(response));
   }
 
   /**
@@ -216,8 +203,14 @@ module.exports = class EventController {
     const { upcoming, pagination } = req.query;
     let upcomingEvents = null;
     if (upcoming === 'true') {
-      upcomingEvents = events.filter(event =>
-        moment(event.end, 'DD-MM-YYYY').isSameOrAfter(moment()));
+      upcomingEvents = events.filter((event) => {
+        const isThisDay = moment(event.end).date() === new Date().getDate();
+        const isThisMonth = moment(event.end).month() === new Date().getMonth();
+        const isThisYear = moment(event.end).year() === new Date()
+          .getFullYear();
+        const isToday = isThisDay && isThisMonth && isThisYear;
+        return isToday || moment(event.end, 'DD-MM-YYYY').isAfter(moment());
+      });
     } else {
       upcomingEvents = events;
     }
@@ -377,4 +370,6 @@ module.exports = class EventController {
       .catch(() =>
         res.status(500).json(Helpers.getResponse('Internal server error')));
   }
-};
+}
+
+export default EventController;

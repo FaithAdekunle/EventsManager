@@ -53,10 +53,12 @@ class CenterCardComponent extends React.Component {
             <div className="name-and-location">
               <span className="center-detail">
                 <i className="fa fa-map-marker" aria-hidden="true" />
-                <strong> {center.address}</strong>
+                <strong className="center-address"> {center.address}</strong>
               </span>
               <span className="center-detail">
-                <strong> {center.capacity} guests</strong>
+                <strong className="center-capacity">
+                  {center.capacity} guests
+                </strong>
               </span>
             </div>
             {

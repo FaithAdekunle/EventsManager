@@ -14,7 +14,7 @@ describe('Main component', () => {
     'WUiOiJhZG1pbiIsImlzQWRtaW4iOnRydWUsImV4cGlyZXMiOjE1MjY4ODQyNTE4OTQsImlhd' +
     'CI6MTUyNjg0MTA1MX0.i52yz0BHMlltCWaVoEekBE2H8iZopsbma-nJ_wm-Cng';
   wrapper.setProps({ token });
-  test('unmount comonent', () => {
-    wrapper.unmount();
+  it('should mmount component', () => {
+    expect(wrapper).toMatchSnapshot();
   });
 });

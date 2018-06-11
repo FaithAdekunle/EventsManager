@@ -2,8 +2,8 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { EventsComponent } from
   '../../src/app/components/Event/EventsComponent.jsx';
-import EventActions from '../../src/app/actions/eventActions';
-import OtherActions from '../../src/app/actions/otherActions';
+import EventActions from '../../src/app/actions/EventActions';
+import OtherActions from '../../src/app/actions/OtherActions';
 import DialApi from '../../src/app/DialApi';
 import constants from '../../src/app/constants';
 
@@ -15,8 +15,6 @@ describe('events component', () => {
       locations.push(location);
     },
   };
-  const componentDidMountSpy = jest
-    .spyOn(EventsComponent.prototype, 'componentDidMount');
   const componentWillUnmountSpy = jest
     .spyOn(EventsComponent.prototype, 'componentWillUnmount');
   const addToEventsSpy = jest.spyOn(EventActions, 'addToEvents');
@@ -28,48 +26,51 @@ describe('events component', () => {
     history={history}
   />);
   const instance = wrapper.instance();
-  test('component did mount', () => {
-    expect(componentDidMountSpy).toHaveBeenCalled();
+  it('should call action to set alert state to loading', () => {
     expect(setAlertSpy).toHaveBeenCalledWith('loading');
   });
 
-  test('action to add to event is called', () => {
-    const data = {
+  it('should call action to add to events state', () => {
+    const response = {
       metaData: { pagination: { totalCount: 5 } },
       events: [],
     };
-    instance.onFetchEventsSuccessful(data);
+    instance.onFetchEventsSuccessful(response);
     expect(setAlertSpy).toHaveBeenCalledWith(null);
     expect(instance.totalCount).toBe(5);
     expect(addToEventsSpy).toHaveBeenCalled();
   });
 
-  test('total count of events is decremented', () => {
+  it('should decrement totalCount component property', () => {
+    expect(instance.totalCount).toBe(5);
     instance.onDeleteEvent();
     expect(instance.totalCount).toBe(4);
   });
 
-  test('set alert state when connection is bad', () => {
+  it('should call action to alert user of poor connection', () => {
     instance.onFetchEventsFail();
     expect(setAlertSpy).toHaveBeenCalledWith(constants.NO_CONNECTION);
   });
 
-  test('redirect to signin page', () => {
-    const response = {
-      status: 401,
-    };
-    instance.onFetchEventsFail(response);
-    expect(removeTokenSpy).toHaveBeenCalled();
-    expect(locations.includes('/signin')).toBe(true);
-  });
+  it(
+    'should add signin path to locations array after unauthorized fetch',
+    () => {
+      const response = {
+        status: 401,
+      };
+      instance.onFetchEventsFail(response);
+      expect(removeTokenSpy).toHaveBeenCalled();
+      expect(locations.includes('/signin')).toBe(true);
+    },
+  );
 
-  test('nav to centers page', () => {
+  it('should add centers path to locations array', () => {
     const navToCenters = wrapper.find('.navTo.redirect-to');
     navToCenters.simulate('click');
     expect(locations.includes('/centers')).toBe(true);
   });
 
-  test('set alert state with fetch events error', () => {
+  it('should call action to alert user of error response', () => {
     const response = { data: { error: 'fetch events error' } };
     instance.offset = instance.limit * 2;
     instance.onFetchEventsFail(response);
@@ -77,7 +78,7 @@ describe('events component', () => {
     expect(setAlertSpy).toHaveBeenCalledWith('fetch events error');
   });
 
-  test('spinner while loading', () => {
+  it('should display spinner while loading', () => {
     let spinner = wrapper.find('.fa-spinner');
     expect(spinner.exists()).toBe(false);
     wrapper.setProps({ alert: 'loading' });
@@ -85,7 +86,7 @@ describe('events component', () => {
     expect(spinner.exists()).toBe(true);
   });
 
-  test('notification shows when loading more events', () => {
+  it('should display bottom loader when loading more events', () => {
     let bottomLoader = wrapper.find('.bottom-loader');
     expect(bottomLoader.exists()).toBe(false);
     wrapper.setProps({
@@ -110,7 +111,14 @@ describe('events component', () => {
     expect(bottomLoader.exists()).toBe(true);
   });
 
-  test('load more events', () => {
+  it('should display alert to user', () => {
+    wrapper.setProps({ alert: 'this is a test' });
+    const alert = wrapper.find('.alert.alert-info>strong');
+    expect(alert.exists()).toBe(true);
+    expect(alert.text()).toBe('this is a test');
+  });
+
+  it('should call action to update events after loading more events', () => {
     instance.totalCount = 3;
     window.innerHeight = 60;
     instance.loadNext();
@@ -118,7 +126,7 @@ describe('events component', () => {
     expect(updateEventsSpy).toHaveBeenCalled();
   });
 
-  test('component unmount', () => {
+  it('should call componentWillUnmount method before unmounting', () => {
     wrapper.unmount();
     expect(componentWillUnmountSpy).toHaveBeenCalled();
   });

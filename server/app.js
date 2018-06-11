@@ -41,7 +41,7 @@ class App {
         { root: path.resolve('./client/dist') },
       ),
     );
-    app.use('/images', express.static(path.resolve('./client/src/images')));
+    app.use('*/images', express.static(path.resolve('./client/src/images')));
     app.get('/*', (req, res) => res.sendFile(
       'index.html',
       { root: path.resolve('./client/dist') },

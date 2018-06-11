@@ -298,11 +298,11 @@ module.exports = describe('Tests for events api', () => {
     });
   });
 
-  describe('GET api/v1/:centerId/events', () => {
+  describe('GET api/v1/centers/:centerId/events', () => {
     it('should return error for non existing center', (done) => {
       chai
         .request(host)
-        .get('/api/v1/0/events')
+        .get('/api/v1/centers/0/events')
         .end((err, res) => {
           res.should.have.status(404);
           res.should.be.a('object');
@@ -314,7 +314,7 @@ module.exports = describe('Tests for events api', () => {
     it('should return error for invalid center id', (done) => {
       chai
         .request(host)
-        .get('/api/v1/centerId/events')
+        .get('/api/v1/centers/centerId/events')
         .end((err, res) => {
           res.should.have.status(400);
           res.should.be.a('object');
@@ -326,7 +326,7 @@ module.exports = describe('Tests for events api', () => {
     it('should fetch events booked in one center', (done) => {
       chai
         .request(host)
-        .get(`/api/v1/${testHelper.centerId}/events`)
+        .get(`/api/v1/centers/${testHelper.centerId}/events`)
         .end((err, res) => {
           res.should.have.status(200);
           res.should.be.a('object');

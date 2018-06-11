@@ -1,5 +1,7 @@
-// define model for center
-module.exports = class CenterModel {
+/**
+ * class for event model
+ */
+class EventModel {
 /**
  * constructor
  * @param {object} sequelize
@@ -11,44 +13,39 @@ module.exports = class CenterModel {
   }
 
   /**
-   * creates model for center table in database
- * @returns { object } center model
+   * creates model for event table in database
+ * @returns { object } event model
  */
-  centerModel() {
-    const center = this.sequelize.define('center', {
+  eventModel() {
+    const event = this.sequelize.define('event', {
       name: {
         type: this.DataTypes.STRING,
         allowNull: false,
       },
-      description: {
-        type: this.DataTypes.TEXT,
-        allowNull: false,
-      },
-      images: {
-        type: this.DataTypes.TEXT,
-        allowNull: false,
-      },
-      facilities: {
+      start: {
         type: this.DataTypes.STRING,
         allowNull: false,
       },
-      address: {
+      end: {
         type: this.DataTypes.STRING,
         allowNull: false,
       },
-      capacity: {
+      type: {
+        type: this.DataTypes.STRING,
+        allowNull: false,
+      },
+      guests: {
         type: this.DataTypes.INTEGER,
         allowNull: false,
       },
-      cost: {
-        type: this.DataTypes.INTEGER,
+      isAccepted: {
+        type: this.DataTypes.BOOLEAN,
         allowNull: false,
-      },
-      updatedBy: {
-        type: this.DataTypes.INTEGER,
-        allowNull: false,
+        defaultValue: true,
       },
     });
-    return center;
+    return event;
   }
-};
+}
+
+export default EventModel;

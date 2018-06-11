@@ -5,7 +5,7 @@ import constants from './constants';
 /**
  * defines class for state reducers
  */
-class Reducers {
+export class Reducer {
   /**
    * constructor
    * @param {object} store
@@ -187,8 +187,8 @@ class Reducers {
   }
 }
 
-const appStore = new Reducers(Store);
-const store = createStore(combineReducers({
+const appStore = new Reducer(Store);
+const Reducers = createStore(combineReducers({
   token: appStore.tokenReducer,
   events: appStore.eventsReducer,
   centers: appStore.centersReducer,
@@ -199,4 +199,4 @@ const store = createStore(combineReducers({
   images: appStore.imagesReducer,
   paginationMetadata: appStore.paginationMetadataReducer,
 }));
-module.exports = store;
+export default Reducers;
