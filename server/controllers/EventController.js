@@ -21,16 +21,29 @@ class EventController {
   });
 
   /**
+   * checks is date is today's date
+   * @param { integer } date
+   * @returns { boolean } isToday
+   */
+  static isToday(date) {
+    const isThisDay = moment(date, 'DD-MM-YYYY')
+      .date() === new Date().getDate();
+    const isThisMonth = moment(date, 'DD-MM-YYYY')
+      .month() === new Date().getMonth();
+    const isThisYear = moment(date, 'DD-MM-YYYY')
+      .year() === new Date().getFullYear();
+    const isToday = isThisDay && isThisMonth && isThisYear;
+    return isToday;
+  }
+
+  /**
    * provides validation for incoming start and end dates
    * @param { integer } value
    * @param { string } field
    * @returns { void }
    */
   static validateDateField(value, field) {
-    const isThisDay = moment(value).date() === new Date().getDate();
-    const isThisMonth = moment(value).month() === new Date().getMonth();
-    const isThisYear = moment(value).year() === new Date().getFullYear();
-    const isToday = isThisDay && isThisMonth && isThisYear;
+    const isToday = EventController.isToday(value);
     if (!moment(value, 'DD-MM-YYYY').isValid()) {
       throw new Error(`Invalid ${field} date. Use format DD/MM/YYYY.`);
     }
@@ -204,11 +217,7 @@ class EventController {
     let upcomingEvents = null;
     if (upcoming === 'true') {
       upcomingEvents = events.filter((event) => {
-        const isThisDay = moment(event.end).date() === new Date().getDate();
-        const isThisMonth = moment(event.end).month() === new Date().getMonth();
-        const isThisYear = moment(event.end).year() === new Date()
-          .getFullYear();
-        const isToday = isThisDay && isThisMonth && isThisYear;
+        const isToday = EventController.isToday(event.end);
         return isToday || moment(event.end, 'DD-MM-YYYY').isAfter(moment());
       });
     } else {
