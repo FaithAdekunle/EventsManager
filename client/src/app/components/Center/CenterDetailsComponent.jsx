@@ -59,6 +59,7 @@ export class CenterDetailsComponent extends React.Component {
     this.onEventSubmitFail = this.onEventSubmitFail.bind(this);
     this.onCenterLoadFail = this.onCenterLoadFail.bind(this);
     this.openEditModal = this.openEditModal.bind(this);
+    this.navToSignin = this.navToSignin.bind(this);
   }
 
   /**
@@ -234,6 +235,14 @@ export class CenterDetailsComponent extends React.Component {
   }
 
   /**
+   * executes after centers have been fetched
+   * @returns { void }
+   */
+  navToSignin() {
+    this.props.history.push('/signin');
+  }
+
+  /**
    * renders component in browser
    * @returns { component } to be rendered on the page
    */
@@ -251,6 +260,7 @@ export class CenterDetailsComponent extends React.Component {
     }
     const canBookCenter = token && !userIsAdmin;
     const canEditCenter = token && userIsAdmin;
+    const response = { status: 401 };
     return (
       <div className="center-detail-page">
         <div className="detail-content">
@@ -352,6 +362,21 @@ export class CenterDetailsComponent extends React.Component {
                             }
                           </tbody>
                         </table>
+                        {
+                          !canBookCenter && !canEditCenter ? (
+                            <React.Fragment>
+                              <hr />
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-lg
+                                btn-block see-more"
+                                onClick={() => this.onEventSubmitFail(response)}
+                              >
+                              Signin to book this center
+                              </button>
+                            </React.Fragment>
+                          ) : null
+                        }
                         {
                           canBookCenter ? (
                             <React.Fragment>
