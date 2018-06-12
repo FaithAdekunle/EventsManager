@@ -166,7 +166,7 @@ export class HomePageComponent extends React.Component {
               <div className="col-md-6 col-lg-4 offset-lg-1 home-page-signup">
                 <div className="card">
                   <div className="card-header">
-                    <h6>Sign up to register events</h6>
+                    <h6>Signup to start booking centers</h6>
                     <div
                       className={this.props.alert ?
                         'form-error' : 'no-visible'}

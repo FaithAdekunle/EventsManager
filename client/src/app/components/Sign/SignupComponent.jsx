@@ -127,7 +127,7 @@ export class SignUpComponent extends React.Component {
               <div className="card">
                 <div className="card-header">
                   <h3>
-                    Sign up to register your events.
+                    Signup to start booking centers.
                     <i
                       className="fa fa-spinner fa-spin hidden"
                       ref={(input) => { this.spinner = input; }}
